@@ -1,0 +1,117 @@
+plugins {
+    id "java"
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id "net.minecraftforge.gradle.forge" version "6f53277"
+}
+
+version = "1.5.3-release"
+group = "me.jacktym.aiom"
+
+compileJava.options.encoding = 'UTF-8'
+
+minecraft {
+    version = "1.8.9-11.15.1.2318-1.8.9"
+    runDir = "run"
+    mappings = "stable_22"
+    makeObfSourceJar = false
+}
+
+jar {
+    manifest.attributes(
+            'FMLCorePluginContainsFMLMod': true,
+            'ModSide': 'CLIENT',
+            'TweakClass': 'gg.essential.loader.stage0.EssentialSetupTweaker'
+    )
+}
+
+configurations {
+    // Creates an extra configuration that implements `implementation` to be used later as the configuration that shades libraries
+    embed
+    implementation.extendsFrom(embed)
+
+    include
+    implementation.extendsFrom(include)
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+
+    // Add the Forge Repository (ForgeGradle fetches most of its stuff from here)
+    maven {
+        name = "Forge"
+        url = "https://maven.minecraftforge.net"
+    }
+
+    // Add the Jitpack Repository (We fetch ForgeGradle from this)
+    maven {
+        name = "Jitpack"
+        url = "https://jitpack.io/"
+    }
+    maven {
+        url = "https://repo.sk1er.club/repository/maven-public/"
+    }
+    maven {
+        url = "https://repo.essential.gg/repository/maven-public"
+    }
+    maven {
+        name = 'sponge'
+        url = 'https://repo.spongepowered.org/repository/maven-public/'
+    }
+}
+
+dependencies {
+    // How to normally add a dependency (If you don't want it to be added to the jar)
+    // implementation "com.example:example:1.0.0"
+    // If you would like to include it (have the library inside your jar) instead use
+    // include "com.example:example:1.0.0"
+
+    implementation "gg.essential:essential-1.8.9-forge:2201"
+    embed "gg.essential:loader-launchwrapper:1.0.2"
+}
+
+/**
+ * This task simply replaces the `${version}` and `${mcversion}` properties in the mcmod.info with the data from Gradle
+ */
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+/**
+ * This simply moves resources so they can be accessed at runtime, Forge is quite weird isn't it
+ */
+sourceSets {
+    main {
+        output.resourcesDir = java.outputDir
+    }
+}
+
+// This adds support to ("embed", "shade", "include") libraries into our JAR
+shadowJar {
+    archiveClassifier.set('all') //Line You Need
+    configurations = [project.configurations.embed, project.configurations.include] //Line You Maybe Need
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    relocate("gg.essential.vigilance", "me.jacktym.vigilance")
+}
+
+reobf {
+    shadowJar {}
+}
+
+jar.dependsOn shadowJar
+jar.enabled = true
