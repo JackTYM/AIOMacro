@@ -85,6 +85,7 @@ An All-In-One Macro for Hypixel Skyblock. Includes numerous features for Quality
     Press your new keybind or the "Macro On" Button in the Gui
     Allow the macro to finish your farm
   Using the Auto Hub Wheat Farmer:
+    Do /hub (Do Not Move)
     Open the Debugging Tab
     Set Auto Wheat Phase to 0
     Set your Turn Speed (Reccomended 30)
