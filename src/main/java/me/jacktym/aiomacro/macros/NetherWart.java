@@ -39,6 +39,7 @@ public class NetherWart {
                     AntiStuck.antistuckOn = true;
                 }
             }
+            SetPlayerLook.flip180Check();
         }
     }
 }

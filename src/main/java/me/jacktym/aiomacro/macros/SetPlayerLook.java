@@ -2,6 +2,7 @@ package me.jacktym.aiomacro.macros;
 
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import me.jacktym.aiomacro.util.Utils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -136,6 +137,19 @@ public class SetPlayerLook {
                 } else {
                     Main.mcPlayer.rotationPitch -= 0.1;
                 }
+            }
+        }
+    }
+
+    private static long currentTimeMillis180 = Utils.currentTimeMillis();
+
+    public static void flip180Check() {
+        if (Main.mcPlayer.posY != 0 && Main.mcPlayer.motionY <= -0.3 && AIOMVigilanceConfig.drop180 && Utils.currentTimeMillis() - currentTimeMillis180 >= 15000) {
+            currentTimeMillis180 = Utils.currentTimeMillis();
+            if (SetPlayerLook.yaw >= 0) {
+                SetPlayerLook.yaw = SetPlayerLook.yaw - 180;
+            } else {
+                SetPlayerLook.yaw = SetPlayerLook.yaw + 180;
             }
         }
     }

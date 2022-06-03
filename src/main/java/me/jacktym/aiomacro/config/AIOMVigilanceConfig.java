@@ -82,6 +82,13 @@ public class AIOMVigilanceConfig extends Vigilant {
             category = "Macro Settings"
     )
     public static boolean autoSell;
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Drop 180",
+            description = "Does a 180 turn after dropping during a farming macro",
+            category = "Macro Settings"
+    )
+    public static boolean drop180;
     //Failsafes
     @Property(
             type = PropertyType.SWITCH,

@@ -36,6 +36,7 @@ public class SugarCane {
                     AntiStuck.antistuckOn = true;
                 }
             }
+            SetPlayerLook.flip180Check();
         }
     }
 }

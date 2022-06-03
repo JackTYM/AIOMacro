@@ -545,7 +545,7 @@ public class BazaarFlipper {
             blackList = AIOMVigilanceConfig.getBazaarBlacklist();
 
             if (Double.parseDouble(AIOMVigilanceConfig.minPrice) <= prices.get(key)
-                    && (Double.parseDouble(AIOMVigilanceConfig.maxPrice) >= prices.get(key) || Double.parseDouble(AIOMVigilanceConfig.maxPrice) == 0)
+                    && (Double.parseDouble(AIOMVigilanceConfig.maxPrice) >= prices.get(key) * 64 || Double.parseDouble(AIOMVigilanceConfig.maxPrice) == 0)
                     && (Double.parseDouble(AIOMVigilanceConfig.minMargin) <= margins.get(key) || Double.parseDouble(AIOMVigilanceConfig.minMargin) == 0)
                     && (Double.parseDouble(AIOMVigilanceConfig.maxMargin) >= margins.get(key) || Double.parseDouble(AIOMVigilanceConfig.maxMargin) == 0)
                     && (Double.parseDouble(AIOMVigilanceConfig.minVolume) <= volumes.get(key) || Double.parseDouble(AIOMVigilanceConfig.minVolume) == 0)

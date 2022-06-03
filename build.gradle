@@ -17,11 +17,19 @@ minecraft {
 }
 
 jar {
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     manifest.attributes(
-            'FMLCorePluginContainsFMLMod': true,
-            'ModSide': 'CLIENT',
-            'TweakClass': 'gg.essential.loader.stage0.EssentialSetupTweaker'
+            "FMLCorePluginContainsFMLMod": true,
+            "FMLCorePlugin": "aiom.FMLLoadingPlugin",
+            "ForceLoadAsMod": true,
+            "ModSide": "CLIENT",
+            "TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "TweakOrder": "0"
     )
+
+    enabled = false
 }
 
 configurations {

@@ -48,6 +48,8 @@ public class MacroHandler {
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindAttack.getKeyCode(), false);
 
+            SetPlayerLook.toggled = false;
+
             isMacroOn = false;
         }
     }
