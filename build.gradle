@@ -4,7 +4,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "6f53277"
 }
 
-version = "1.5.3-release"
+version = "1.5.4-release"
 group = "me.jacktym.aiom"
 
 compileJava.options.encoding = 'UTF-8'

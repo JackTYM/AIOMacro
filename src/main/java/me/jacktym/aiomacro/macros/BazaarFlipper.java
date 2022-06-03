@@ -373,7 +373,8 @@ public class BazaarFlipper {
                                         Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
                                     }
                                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
-
+                                }
+                                if (chestName.equals("Order options")) {
                                     manageOrderPhase = 2;
                                 }
                             }
@@ -400,10 +401,10 @@ public class BazaarFlipper {
 
                                 if (slot != 0) {
                                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
-                                    if (sellClaims.size() != 0) {
-                                        sellClaims.remove(0);
-                                        manageOrderPhase = 2;
-                                    }
+                                }
+                                if (sellClaims.size() != 0) {
+                                    sellClaims.remove(0);
+                                    manageOrderPhase = 2;
                                 }
                             } else if (manageOrderPhase == 2) {
                                 if (chestName.equals("Co-op Bazaar Orders")) {
@@ -426,10 +427,19 @@ public class BazaarFlipper {
 
     private void doSellOrder(boolean buy, String chestName) {
         if (chestName.startsWith("Bazaar")) {
-            Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, categories.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1])), 0, 0, Main.mcPlayer);
-            Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, subCategories.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1])), 0, 0, Main.mcPlayer);
+            if (buy) {
+                Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, categories.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1])), 0, 0, Main.mcPlayer);
+                Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, subCategories.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1])), 0, 0, Main.mcPlayer);
+            } else {
+                Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, categories.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("SELL: ")[1])), 0, 0, Main.mcPlayer);
+                Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, subCategories.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("SELL: ")[1])), 0, 0, Main.mcPlayer);
+            }
         } else if (((GuiChest) Main.mc.currentScreen).inventorySlots.inventorySlots.get(items.get(key)).getStack() != null && apiToGame.containsKey(key) && ((GuiChest) Main.mc.currentScreen).inventorySlots.inventorySlots.get(items.get(key)).getStack().getDisplayName() != null && Utils.stripColor(((GuiChest) Main.mc.currentScreen).inventorySlots.inventorySlots.get(items.get(key)).getStack().getDisplayName()).equals(apiToGame.get(key))) {
-            Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, items.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1])), 0, 0, Main.mcPlayer);
+            if (buy) {
+                Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, items.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1])), 0, 0, Main.mcPlayer);
+            } else {
+                Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, items.get(gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("SELL: ")[1])), 0, 0, Main.mcPlayer);
+            }
         } else if ((buy &&
                 chestName.contains(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1]))
                 || (!buy
