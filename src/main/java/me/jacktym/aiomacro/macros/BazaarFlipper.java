@@ -692,6 +692,7 @@ public class BazaarFlipper {
                     orderNum++;
                 } else {
                     sellOrders.put(lastName, lastPrice);
+                    orderNum--;
                 }
             }
         }
