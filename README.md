@@ -99,3 +99,7 @@ An All-In-One Macro for Hypixel Skyblock. Includes numerous features for Quality
     
 ## Reporting Bugs:
   Create an issue in the Issues tab stating what your error is, how to reproduce it, and if possible, a recording of the bug.
+  
+## Discord:
+  Permanent Invite:
+    https://discord.com/invite/mNJMbHkC9f
