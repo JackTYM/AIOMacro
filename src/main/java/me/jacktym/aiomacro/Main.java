@@ -145,20 +145,6 @@ public class Main {
 
         proxy.postInit(postEvent);
 
-        try {
-            Field session = Minecraft.class.getDeclaredField("session");
-            session.setAccessible(true);
-
-            String username = "aatroxsimp";
-            String token = "eyJhbGciOiJIUzI1NiJ9.eyJ4dWlkIjoiMjUzMzI3NDgwMjMyODEyNiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiNDY4ODIyOTctMzk4NC00MGRkLWFhZWItMDc1NGZjNzE4Y2I4IiwibmJmIjoxNjU0Mjg4OTMyLCJhdXRoIjoiWEJPWCIsInJvbGVzIjpbXSwiaXNzIjoiYXV0aGVudGljYXRpb24iLCJleHAiOjE2NTQzNzUzMzIsImlhdCI6MTY1NDI4ODkzMiwicGxhdGZvcm0iOiJPTkVTVE9SRSIsInl1aWQiOiI4YjFhMjBhYjZmYjI3MWQ5ZTY1OWMwMzUyYTU5MmM5ZiJ9.3XGz6guk0GN3YPiPmQbRqGwXgjOlY2yA4ZyfOOISRvU";
-            String uuid = "8237856c-d118-45e6-be08-5f8814c241eb";
-
-            session.set(Minecraft.getMinecraft(), new Session(username, uuid, token, "mojang"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     @SubscribeEvent
