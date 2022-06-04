@@ -137,20 +137,13 @@ public class Nuker {
     @SubscribeEvent
     public void pickBlocks(@NotNull RenderWorldLastEvent event) {
         if (MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2 && Main.mcPlayer != null && Main.mcWorld != null) {
-            BlockPos playerPos = Main.mcPlayer.getPosition();
-            Vec3i vec3i;
-            if (AIOMVigilanceConfig.nukerBlock != 2) {
-                vec3i = new Vec3i(3, 1, 3);
-            } else {
-                vec3i = new Vec3i(3, 3, 3);
-            }
             ArrayList<Vec3> blocks = new ArrayList<>();
-            for (BlockPos blockPos : BlockPos.getAllInBox(playerPos.add(vec3i), playerPos.subtract(vec3i))) {
-                IBlockState blockState = Main.mcWorld.getBlockState(blockPos);
-                if (blockState.getBlock() == Blocks.air) {
-                    continue;
-                }
-                blocks.add(new Vec3((double) blockPos.getX() + 0.5, blockPos.getY(), (double) blockPos.getZ() + 0.5));
+            if (AIOMVigilanceConfig.nukerBlock == 0 || AIOMVigilanceConfig.nukerBlock == 1 || AIOMVigilanceConfig.nukerBlock == 3 || AutoBazaarUnlocker.autoWheatOn) {
+                blocks = pickBlocks(new Vec3i(3, 1, 3));
+            } else if (AIOMVigilanceConfig.nukerBlock == 2) {
+                blocks = pickBlocks(new Vec3i(4, 4, 4));
+            } else if (AIOMVigilanceConfig.nukerBlock == 4) {
+                blocks = pickBlocks(new Vec3i(3, 2, 3));
             }
 
             for (Vec3 block : blocks) {
@@ -170,27 +163,35 @@ public class Nuker {
                         toBreak.add(new BlockPos(block));
                     }
                 }
+                if (AIOMVigilanceConfig.nukerBlock == 3) {
+                    if ((b == Blocks.nether_wart || b == Blocks.potatoes || b == Blocks.carrots || b == Blocks.wheat || b == Blocks.cocoa || b == Blocks.pumpkin || b == Blocks.melon_block) && !toBreak.contains(new BlockPos(block))) {
+                        toBreak.add(new BlockPos(block));
+                    }
+                }
+                if (AIOMVigilanceConfig.nukerBlock == 4) {
+                    if ((b == Blocks.reeds || b == Blocks.cactus) && !toBreak.contains(new BlockPos(block)) && block.yCoord >= Main.mcPlayer.posY + 1) {
+                        toBreak.add(new BlockPos(block));
+                    }
+                }
+                if (AutoBazaarUnlocker.autoWheatOn) {
+                    if (b == Blocks.wheat && !toBreak.contains(new BlockPos(block))) {
+                        toBreak.add(new BlockPos(block));
+                    }
+                }
             }
         }
-        if (AutoBazaarUnlocker.autoWheatOn) {
-            assert Main.mcPlayer != null;
-            BlockPos playerPos = Main.mcPlayer.getPosition();
-            Vec3i vec3i = new Vec3i(3, 1, 3);
-            ArrayList<Vec3> blocks = new ArrayList<>();
-            for (BlockPos blockPos : BlockPos.getAllInBox(playerPos.add(vec3i), playerPos.subtract(vec3i))) {
-                IBlockState blockState = Main.mcWorld.getBlockState(blockPos);
-                if (blockState.getBlock() == Blocks.air) {
-                    continue;
-                }
-                blocks.add(new Vec3((double) blockPos.getX() + 0.5, blockPos.getY(), (double) blockPos.getZ() + 0.5));
-            }
+    }
 
-            for (Vec3 block : blocks) {
-                Block b = Main.mcWorld.getBlockState(new BlockPos(block)).getBlock();
-                if (b == Blocks.wheat && !toBreak.contains(new BlockPos(block))) {
-                    toBreak.add(new BlockPos(block));
-                }
+    private ArrayList<Vec3> pickBlocks(Vec3i vec3i) {
+        BlockPos playerPos = Main.mcPlayer.getPosition();
+        ArrayList<Vec3> blocks = new ArrayList<>();
+        for (BlockPos blockPos : BlockPos.getAllInBox(playerPos.add(vec3i), playerPos.subtract(vec3i))) {
+            IBlockState blockState = Main.mcWorld.getBlockState(blockPos);
+            if (blockState.getBlock() == Blocks.air) {
+                continue;
             }
+            blocks.add(new Vec3((double) blockPos.getX() + 0.5, blockPos.getY(), (double) blockPos.getZ() + 0.5));
         }
+        return blocks;
     }
 }

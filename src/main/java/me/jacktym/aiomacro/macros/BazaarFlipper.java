@@ -8,11 +8,13 @@ import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -27,7 +29,7 @@ import java.util.*;
 public class BazaarFlipper {
 
     private static final HashMap<String, Double> margins = new HashMap<>();
-    private static final HashMap<String, Double> sortedMargins = new HashMap<>();
+    private static final HashMap<String, Double> sortedMargins = new LinkedHashMap<>();
     public static boolean isOn = false;
     public static List<String> blackList = new ArrayList<>();
     public static HashMap<String, String> gameToApi = new HashMap<>();
@@ -103,13 +105,12 @@ public class BazaarFlipper {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static void sortMargins() {
-        Object[] a = margins.entrySet().toArray();
-        Arrays.sort(a, (o1, o2) -> ((Map.Entry<String, Double>) o2).getValue().compareTo(((Map.Entry<String, Double>) o1).getValue()));
+        List<Map.Entry<String, Double>> list = new LinkedList<>(margins.entrySet());
+        list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
         sortedMargins.clear();
-        for (Object e : a) {
-            sortedMargins.put(((Map.Entry<String, Double>) e).getKey(), ((Map.Entry<String, Double>) e).getValue());
+        for (Map.Entry<String, Double> entry : list) {
+            sortedMargins.put(entry.getKey(), entry.getValue());
         }
     }
 
@@ -140,6 +141,11 @@ public class BazaarFlipper {
                         System.out.println("Sell Cuts: " + sellCuts);
                         System.out.println("Do Orders: " + doOrders);
                         System.out.println("Manage Orders: " + manageOrders);
+                        System.out.println("Next Key: " + getKey());
+                    }
+
+                    if (getKey().equals("")) {
+                        Main.sendMarkedChatMessage("Error! No Items Found In Current Parameters! Please change them or refer to #bazaar-flip in the discord or the Usage section of the ReadMe");
                     }
 
                     if (!doOrders && !manageOrders) {
@@ -156,13 +162,32 @@ public class BazaarFlipper {
                                 System.out.println("Not in gui, Opening Bazaar");
                             }
                             Main.sendMarkedChatMessage("Opened Bazaar Menu!");
-                            Main.mcPlayer.sendChatMessage("/bz");
+                            if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
+                                Main.mcPlayer.sendChatMessage("/bz");
+                            } else {
+                                openBazaarNpc();
+                            }
                         }
                     }
                 }
             }
             mainTicks++;
         }
+    }
+
+    private void openBazaarNpc() {
+        List<Entity> loadedEntityList = Main.mcWorld.getLoadedEntityList();
+
+        for (Entity e : loadedEntityList) {
+            String entityName = Utils.stripColor(e.getDisplayName().toString().split("text='")[1].split("', siblings")[0]);
+
+            if (entityName.equals("Bazaar")) {
+                Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(e, C02PacketUseEntity.Action.INTERACT));
+                return;
+            }
+        }
+
+        //new EntityInteractEvent(Main.mcPlayer);
     }
 
     private boolean isGuiOpen() {
@@ -213,8 +238,11 @@ public class BazaarFlipper {
 
     @SubscribeEvent
     public void setBuyOrders(@NotNull GuiScreenEvent.DrawScreenEvent event) {
-        if (doOrders && event.gui instanceof GuiChest && key != null && isOn) {
+        if (doOrders && event.gui instanceof GuiChest && key != null && !key.equals("") && isOn) {
             if (orderTicks >= AIOMVigilanceConfig.bazaarFlipDelay) {
+
+                System.out.println();
+
                 orderTicks = 0;
                 IInventory chest = ((ContainerChest) (((GuiChest) event.gui).inventorySlots)).getLowerChestInventory();
 
@@ -224,7 +252,8 @@ public class BazaarFlipper {
                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, subCategories.get(key), 0, 0, Main.mcPlayer);
                 }
 
-                if (((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack() != null && Utils.stripColor(((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack().getDisplayName()).equals(apiToGame.get(key))) {
+                if (((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack() != null && Utils.stripColor(((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack().getDisplayName().toLowerCase()).equals(apiToGame.get(key).toLowerCase())) {
+                    System.out.println("e");
                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, items.get(key), 0, 0, Main.mcPlayer);
                 }
 
@@ -243,7 +272,11 @@ public class BazaarFlipper {
                 if (chestName.contains("Confirm Buy Order")) {
                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 13, 0, 0, Main.mcPlayer);
                     doOrders = false;
-                    Main.mcPlayer.sendChatMessage("/bz");
+                    if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
+                        Main.mcPlayer.sendChatMessage("/bz");
+                    } else {
+                        openBazaarNpc();
+                    }
                     lastOrderMillis = Utils.currentTimeMillis();
                     key = "";
                 }
@@ -332,7 +365,11 @@ public class BazaarFlipper {
                                     currentManagedStack = null;
                                     manageOrderPhase = 0;
                                     manageOrders = false;
-                                    Main.mcPlayer.sendChatMessage("/bz");
+                                    if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
+                                        Main.mcPlayer.sendChatMessage("/bz");
+                                    } else {
+                                        openBazaarNpc();
+                                    }
                                 }
                             }
                         } else {
@@ -459,7 +496,11 @@ public class BazaarFlipper {
             manageOrderPhase = 0;
             manageOrders = false;
             key = "";
-            Main.mcPlayer.sendChatMessage("/bz");
+            if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
+                Main.mcPlayer.sendChatMessage("/bz");
+            } else {
+                openBazaarNpc();
+            }
         }
     }
 
@@ -544,7 +585,11 @@ public class BazaarFlipper {
 
             blackList = AIOMVigilanceConfig.getBazaarBlacklist();
 
-            if (Double.parseDouble(AIOMVigilanceConfig.minPrice) <= prices.get(key)
+            if (AIOMVigilanceConfig.bazaarFlipDevMode) {
+                System.out.println(sortedMargins.entrySet());
+            }
+
+            if ((Double.parseDouble(AIOMVigilanceConfig.minPrice) <= prices.get(key) || Double.parseDouble(AIOMVigilanceConfig.minPrice) == 0)
                     && (Double.parseDouble(AIOMVigilanceConfig.maxPrice) >= prices.get(key) * 64 || Double.parseDouble(AIOMVigilanceConfig.maxPrice) == 0)
                     && (Double.parseDouble(AIOMVigilanceConfig.minMargin) <= margins.get(key) || Double.parseDouble(AIOMVigilanceConfig.minMargin) == 0)
                     && (Double.parseDouble(AIOMVigilanceConfig.maxMargin) >= margins.get(key) || Double.parseDouble(AIOMVigilanceConfig.maxMargin) == 0)

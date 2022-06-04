@@ -319,7 +319,7 @@ public class AIOMVigilanceConfig extends Vigilant {
             name = "Nuker Block",
             description = "Chooses the block to be nuked.",
             category = "Nuker",
-            options = {"Mycelium", "Red Sand", "Wood"}
+            options = {"Mycelium", "Red Sand", "Wood", "Any Crop But Cane / Cactus", "Cane/Cactus"}
     )
     public static int nukerBlock;
     @Property(
@@ -395,7 +395,7 @@ public class AIOMVigilanceConfig extends Vigilant {
     @Property(
             type = PropertyType.TEXT,
             name = "Bazaar Flipper Max Orders",
-            description = "The max orders the bot will place (0 To Disable).",
+            description = "The max orders the bot will place.",
             category = "Bazaar Flipper"
     )
     public static String maxFlips = "6";
@@ -422,7 +422,7 @@ public class AIOMVigilanceConfig extends Vigilant {
     public static String minMargin = "50000";
     @Property(
             type = PropertyType.TEXT,
-            name = "Bazaar Flipper Max Price",
+            name = "Bazaar Flipper Max Margin",
             description = "The maximum margin of an item to order it stopping manipulations and api bugs (0 To Disable).",
             category = "Bazaar Flipper"
     )
@@ -455,6 +455,13 @@ public class AIOMVigilanceConfig extends Vigilant {
             category = "Bazaar Flipper"
     )
     public static boolean bazaarFlipDevMode = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "NPC Mode",
+            description = "Clicks the Bazaar NPC Rather than using /bz",
+            category = "Bazaar Flipper"
+    )
+    public static boolean bazaarFlipNpcMode = false;
     @Property(
             type = PropertyType.SLIDER,
             name = "Tick Delay",
