@@ -489,26 +489,6 @@ public class AIOMVigilanceConfig extends Vigilant {
     public AIOMVigilanceConfig() {
         super(configFile, "AIO-Macro Config", new JVMAnnotationPropertyCollector(), new AIOMSortingBehavior());
         System.out.println("Config Init!!");
-        this.addDependency("fastBreakBPS", "fastBreak");
-
-        this.addDependency("webhookLink", "webhookAlerts");
-        this.addDependency("testWebhook", "webhookAlerts");
-
-        this.addDependency("totalProfitHUD", "farmingHUDOn");
-        this.addDependency("profitPerHourHUD", "farmingHUDOn");
-        this.addDependency("profitPer12HoursHUD", "farmingHUDOn");
-        this.addDependency("profitPer24HoursHUD", "farmingHUDOn");
-        this.addDependency("cropsPerHourHUD", "farmingHUDOn");
-        this.addDependency("expPerHourHUD", "farmingHUDOn");
-        this.addDependency("totalFinalCropHUD", "farmingHUDOn");
-        this.addDependency("hoeCounterHUD", "farmingHUDOn");
-        this.addDependency("godPotionTimeHUD", "farmingHUDOn");
-        this.addDependency("boosterCookieTimeHUD", "farmingHUDOn");
-        this.addDependency("jacobsEventHUD", "farmingHUDOn");
-        this.addDependency("farmingTime", "farmingHUDOn");
-        this.addDependency("hudColor", "farmingHUDOn");
-
-        //this.addDependency("funnyButton", "devmode");
 
         awaitShowColourWindow = false;
         hudColor = Color.WHITE;
