@@ -205,7 +205,7 @@ public class AIOMVigilanceConfig extends Vigilant {
     )
     public static boolean banwaveFailsafe;
     @Property(
-            type = PropertyType.SWITCH,
+            type = PropertyType.NUMBER,
             name = "Minimum Bans",
             description = "The minimum bans to trigger the banwave failsafe.",
             category = "Failsafes",
