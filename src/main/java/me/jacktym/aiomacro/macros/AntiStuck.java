@@ -19,6 +19,11 @@ public class AntiStuck {
     public void AntiStuckTick(@NotNull TickEvent.ClientTickEvent event) {
         if (antistuckOn && Main.mcWorld != null && Main.mcPlayer != null) {
             if (tick >= 20) {
+
+                if (AIOMVigilanceConfig.antiStuckJump) {
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindJump.getKeyCode(), true);
+                }
+
                 if (direction == 0) {
                     KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), true);
 
@@ -47,8 +52,10 @@ public class AntiStuck {
                     KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
                     KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindRight.getKeyCode(), false);
                     KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindBack.getKeyCode(), false);
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindJump.getKeyCode(), false);
                     antistuckOn = false;
                 }
+
 
                 direction++;
                 tick = 0;

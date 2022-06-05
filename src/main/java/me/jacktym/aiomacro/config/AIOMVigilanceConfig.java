@@ -185,20 +185,34 @@ public class AIOMVigilanceConfig extends Vigilant {
     public static boolean antiStuckFailsafe;
     @Property(
             type = PropertyType.SWITCH,
+            name = "AntiStuck Jump",
+            description = "Includes jumping in AntiStuck motion (helpful in some farms, unhelpful in others).",
+            category = "Failsafes"
+    )
+    public static boolean antiStuckJump;
+    @Property(
+            type = PropertyType.SWITCH,
             name = "Desync Failsafe",
             description = "Detects when a player desyncs from farming and resyncs.",
             category = "Failsafes"
     )
     public static boolean desyncFailsafe;
     @Property(
-            type = PropertyType.SLIDER,
-            name = "Desync Misses",
-            description = "The Maximum Missing (Could falsetrigger) before triggering the desync failsafe.",
+            type = PropertyType.SWITCH,
+            name = "Banwave Failsafe",
+            description = "Detects when a banwave is in place, stops macroing, and leaves SkyBlock.",
+            category = "Failsafes"
+    )
+    public static boolean banwaveFailsafe;
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Minimum Bans",
+            description = "The minimum bans to trigger the banwave failsafe.",
             category = "Failsafes",
             min = 1,
-            max = 10
+            max = 5
     )
-    public static int desyncMaxMisses = 5;
+    public static int banwavePlayers = 3;
 
     //Farming HUD
     @Property(

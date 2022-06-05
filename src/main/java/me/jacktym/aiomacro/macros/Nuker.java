@@ -182,7 +182,7 @@ public class Nuker {
         }
     }
 
-    private ArrayList<Vec3> pickBlocks(Vec3i vec3i) {
+    public static ArrayList<Vec3> pickBlocks(Vec3i vec3i) {
         BlockPos playerPos = Main.mcPlayer.getPosition();
         ArrayList<Vec3> blocks = new ArrayList<>();
         for (BlockPos blockPos : BlockPos.getAllInBox(playerPos.add(vec3i), playerPos.subtract(vec3i))) {

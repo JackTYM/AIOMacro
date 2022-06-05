@@ -252,8 +252,7 @@ public class BazaarFlipper {
                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, subCategories.get(key), 0, 0, Main.mcPlayer);
                 }
 
-                if (((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack() != null && Utils.stripColor(((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack().getDisplayName().toLowerCase()).equals(apiToGame.get(key).toLowerCase())) {
-                    System.out.println("e");
+                if (((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack() != null && Utils.stripColor(((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack().getDisplayName().toLowerCase()).equals(apiToGame.get(key).toLowerCase()) && ((GuiChest) event.gui).inventorySlots.inventorySlots.get(10).getStack() != null && ((GuiChest) event.gui).inventorySlots.inventorySlots.get(10).getStack().getItem() != Items.golden_horse_armor) {
                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, items.get(key), 0, 0, Main.mcPlayer);
                 }
 
