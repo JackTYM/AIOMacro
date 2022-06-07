@@ -10,7 +10,6 @@ public class MacroHandler {
     public static long macroStartMillis;
 
     public static boolean isMacroOn = false;
-
     public static boolean isNetherWart = false;
     public static boolean isSugarCane = false;
 
@@ -38,6 +37,8 @@ public class MacroHandler {
                 isSugarCane = true;
                 SetPlayerLook.setDefault();
                 SetPlayerLook.toggled = true;
+            } else if (AIOMVigilanceConfig.macroType == 3) {
+                Main.mcPlayer.sendChatMessage("/bz");
             }
             Main.sendMarkedChatMessage("Macro Enabled!");
         } else if (isMacroOn) {

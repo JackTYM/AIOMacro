@@ -21,21 +21,84 @@ public class FarmingHUD {
 
         for (ItemStack itemStack : inventory) {
             if (itemStack != null) {
-                String displayName = itemStack.getDisplayName();
-                if (displayName.contains("Mutant Nether Wart") || displayName.contains("Enchanted Sugar Cane")) {
-                    inventoryPrice += 51200 * itemStack.stackSize;
-                }
-                if (displayName.contains("Enchanted Nether Wart") || displayName.contains("Enchanted Sugar")) {
-                    inventoryPrice += 320 * itemStack.stackSize;
-                }
-                if (displayName.contains("Nether Wart") || displayName.contains("Sugar Cane")) {
-                    inventoryPrice += 2 * itemStack.stackSize;
+                String displayName = Utils.stripColor(itemStack.getDisplayName());
+
+                switch (displayName) {
+                    case "Wheat":
+                    case "Cactus":
+                    case "Potato":
+                    case "Carrot":
+                        inventoryPrice += itemStack.stackSize;
+                        break;
+                    case "Hay Bale":
+                        inventoryPrice += 9 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Hay Bale":
+                        inventoryPrice += 1300 * itemStack.stackSize;
+                        break;
+                    case "Tightly-Tied Hay Bale":
+                        inventoryPrice += 187200 * itemStack.stackSize;
+                        break;
+                    case "Pumpkin":
+                    case "Brown Mushroom Block":
+                    case "Brown Mushroom":
+                    case "Red Mushroom Block":
+                    case "Red Mushroom":
+                        inventoryPrice += 4 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Pumpkin":
+                        inventoryPrice += 640 * itemStack.stackSize;
+                        break;
+                    case "Polished Pumpkin":
+                        inventoryPrice += 102400 * itemStack.stackSize;
+                        break;
+                    case "Melon":
+                        inventoryPrice += 0.5 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Melon":
+                    case "Enchanted Cactus Green":
+                    case "Enchanted Potato":
+                    case "Enchanted Carrot":
+                        inventoryPrice += 160 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Melon Block":
+                    case "Enchanted Cactus":
+                    case "Enchanted Baked Potato":
+                        inventoryPrice += 25600 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Golden Carrot":
+                        inventoryPrice += 20608 * itemStack.stackSize;
+                        break;
+                    case "Sugar Cane":
+                    case "Nether Wart":
+                        inventoryPrice += 2 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Sugar":
+                    case "Enchanted Nether Wart":
+                        inventoryPrice += 320 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Sugar Cane":
+                    case "Mutant Nether Wart":
+                        inventoryPrice += 51200 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Red Mushroom Block":
+                    case "Enchanted Brown Mushroom Block":
+                        inventoryPrice += 20736 * itemStack.stackSize;
+                        break;
+                    case "Cocoa Beans":
+                        inventoryPrice += 3 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Cocoa Bean":
+                        inventoryPrice += 480 * itemStack.stackSize;
+                        break;
+                    case "Enchanted Cookie":
+                        inventoryPrice += 61500 * itemStack.stackSize;
+                        break;
                 }
             }
         }
         return inventoryPrice;
     }
-
     public static int getCropsPerHour() {
         ItemStack[] inventory = Main.mcPlayer.inventory.mainInventory;
 
@@ -44,22 +107,56 @@ public class FarmingHUD {
         for (ItemStack itemStack : inventory) {
             if (itemStack != null) {
 
-                String displayName = itemStack.getDisplayName();
+                String displayName = Utils.stripColor(itemStack.getDisplayName());
 
-                if (displayName.contains("Mutant Nether Wart") || displayName.contains("Enchanted Sugar Cane")) {
-                    crops += 25600 * itemStack.stackSize;
-                }
-                if (displayName.contains("Enchanted Nether Wart") || displayName.contains("Enchanted Sugar")) {
-                    crops += 160 * itemStack.stackSize;
-                }
-                if (displayName.contains("Nether Wart") || displayName.contains("Sugar Cane")) {
-                    crops += itemStack.stackSize;
+                switch (displayName) {
+                    case "Wheat":
+                    case "Cactus":
+                    case "Potato":
+                    case "Carrot":
+                    case "Pumpkin":
+                    case "Brown Mushroom":
+                    case "Red Mushroom":
+                    case "Melon":
+                    case "Sugar Cane":
+                    case "Nether Wart":
+                    case "Cocoa Beans":
+                        crops += itemStack.stackSize;
+                        break;
+                    case "Enchanted Cactus Green":
+                    case "Enchanted Potato":
+                    case "Enchanted Carrot":
+                    case "Enchanted Pumpkin":
+                    case "Enchanted Brown Mushroom":
+                    case "Enchanted Red Mushroom":
+                    case "Enchanted Melon":
+                    case "Enchanted Sugar":
+                    case "Enchanted Nether Wart":
+                    case "Enchanted Cocoa Beans":
+                        crops += 32 * 5 * itemStack.stackSize;
+                        break;
+                    case "Hay Bale":
+                        crops += 9 * itemStack.stackSize;
+                        break;
+                    case "Tightly-Tied Hay Bale":
+                    case "Enchanted Cookie":
+                    case "Enchanted Red Mushroom Block":
+                    case "Enchanted Brown Mushroom Block":
+                    case "Enchanted Sugar Cane":
+                    case "Enchanted Golden Carrot":
+                    case "Enchanted Melon Block":
+                    case "Enchanted Baked Potato":
+                    case "Enchanted Cactus":
+                    case "Polished Pumpkin":
+                    case "Mutant Nether Wart":
+                        crops += 32 * 5 * 32 * 5 * itemStack.stackSize;
+                        break;
                 }
             }
         }
-        return crops;
+        long hours = 1 + ((Utils.currentTimeMillis() - MacroHandler.macroStartMillis) / 60000);
+        return (int) (crops / hours);
     }
-
     public static int getFinalCrops() {
         ItemStack[] inventory = Main.mcPlayer.inventory.mainInventory;
 
@@ -68,19 +165,71 @@ public class FarmingHUD {
         for (ItemStack itemStack : inventory) {
 
             if (itemStack != null) {
-                String displayName = itemStack.getDisplayName();
-                if (displayName.contains("Mutant Nether Wart") || displayName.contains("Enchanted Sugar Cane")) {
-                    finalCrops += itemStack.stackSize;
+                String displayName = Utils.stripColor(itemStack.getDisplayName());
+                switch (displayName) {
+                    case "Tightly-Tied Hay Bale":
+                    case "Enchanted Cookie":
+                    case "Enchanted Red Mushroom Block":
+                    case "Enchanted Brown Mushroom Block":
+                    case "Enchanted Sugar Cane":
+                    case "Enchanted Golden Carrot":
+                    case "Enchanted Melon Block":
+                    case "Enchanted Baked Potato":
+                    case "Enchanted Cactus":
+                    case "Polished Pumpkin":
+                    case "Mutant Nether Wart":
+                        finalCrops += itemStack.stackSize;
+                        break;
                 }
             }
         }
         return finalCrops;
     }
 
+    public int getProfitPerHour() {
+        int profit = getInventoryPrice();
+
+        int profitPerHour = 0;
+        if (MacroHandler.isMacroOn) {
+
+            long millisecondsMacroing = Utils.timeSinceMillis(MacroHandler.macroStartMillis);
+
+            int secondsMacroing = (int) (millisecondsMacroing / 1000);
+
+            if (secondsMacroing != 0) {
+                profitPerHour = (3600 / secondsMacroing) * profit;
+            }
+
+        }
+        return profitPerHour;
+    }
+
     public static int getTimeFarming() {
         long millisecondsMacroing = Utils.timeSinceMillis(MacroHandler.macroStartMillis);
 
         return (int) (millisecondsMacroing / 1000);
+    }
+
+    private String getHoeCounter() {
+        return String.valueOf(Utils.getCounter());
+    }
+
+    private String getBoosterCookieTime() {
+        String cookieTime = "";
+        int cookieTimeIndex = 0;
+        int currentIndex = 0;
+        for (String footer : Utils.getTabFooters()) {
+            if (footer.contains("Cookie Buff")) {
+                cookieTimeIndex = currentIndex + 1;
+            }
+            currentIndex++;
+        }
+
+        if (cookieTimeIndex != 0) {
+            cookieTime = Utils.getTabFooters().get(cookieTimeIndex);
+        }
+
+        return cookieTime;
     }
 
     @SubscribeEvent
@@ -114,9 +263,6 @@ public class FarmingHUD {
             if (AIOMVigilanceConfig.cropsPerHourHUD) {
                 hudList.add("Crops Per Hour: " + getCropsPerHour() + " Crops");
             }
-            if (AIOMVigilanceConfig.expPerHourHUD) {
-                hudList.add("Exp Per Hour: " + getExpPerHour() + " Exp");
-            }
             if (AIOMVigilanceConfig.totalFinalCropHUD) {
                 hudList.add("Final Upgraded Crops: " + getFinalCrops() + " Crops");
             }
@@ -141,11 +287,11 @@ public class FarmingHUD {
                 if (getTimeFarming() == 0 || !MacroHandler.isMacroOn) {
                     hudList.add("Total Time Farming: None.");
                 } else if (hours == 0 && minutes == 0 && seconds >= 1) {
-                    hudList.add("Total Time Farming: " + seconds + " Seconds.");
+                    hudList.add("Total Time Farming: " + seconds + "s");
                 } else if (hours == 0 && minutes >= 1) {
-                    hudList.add("Total Time Farming: " + minutes + "Minutes and " + seconds + " Seconds.");
+                    hudList.add("Total Time Farming: " + minutes + "m " + seconds + "s");
                 } else if (hours >= 1) {
-                    hudList.add("Total Time Farming: " + hours + "Hours, " + minutes + "Minutes and " + seconds + " Seconds.");
+                    hudList.add("Total Time Farming: " + hours + "h " + minutes + "m " + seconds + "s");
                 }
             }
         }
@@ -155,39 +301,13 @@ public class FarmingHUD {
     private String getJacobsEventTime() {
         return "";
     }
-
-    private String getBoosterCookieTime() {
-        return "";
-    }
-
     private String getGodPotionTime() {
-        return "";
-    }
 
-    private String getHoeCounter() {
-        return "";
-    }
-
-    private String getExpPerHour() {
-        return "";
-    }
-
-    public int getProfitPerHour() {
-        int profit = getInventoryPrice();
-
-        int profitPerHour = 0;
-        if (MacroHandler.isMacroOn) {
-
-            long millisecondsMacroing = Utils.timeSinceMillis(MacroHandler.macroStartMillis);
-
-            int secondsMacroing = (int) (millisecondsMacroing / 1000);
-
-            if (secondsMacroing != 0) {
-                profitPerHour = (3600 / secondsMacroing) * profit;
-            }
-
+        for (String tab : Utils.getScoreboard()) {
+            //System.out.println(tab);
         }
-        return profitPerHour;
+
+        return "";
     }
 
 }

@@ -1,5 +1,7 @@
 package me.jacktym.aiomacro.keybinds;
 
+import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.macros.MacroHandler;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import net.minecraft.client.settings.KeyBinding;
@@ -16,6 +18,9 @@ public class ModInputHandler {
 
         if (keyBindings[0].isPressed()) {
             MacroHandler.toggleMacro();
+        }
+        if (keyBindings[1].isPressed()) {
+            Main.gui = AIOMVigilanceConfig.INSTANCE.gui();
         }
     }
 

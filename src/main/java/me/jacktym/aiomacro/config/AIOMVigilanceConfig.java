@@ -32,7 +32,7 @@ public class AIOMVigilanceConfig extends Vigilant {
             name = "Macro Type",
             description = "Choose the macro you would like to use.",
             category = "Macro Settings",
-            options = {"Netherwart/S-Shaped", "Sugarcane", "Nuker"}
+            options = {"Netherwart/S-Shaped", "Sugarcane", "Nuker", "Bazaar Flipper"}
     )
     public static int macroType;
     @Property(
@@ -212,7 +212,7 @@ public class AIOMVigilanceConfig extends Vigilant {
             min = 1,
             max = 5
     )
-    public static int banwavePlayers = 3;
+    public static int banWavePlayers = 3;
 
     //Farming HUD
     @Property(
@@ -262,14 +262,6 @@ public class AIOMVigilanceConfig extends Vigilant {
             subcategory = "Profit"
     )
     public static boolean cropsPerHourHUD;
-    @Property(
-            type = PropertyType.SWITCH,
-            name = "XP Per Hour",
-            description = "Displays how much experience you gain in an hour.",
-            category = "Farming HUD",
-            subcategory = "Statistics"
-    )
-    public static boolean expPerHourHUD;
     @Property(
             type = PropertyType.SWITCH,
             name = "Total Final Crops Yielded",
@@ -337,6 +329,20 @@ public class AIOMVigilanceConfig extends Vigilant {
     )
     public static int nukerBlock;
     @Property(
+            type = PropertyType.TEXT,
+            name = "Custom Nuker Block",
+            description = "A custom block name to nuke.",
+            category = "Nuker"
+    )
+    public static String customNukerBlock = "";
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "Custom Nuker",
+            description = "Enables using a custom block name to nuke.",
+            category = "Nuker"
+    )
+    public static boolean customNuker = false;
+    @Property(
             type = PropertyType.SELECTOR,
             name = "Nuker BPS",
             description = "How many blocks per second (20 Ticks) Nuker breaks.",
@@ -379,6 +385,22 @@ public class AIOMVigilanceConfig extends Vigilant {
             options = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"}
     )
     public static int autoWheatPhase;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "Auto Wheat Private Lobby Mode",
+            description = "Instead of using private lobbies, switches between private ones (requires rank) [WIP!!!]",
+            category = "Debugging",
+            subcategory = "Auto Wheat"
+    )
+    public static boolean autoWheatPrivate;
+    //Bazaar Flipper
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Bazaar Flipper Max Orders",
+            description = "The max orders the bot will place.",
+            category = "Bazaar Flipper"
+    )
+    public static String maxFlips = "6";
     //Cane Builder
     @Property(
             type = PropertyType.NUMBER,
@@ -406,86 +428,6 @@ public class AIOMVigilanceConfig extends Vigilant {
             options = {"20bps", "40bps", "60bps", "80bps"}
     )
     public static int cropAuraBPS;
-    @Property(
-            type = PropertyType.TEXT,
-            name = "Bazaar Flipper Max Orders",
-            description = "The max orders the bot will place.",
-            category = "Bazaar Flipper"
-    )
-    public static String maxFlips = "6";
-    @Property(
-            type = PropertyType.TEXT,
-            name = "Bazaar Flipper Min Price",
-            description = "The minimum price of an item to order it (0 To Disable).",
-            category = "Bazaar Flipper"
-    )
-    public static String minPrice = "1000";
-    @Property(
-            type = PropertyType.TEXT,
-            name = "Bazaar Flipper Max Price",
-            description = "The maximum price of an item to order it (0 To Disable).",
-            category = "Bazaar Flipper"
-    )
-    public static String maxPrice = "1000000";
-    @Property(
-            type = PropertyType.TEXT,
-            name = "Bazaar Flipper Min Margin",
-            description = "The minimum margin of an item to order it (0 To Disable).",
-            category = "Bazaar Flipper"
-    )
-    public static String minMargin = "50000";
-    @Property(
-            type = PropertyType.TEXT,
-            name = "Bazaar Flipper Max Margin",
-            description = "The maximum margin of an item to order it stopping manipulations and api bugs (0 To Disable).",
-            category = "Bazaar Flipper"
-    )
-    public static String maxMargin = "500000";
-    @Property(
-            type = PropertyType.TEXT,
-            name = "Bazaar Flipper Min Volume",
-            description = "The minimum volume of an item to order it (0 To Disable).",
-            category = "Bazaar Flipper"
-    )
-    public static String minVolume = "500000";
-    @Property(
-            type = PropertyType.TEXT,
-            name = "Bazaar Flipper Max Volume",
-            description = "The maximum volume of an item to order it (0 To Disable).",
-            category = "Bazaar Flipper"
-    )
-    public static String maxVolume = "0";
-    @Property(
-            type = PropertyType.TEXT,
-            name = "Blacklist",
-            description = "Items to blacklist when flipping",
-            category = "Bazaar Flipper"
-    )
-    public static String blackListItems = "❁ Perfect Jasper Gemstone,Enchanted Cobblestone";
-    @Property(
-            type = PropertyType.CHECKBOX,
-            name = "Developer Mode",
-            description = "Helps with debugging",
-            category = "Bazaar Flipper"
-    )
-    public static boolean bazaarFlipDevMode = false;
-    @Property(
-            type = PropertyType.CHECKBOX,
-            name = "NPC Mode",
-            description = "Clicks the Bazaar NPC Rather than using /bz",
-            category = "Bazaar Flipper"
-    )
-    public static boolean bazaarFlipNpcMode = false;
-    @Property(
-            type = PropertyType.SLIDER,
-            name = "Tick Delay",
-            description = "Test for tick delay",
-            category = "Bazaar Flipper",
-            min = 1,
-            max = 100
-    )
-    public static int bazaarFlipDelay = 20;
-
     public AIOMVigilanceConfig() {
         super(configFile, "AIO-Macro Config", new JVMAnnotationPropertyCollector(), new AIOMSortingBehavior());
         System.out.println("Config Init!!");
@@ -561,22 +503,6 @@ public class AIOMVigilanceConfig extends Vigilant {
 
     @Property(
             type = PropertyType.BUTTON,
-            name = "Auto Wheat Omg!?!?",
-            description = "Epic Gamering.",
-            placeholder = "Click!",
-            category = "Debugging",
-            subcategory = "Auto Wheat"
-    )
-    public final void toggleAutoWheat() {
-        AutoBazaarUnlocker.autoWheatOn = !AutoBazaarUnlocker.autoWheatOn;
-
-        AutoBazaarUnlocker.phase = autoWheatPhase;
-
-        SetPlayerLook.toggled = false;
-    }
-
-    @Property(
-            type = PropertyType.BUTTON,
             name = "Test Look Omg!?!?",
             description = "Epic Gamering.",
             placeholder = "Click!",
@@ -633,20 +559,95 @@ public class AIOMVigilanceConfig extends Vigilant {
         CropAura.toggled = !CropAura.toggled;
     }
 
-    //Bazaar Flipper
     @Property(
-            type = PropertyType.BUTTON,
-            name = "Bazaar Flipper Toggle",
-            description = "Epic Gamering.",
-            placeholder = "Click!",
+            type = PropertyType.TEXT,
+            name = "Bazaar Flipper Min Price",
+            description = "The minimum price of an item to order it (0 To Disable).",
             category = "Bazaar Flipper"
     )
-    public final void toggleBazaarFlipper() {
-        BazaarFlipper.isOn = !BazaarFlipper.isOn;
-        if (BazaarFlipper.isOn) {
-            Main.mcPlayer.sendChatMessage("/bz");
-        }
+    public static String minPrice = "1000";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Bazaar Flipper Max Price",
+            description = "The maximum price of an item to order it (0 To Disable).",
+            category = "Bazaar Flipper"
+    )
+    public static String maxPrice = "1000000";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Bazaar Flipper Min Margin",
+            description = "The minimum margin of an item to order it (0 To Disable).",
+            category = "Bazaar Flipper"
+    )
+    public static String minMargin = "50000";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Bazaar Flipper Max Margin",
+            description = "The maximum margin of an item to order it stopping manipulations and api bugs (0 To Disable).",
+            category = "Bazaar Flipper"
+    )
+    public static String maxMargin = "500000";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Bazaar Flipper Min Volume",
+            description = "The minimum volume of an item to order it (0 To Disable).",
+            category = "Bazaar Flipper"
+    )
+    public static String minVolume = "500000";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Bazaar Flipper Max Volume",
+            description = "The maximum volume of an item to order it (0 To Disable).",
+            category = "Bazaar Flipper"
+    )
+    public static String maxVolume = "0";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Blacklist",
+            description = "Items to blacklist when flipping",
+            category = "Bazaar Flipper"
+    )
+    public static String blackListItems = "❁ Perfect Jasper Gemstone,Enchanted Cobblestone";
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "Developer Mode",
+            description = "Helps with debugging",
+            category = "Bazaar Flipper"
+    )
+    public static boolean bazaarFlipDevMode = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "NPC Mode",
+            description = "Clicks the Bazaar NPC Rather than using /bz",
+            category = "Bazaar Flipper"
+    )
+    public static boolean bazaarFlipNpcMode = false;
+    @Property(
+            type = PropertyType.SLIDER,
+            name = "Tick Delay",
+            description = "Test for tick delay",
+            category = "Bazaar Flipper",
+            min = 1,
+            max = 100
+    )
+    public static int bazaarFlipDelay = 20;
+
+    @Property(
+            type = PropertyType.BUTTON,
+            name = "Auto Wheat Omg!?!?",
+            description = "Epic Gamering.",
+            placeholder = "Click!",
+            category = "Debugging",
+            subcategory = "Auto Wheat"
+    )
+    public final void toggleAutoWheat() {
+        AutoBazaarUnlocker.autoWheatOn = !AutoBazaarUnlocker.autoWheatOn;
+
+        AutoBazaarUnlocker.phase = autoWheatPhase;
+
+        SetPlayerLook.toggled = false;
     }
+
 
     public final int getRandomDelay() {
         return randomDelayMin + (new Random().nextInt() % (randomDelayMax - randomDelayMin + 1));

@@ -32,7 +32,7 @@ public class SetPlayerLook {
                 }
             } else {
                 if (yaw + i * 360 >= -180) {
-                    yaw = Float.parseFloat(String.format("%.1f", yaw + i * 360));
+                    yaw = Float.parseFloat(String.format("%.1f", yaw + i * 360).replace(",", "."));
                     if (yaw == -180) {
                         yaw = 180;
                     }

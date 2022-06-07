@@ -1,8 +1,15 @@
 package me.jacktym.aiomacro.macros;
 
 import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import me.jacktym.aiomacro.util.Utils;
+import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.util.BlockPos;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
@@ -21,9 +28,11 @@ public class AutoBazaarUnlocker {
 
     private static int command = 0;
 
+    int privateLobbyTick = 0;
+
     @SubscribeEvent
     public void autoWheat(@NotNull TickEvent.ClientTickEvent event) {
-        if (autoWheatOn) {
+        if (autoWheatOn && Main.mcPlayer != null && Main.mcWorld != null) {
             BlockPos bp = new BlockPos(Main.mcPlayer.posX, Main.mcPlayer.posY - 1, Main.mcPlayer.posZ);
 
             if (showBlockPos) {
@@ -538,25 +547,48 @@ public class AutoBazaarUnlocker {
                         KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindSprint.getKeyCode(), false);
                         SetPlayerLook.toggled = false;
 
+                        if (AIOMVigilanceConfig.autoWheatPrivate) {
+                            Main.mcPlayer.sendChatMessage("/hub");
+                        }
                         phase = 32;
                     }
                 }
             } else if (phase == 32) {
-                if (tick >= (100)) {
-                    command++;
-                    if (command == 1) {
-                        Main.mcPlayer.sendChatMessage("/is");
-                    } else if (command == 2) {
-                        Main.mcPlayer.sendChatMessage("/hub");
-                    } else if (command == 4) {
-                        command = 0;
-                        phase = 0;
+                if (AIOMVigilanceConfig.autoWheatPrivate) {
+                    Utils.openNpc("Hub Selector");
+                } else {
+                    if (tick >= (100)) {
+                        command++;
+                        if (command == 1) {
+                            Main.mcPlayer.sendChatMessage("/is");
+                        } else if (command == 2) {
+                            Main.mcPlayer.sendChatMessage("/hub");
+                        } else if (command == 4) {
+                            command = 0;
+                            phase = 0;
+                        }
+                        tick = 0;
                     }
-                    tick = 0;
-                }
 
-                tick++;
+                    tick++;
+                }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void privateLobbySwitcher(@NotNull GuiScreenEvent event) {
+        if (event.gui instanceof GuiChest && AIOMVigilanceConfig.autoWheatPrivate && autoWheatOn) {
+            if (privateLobbyTick >= 20) {
+                IInventory chest = ((ContainerChest) (((GuiChest) event.gui).inventorySlots)).getLowerChestInventory();
+
+                String chestName = chest.getDisplayName().getUnformattedText();
+
+                if (Utils.stripColor(chestName).equals("SkyBlock Hub Selector") && ((GuiChest) event.gui).inventorySlots.inventorySlots.get(50).getStack() != null && ((GuiChest) event.gui).inventorySlots.inventorySlots.get(50).getStack().getItem() == Items.compass) {
+                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 50, 1, 0, Main.mcPlayer);
+                }
+            }
+            privateLobbyTick++;
         }
     }
 }

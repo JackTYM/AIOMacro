@@ -5,7 +5,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import gg.essential.universal.ChatColor;
+import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.play.client.C02PacketUseEntity;
+import net.minecraft.scoreboard.Score;
+import net.minecraft.scoreboard.ScoreObjective;
+import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -17,9 +25,13 @@ import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -169,5 +181,68 @@ public class Utils {
             toStrip = toStrip.replaceAll(c.toString(), "");
         }
         return toStrip;
+    }
+
+    //Misc Utils
+    public static void openNpc(String npcName) {
+        List<Entity> loadedEntityList = Main.mcWorld.getLoadedEntityList();
+
+        for (Entity e : loadedEntityList) {
+            String entityName = Utils.stripColor(e.getDisplayName().toString().split("text='")[1].split("', siblings")[0]);
+
+            if (entityName.equals(npcName)) {
+                Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(e, C02PacketUseEntity.Action.INTERACT));
+                return;
+            }
+        }
+    }
+
+    public static List<String> getScoreboard() {
+        List<String> scoreboardLines = new ArrayList<>();
+        try {
+            ScoreObjective sidebarObjective = Main.mcWorld.getScoreboard().getObjectiveInDisplaySlot(1);
+            Collection<Score> scores = Main.mcWorld.getScoreboard().getSortedScores(sidebarObjective);
+            for (Score line : scores) {
+                ScorePlayerTeam team = Main.mcWorld.getScoreboard().getPlayersTeam(line.getPlayerName());
+                String scoreboardLine = ScorePlayerTeam.formatPlayerName(team, line.getPlayerName()).trim();
+                String strippedCleansedScoreboardLine = Utils.stripColor(scoreboardLine);
+                scoreboardLines.add(strippedCleansedScoreboardLine);
+            }
+
+        } catch (NullPointerException ignored) {
+        }
+        return scoreboardLines;
+    }
+
+    public static List<String> getTabFooters() {
+        List<String> footerList = new ArrayList<>();
+        try {
+            final Field myField = ReflectionHelper.findField(Main.mc.ingameGUI.getTabList().getClass(), "field_175255_h", "footer");
+            String[] footers = myField.get(Main.mc.ingameGUI.getTabList()).toString().split("siblings=\\[TextComponent\\{text='");
+            for (String footer : footers) {
+                footerList.add(footer.split("',")[0]);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return footerList;
+    }
+
+    public static Long getCounter() {
+        if (Main.mcPlayer.getHeldItem() != null && Main.mcPlayer.getHeldItem().getTagCompound().getCompoundTag("display").getTagList("Lore", 8) != null) {
+            NBTTagList loreArray = Main.mcPlayer.getHeldItem().getTagCompound().getCompoundTag("display").getTagList("Lore", 8);
+
+            String lore = Utils.stripColor(loreArray.toString());
+
+            if (lore.contains("Counter")) {
+
+                String counterWithCrop = lore.split("Counter: ")[1].split("\"")[0];
+
+                String counterWithoutCrop = counterWithCrop.replace(" Sugar Canes", "").replace(" Nether Warts", "").replace(" Carrots", "").replace(" Wheat", "").replace(" Potatoes", "");
+
+                return Long.parseLong(counterWithoutCrop.replace(",", ""));
+            }
+        }
+        return 0L;
     }
 }

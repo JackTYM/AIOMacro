@@ -39,7 +39,7 @@ public class Nuker {
 
     @SubscribeEvent
     public void playerTick(@NotNull TickEvent.ClientTickEvent event) {
-        if ((AIOMVigilanceConfig.macroType == 2 || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null && toBreak.size() != 0) {
+        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null && toBreak.size() != 0) {
             for (int i = 0; i <= AIOMVigilanceConfig.nukerBPS; i++) {
                 if (toBreak.size() != 0) {
                     BlockPos blockPos = toBreak.get(0);
@@ -65,7 +65,7 @@ public class Nuker {
 
     @SubscribeEvent
     public void render(RenderWorldLastEvent event) {
-        if ((AIOMVigilanceConfig.macroType == 2 || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null && bp != null && toBreak.size() != 0) {
+        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null && bp != null && toBreak.size() != 0) {
             try {
                 BlockPos blockPos = bp;
                 Color color = AIOMVigilanceConfig.nukerColor;
@@ -136,7 +136,7 @@ public class Nuker {
 
     @SubscribeEvent
     public void pickBlocks(@NotNull RenderWorldLastEvent event) {
-        if (MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2 && Main.mcPlayer != null && Main.mcWorld != null) {
+        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null) {
             ArrayList<Vec3> blocks = new ArrayList<>();
             if (AIOMVigilanceConfig.nukerBlock == 0 || AIOMVigilanceConfig.nukerBlock == 1 || AIOMVigilanceConfig.nukerBlock == 3 || AutoBazaarUnlocker.autoWheatOn) {
                 blocks = pickBlocks(new Vec3i(3, 1, 3));
@@ -176,6 +176,17 @@ public class Nuker {
                 if (AutoBazaarUnlocker.autoWheatOn) {
                     if (b == Blocks.wheat && !toBreak.contains(new BlockPos(block))) {
                         toBreak.add(new BlockPos(block));
+                    }
+                }
+                if (AIOMVigilanceConfig.customNuker) {
+                    try {
+                        if (Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock) != null) {
+                            if (b == Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock) && !toBreak.contains(new BlockPos(block))) {
+                                toBreak.add(new BlockPos(block));
+                            }
+                        }
+                    } catch (NullPointerException e) {
+                        System.out.println("[AIOM] Error With Custom Nuker! " + AIOMVigilanceConfig.customNukerBlock + " Not Found In Block List!");
                     }
                 }
             }

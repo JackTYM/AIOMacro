@@ -9,14 +9,9 @@ import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.scoreboard.Score;
-import net.minecraft.scoreboard.ScoreObjective;
-import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
 
 
 public class Failsafe {
@@ -59,25 +55,18 @@ public class Failsafe {
 
     public static boolean islandFailsafe() {
         if (Main.mcWorld.getScoreboard().getObjectiveInDisplaySlot(1) != null) {
-            ScoreObjective sidebarObjective = Main.mcWorld.getScoreboard().getObjectiveInDisplaySlot(1);
 
-            List<String> scoreboardLines = new ArrayList<>();
-            Collection<Score> scores = Main.mcWorld.getScoreboard().getSortedScores(sidebarObjective);
-            for (Score line : scores) {
-                ScorePlayerTeam team = Main.mcWorld.getScoreboard().getPlayersTeam(line.getPlayerName());
-                String scoreboardLine = ScorePlayerTeam.formatPlayerName(team, line.getPlayerName()).trim();
-                String strippedCleansedScoreboardLine = Pattern.compile("(?i)�[0-9A-FK-ORZ]").matcher(scoreboardLine).replaceAll("");
-                scoreboardLines.add(strippedCleansedScoreboardLine);
-            }
             boolean onIsland = false;
+
+            List<String> scoreboardLines = Utils.getScoreboard();
             for (String scoreboardLine : scoreboardLines) {
-                if ((StringUtils.stripControlCodes(scoreboardLine).replaceAll("[^a-zA-Z0-9]", "").contains("YourIsland"))) {
+                if ((Utils.stripColor(scoreboardLine).contains("YourIsland"))) {
                     onIsland = true;
                 }
             }
             if (AIOMVigilanceConfig.devmode) {
                 for (String scoreboardLine : scoreboardLines) {
-                    System.out.println(StringUtils.stripControlCodes(scoreboardLine).replaceAll("[^a-zA-Z0-9]", ""));
+                    System.out.println(Utils.stripColor(scoreboardLine));
                 }
             }
             return !onIsland;
@@ -87,25 +76,18 @@ public class Failsafe {
     }
 
     public static boolean jacobFailsafe() {
-        ScoreObjective sidebarObjective = Main.mcWorld.getScoreboard().getObjectiveInDisplaySlot(1);
 
-        List<String> scoreboardLines = new ArrayList<>();
-        Collection<Score> scores = Main.mcWorld.getScoreboard().getSortedScores(sidebarObjective);
-        for (Score line : scores) {
-            ScorePlayerTeam team = Main.mcWorld.getScoreboard().getPlayersTeam(line.getPlayerName());
-            String scoreboardLine = ScorePlayerTeam.formatPlayerName(team, line.getPlayerName()).trim();
-            String strippedCleansedScoreboardLine = Utils.stripColor(scoreboardLine);
-            scoreboardLines.add(strippedCleansedScoreboardLine);
-        }
         boolean jacobsEvent = false;
+
+        List<String> scoreboardLines = Utils.getScoreboard();
         for (String scoreboardLine : scoreboardLines) {
-            if ((StringUtils.stripControlCodes(scoreboardLine).replaceAll("[^a-zA-Z0-9]", "").contains("YourIsland"))) {
+            if ((Utils.stripColor(scoreboardLine).contains("YourIsland"))) {
                 jacobsEvent = true;
             }
         }
         if (AIOMVigilanceConfig.devmode) {
             for (String scoreboardLine : scoreboardLines) {
-                System.out.println(StringUtils.stripControlCodes(scoreboardLine).replaceAll("[^a-zA-Z0-9]", ""));
+                System.out.println(Utils.stripColor(scoreboardLine));
             }
         }
         return jacobsEvent;
@@ -120,11 +102,6 @@ public class Failsafe {
                     Main.sendMarkedChatMessage("Macro Disabled! | " + EnumChatFormatting.RED + "FAILSAFE Bedrock Detected!");
 
                     MacroHandler.toggleMacro();
-
-                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindRight.getKeyCode(), false);
-                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindBack.getKeyCode(), false);
-                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindLeft.getKeyCode(), false);
-                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
 
                     if (AIOMVigilanceConfig.soundfailsafe) {
                         for (int i = 0; i < 5; i++) {
@@ -188,11 +165,6 @@ public class Failsafe {
 
                         MacroHandler.toggleMacro();
 
-                        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindRight.getKeyCode(), false);
-                        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindBack.getKeyCode(), false);
-                        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindLeft.getKeyCode(), false);
-                        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
-
                         if (AIOMVigilanceConfig.webhookAlerts) {
 
                             String screenshotLink = Objects.requireNonNull(Utils.takeScreenshot()).replace("\"", "");
@@ -212,11 +184,6 @@ public class Failsafe {
                         Main.sendMarkedChatMessage("Macro Paused! | " + EnumChatFormatting.RED + "FAILSAFE You are not on your island!");
 
                         MacroHandler.toggleMacro();
-
-                        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindRight.getKeyCode(), false);
-                        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindBack.getKeyCode(), false);
-                        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindLeft.getKeyCode(), false);
-                        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
                         if (!goToIsland) {
                             goToIsland = true;
                         }
@@ -243,11 +210,6 @@ public class Failsafe {
                 Main.sendMarkedChatMessage("Macro Paused! | " + EnumChatFormatting.RED + "FAILSAFE You have been De-synced! Re-syncing.");
 
                 MacroHandler.toggleMacro();
-
-                KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindRight.getKeyCode(), false);
-                KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindBack.getKeyCode(), false);
-                KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindLeft.getKeyCode(), false);
-                KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
                 if (!goToIsland) {
                     goToIsland = true;
                 }
@@ -267,15 +229,10 @@ public class Failsafe {
                     Utils.sendWebhook(jsonElement);
                 }
             }
-            if (AIOMVigilanceConfig.banwaveFailsafe && recentBans >= AIOMVigilanceConfig.banwavePlayers) {
+            if (AIOMVigilanceConfig.banwaveFailsafe && recentBans >= AIOMVigilanceConfig.banWavePlayers) {
                 Main.sendMarkedChatMessage("Macro Disabled! | " + EnumChatFormatting.RED + "FAILSAFE A ban wave is occurring! Leaving SkyBlock.");
 
                 MacroHandler.toggleMacro();
-
-                KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindRight.getKeyCode(), false);
-                KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindBack.getKeyCode(), false);
-                KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindLeft.getKeyCode(), false);
-                KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
 
                 Main.mcPlayer.sendChatMessage("/l");
 
@@ -336,10 +293,10 @@ public class Failsafe {
             if (desyncTick >= 100) {
                 desyncTick = 0;
 
-                if (lastCounter == getCounter() && getCounter() != 0L) {
+                if (lastCounter == Utils.getCounter() && Utils.getCounter() != 0L) {
                     desync++;
                 }
-                lastCounter = getCounter();
+                lastCounter = Utils.getCounter();
             }
             //30 Seconds
             if (banWaveTick >= 600) {
@@ -399,21 +356,5 @@ public class Failsafe {
 
             tick++;
         }
-    }
-
-    private Long getCounter() {
-        NBTTagList loreArray = Main.mcPlayer.getHeldItem().getTagCompound().getCompoundTag("display").getTagList("Lore", 8);
-
-        String lore = Utils.stripColor(loreArray.toString());
-
-        if (lore.contains("Counter")) {
-
-            String counterWithCrop = lore.split("Counter: ")[1].split("\"")[0];
-
-            String counterWithoutCrop = counterWithCrop.replace(" Sugar Canes", "").replace(" Nether Warts", "").replace(" Carrots", "").replace(" Wheat", "").replace(" Potatoes", "");
-
-            return Long.parseLong(counterWithoutCrop.replace(",", ""));
-        }
-        return 0L;
     }
 }

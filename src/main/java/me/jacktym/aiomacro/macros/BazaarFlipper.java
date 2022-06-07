@@ -8,13 +8,11 @@ import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -30,7 +28,6 @@ public class BazaarFlipper {
 
     private static final HashMap<String, Double> margins = new HashMap<>();
     private static final HashMap<String, Double> sortedMargins = new LinkedHashMap<>();
-    public static boolean isOn = false;
     public static List<String> blackList = new ArrayList<>();
     public static HashMap<String, String> gameToApi = new HashMap<>();
     private static String key = "";
@@ -116,7 +113,7 @@ public class BazaarFlipper {
 
     @SubscribeEvent
     public void tickEvent(@NotNull TickEvent.ClientTickEvent event) {
-        if (isOn && Main.mcPlayer != null && Main.mcWorld != null) {
+        if (MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 3 && Main.mcPlayer != null && Main.mcWorld != null) {
             if (mainTicks >= 300) {
                 mainTicks = 0;
                 if (Utils.bazaarApi != null) {
@@ -165,7 +162,7 @@ public class BazaarFlipper {
                             if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
                                 Main.mcPlayer.sendChatMessage("/bz");
                             } else {
-                                openBazaarNpc();
+                                Utils.openNpc("Bazaar");
                             }
                         }
                     }
@@ -173,21 +170,6 @@ public class BazaarFlipper {
             }
             mainTicks++;
         }
-    }
-
-    private void openBazaarNpc() {
-        List<Entity> loadedEntityList = Main.mcWorld.getLoadedEntityList();
-
-        for (Entity e : loadedEntityList) {
-            String entityName = Utils.stripColor(e.getDisplayName().toString().split("text='")[1].split("', siblings")[0]);
-
-            if (entityName.equals("Bazaar")) {
-                Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(e, C02PacketUseEntity.Action.INTERACT));
-                return;
-            }
-        }
-
-        //new EntityInteractEvent(Main.mcPlayer);
     }
 
     private boolean isGuiOpen() {
@@ -238,11 +220,8 @@ public class BazaarFlipper {
 
     @SubscribeEvent
     public void setBuyOrders(@NotNull GuiScreenEvent.DrawScreenEvent event) {
-        if (doOrders && event.gui instanceof GuiChest && key != null && !key.equals("") && isOn) {
+        if (doOrders && event.gui instanceof GuiChest && key != null && !key.equals("") && MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 3) {
             if (orderTicks >= AIOMVigilanceConfig.bazaarFlipDelay) {
-
-                System.out.println();
-
                 orderTicks = 0;
                 IInventory chest = ((ContainerChest) (((GuiChest) event.gui).inventorySlots)).getLowerChestInventory();
 
@@ -274,7 +253,7 @@ public class BazaarFlipper {
                     if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
                         Main.mcPlayer.sendChatMessage("/bz");
                     } else {
-                        openBazaarNpc();
+                        Utils.openNpc("Bazaar");
                     }
                     lastOrderMillis = Utils.currentTimeMillis();
                     key = "";
@@ -286,7 +265,7 @@ public class BazaarFlipper {
 
     @SubscribeEvent
     public void manageOrders(@NotNull TickEvent.ClientTickEvent event) {
-        if (Main.mc.currentScreen instanceof GuiChest && isOn && manageOrders) {
+        if (Main.mc.currentScreen instanceof GuiChest && MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 3 && manageOrders) {
             if (manageTicks >= AIOMVigilanceConfig.bazaarFlipDelay) {
                 manageTicks = 0;
                 IInventory chest = ((ContainerChest) (((GuiChest) Main.mc.currentScreen).inventorySlots)).getLowerChestInventory();
@@ -331,127 +310,123 @@ public class BazaarFlipper {
                 } else {
                     if (manageBuy) {
                         if (!manageFill) {
-                            if (manageOrderPhase == 1) {
-                                String filledLore = currentManagedStack.getTagCompound().getCompoundTag("display").getTagList("Lore", 8).get(3).toString();
-                                int slot = getBazaarSlotFromStack(true, Main.mc.currentScreen, currentManagedStack);
-
-                                if (filledLore.contains("Filled:")) {
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
-                                }
-                                Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
-
-                                if (chestName.equals("Order options")) {
-                                    manageOrderPhase = 2;
-                                }
-                            }
-                            if (manageOrderPhase == 2) {
-                                if (chestName.equals("Order options")) {
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 11, 0, 0, Main.mcPlayer);
-                                    manageOrderPhase = 3;
-                                }
-                            }
-                            if (manageOrderPhase == 3) {
-                                if (chestName.equals("Co-op Bazaar Orders")) {
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
-                                    manageOrderPhase = 4;
-                                }
-                            }
-                            if (manageOrderPhase == 4) {
-                                if (chestName.startsWith("Bazaar")) {
-                                    key = gameToApi.get(buyCuts.get(0));
-                                    doOrders = true;
-                                    buyCuts.remove(0);
-                                    currentManagedStack = null;
-                                    manageOrderPhase = 0;
-                                    manageOrders = false;
-                                    if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
-                                        Main.mcPlayer.sendChatMessage("/bz");
-                                    } else {
-                                        openBazaarNpc();
-                                    }
-                                }
-                            }
-                        } else {
-                            if (manageOrderPhase == 1) {
-                                if (chestName.equals("Co-op Bazaar Orders")) {
+                            switch (manageOrderPhase) {
+                                case 1:
+                                    String filledLore = currentManagedStack.getTagCompound().getCompoundTag("display").getTagList("Lore", 8).get(3).toString();
                                     int slot = getBazaarSlotFromStack(true, Main.mc.currentScreen, currentManagedStack);
 
-                                    if (slot != 0) {
+                                    if (filledLore.contains("Filled:")) {
                                         Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
                                     }
-                                    if (buyClaims.size() != 0) {
-                                        buyClaims.remove(0);
+                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
+
+                                    if (chestName.equals("Order options")) {
                                         manageOrderPhase = 2;
                                     }
-                                }
+                                case 2:
+                                    if (chestName.equals("Order options")) {
+                                        Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 11, 0, 0, Main.mcPlayer);
+                                        manageOrderPhase = 3;
+                                    }
+                                case 3:
+                                    if (chestName.equals("Co-op Bazaar Orders")) {
+                                        Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
+                                        manageOrderPhase = 4;
+                                    }
+                                case 4:
+                                    if (chestName.startsWith("Bazaar")) {
+                                        key = gameToApi.get(buyCuts.get(0));
+                                        doOrders = true;
+                                        buyCuts.remove(0);
+                                        currentManagedStack = null;
+                                        manageOrderPhase = 0;
+                                        manageOrders = false;
+                                        if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
+                                            Main.mcPlayer.sendChatMessage("/bz");
+                                        } else {
+                                            Utils.openNpc("Bazaar");
+                                        }
+                                    }
                             }
-                            if (manageOrderPhase == 2) {
-                                if (chestName.equals("Co-op Bazaar Orders")) {
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
-                                } else if (chestName.startsWith("Bazaar")) {
-                                    manageOrderPhase = 3;
-                                }
-                            }
-                            if (manageOrderPhase == 3) {
-                                key = gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1]);
-                                doSellOrder(true, chestName);
+                        } else {
+                            switch (manageOrderPhase) {
+                                case 1:
+                                    if (chestName.equals("Co-op Bazaar Orders")) {
+                                        int slot = getBazaarSlotFromStack(true, Main.mc.currentScreen, currentManagedStack);
+
+                                        if (slot != 0) {
+                                            Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
+                                        }
+                                        if (buyClaims.size() != 0) {
+                                            buyClaims.remove(0);
+                                            manageOrderPhase = 2;
+                                        }
+                                    }
+                                case 2:
+                                    if (chestName.equals("Co-op Bazaar Orders")) {
+                                        Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
+                                    } else if (chestName.startsWith("Bazaar")) {
+                                        manageOrderPhase = 3;
+                                    }
+                                case 3:
+                                    key = gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("BUY: ")[1]);
+                                    doSellOrder(true, chestName);
                             }
                         }
                     } else {
                         //Sell Orders
                         if (!manageFill) {
-                            if (manageOrderPhase == 1) {
-                                String filledLore = currentManagedStack.getTagCompound().getCompoundTag("display").getTagList("Lore", 8).get(3).toString();
-                                int slot = getBazaarSlotFromStack(false, Main.mc.currentScreen, currentManagedStack);
+                            switch (manageOrderPhase) {
+                                case 1:
+                                    String filledLore = currentManagedStack.getTagCompound().getCompoundTag("display").getTagList("Lore", 8).get(3).toString();
+                                    int slot = getBazaarSlotFromStack(false, Main.mc.currentScreen, currentManagedStack);
 
-                                if (slot != 0) {
-                                    if (filledLore.contains("Filled:")) {
+                                    if (slot != 0) {
+                                        if (filledLore.contains("Filled:")) {
+                                            Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
+                                        }
                                         Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
                                     }
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
-                                }
-                                if (chestName.equals("Order options")) {
-                                    manageOrderPhase = 2;
-                                }
-                            }
-                            if (manageOrderPhase == 2) {
-                                if (chestName.equals("Order options")) {
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 13, 0, 0, Main.mcPlayer);
-                                } else if (chestName.equals("Co-op Bazaar Orders")) {
-                                    manageOrderPhase = 3;
-                                }
-                            }
-                            if (manageOrderPhase == 3) {
-                                if (chestName.equals("Co-op Bazaar Orders")) {
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
-                                    manageOrderPhase = 4;
-                                }
-                            }
-                            if (manageOrderPhase == 4) {
-                                key = gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("SELL: ")[1]);
-                                doSellOrder(false, chestName);
+                                    if (chestName.equals("Order options")) {
+                                        manageOrderPhase = 2;
+                                    }
+                                case 2:
+                                    if (chestName.equals("Order options")) {
+                                        Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 13, 0, 0, Main.mcPlayer);
+                                    } else if (chestName.equals("Co-op Bazaar Orders")) {
+                                        manageOrderPhase = 3;
+                                    }
+                                case 3:
+                                    if (chestName.equals("Co-op Bazaar Orders")) {
+                                        Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
+                                        manageOrderPhase = 4;
+                                    }
+                                case 4:
+                                    key = gameToApi.get(Utils.stripColor(currentManagedStack.getDisplayName()).split("SELL: ")[1]);
+                                    doSellOrder(false, chestName);
                             }
                         } else {
-                            if (manageOrderPhase == 1) {
-                                int slot = getBazaarSlotFromStack(false, Main.mc.currentScreen, currentManagedStack);
+                            switch (manageOrderPhase) {
+                                case 1:
+                                    int slot = getBazaarSlotFromStack(false, Main.mc.currentScreen, currentManagedStack);
 
-                                if (slot != 0) {
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
-                                }
-                                if (sellClaims.size() != 0) {
-                                    sellClaims.remove(0);
-                                    manageOrderPhase = 2;
-                                }
-                            } else if (manageOrderPhase == 2) {
-                                if (chestName.equals("Co-op Bazaar Orders")) {
-                                    Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
-                                } else if (chestName.startsWith("Bazaar")) {
-                                    sellOrders.remove(sellFills.get(0));
-                                    sellFills.remove(0);
-                                    currentManagedStack = null;
-                                    manageOrderPhase = 0;
-                                    manageOrders = false;
-                                }
+                                    if (slot != 0) {
+                                        Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
+                                    }
+                                    if (sellClaims.size() != 0) {
+                                        sellClaims.remove(0);
+                                        manageOrderPhase = 2;
+                                    }
+                                case 2:
+                                    if (chestName.equals("Co-op Bazaar Orders")) {
+                                        Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
+                                    } else if (chestName.startsWith("Bazaar")) {
+                                        sellOrders.remove(sellFills.get(0));
+                                        sellFills.remove(0);
+                                        currentManagedStack = null;
+                                        manageOrderPhase = 0;
+                                        manageOrders = false;
+                                    }
                             }
                         }
                     }
@@ -498,7 +473,7 @@ public class BazaarFlipper {
             if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
                 Main.mcPlayer.sendChatMessage("/bz");
             } else {
-                openBazaarNpc();
+                Utils.openNpc("Bazaar");
             }
         }
     }
@@ -582,22 +557,27 @@ public class BazaarFlipper {
         if (sortedMargins.entrySet().stream().findFirst().isPresent()) {
             String key = sortedMargins.entrySet().stream().findFirst().get().getKey();
 
-            blackList = AIOMVigilanceConfig.getBazaarBlacklist();
+            if (!key.equals("")) {
 
-            if (AIOMVigilanceConfig.bazaarFlipDevMode) {
-                System.out.println(sortedMargins.entrySet());
-            }
+                blackList = AIOMVigilanceConfig.getBazaarBlacklist();
 
-            if ((Double.parseDouble(AIOMVigilanceConfig.minPrice) <= prices.get(key) || Double.parseDouble(AIOMVigilanceConfig.minPrice) == 0)
-                    && (Double.parseDouble(AIOMVigilanceConfig.maxPrice) >= prices.get(key) * 64 || Double.parseDouble(AIOMVigilanceConfig.maxPrice) == 0)
-                    && (Double.parseDouble(AIOMVigilanceConfig.minMargin) <= margins.get(key) || Double.parseDouble(AIOMVigilanceConfig.minMargin) == 0)
-                    && (Double.parseDouble(AIOMVigilanceConfig.maxMargin) >= margins.get(key) || Double.parseDouble(AIOMVigilanceConfig.maxMargin) == 0)
-                    && (Double.parseDouble(AIOMVigilanceConfig.minVolume) <= volumes.get(key) || Double.parseDouble(AIOMVigilanceConfig.minVolume) == 0)
-                    && (Double.parseDouble(AIOMVigilanceConfig.maxVolume) <= volumes.get(key) || Double.parseDouble(AIOMVigilanceConfig.maxVolume) == 0)
-                    && !buyOrders.containsKey(apiToGame.get(key))
-                    && !sellOrders.containsKey(apiToGame.get(key))
-                    && !blackList.contains(key)) {
-                return key;
+                if (AIOMVigilanceConfig.bazaarFlipDevMode) {
+                    System.out.println(sortedMargins.entrySet());
+                }
+
+                if ((Double.parseDouble(AIOMVigilanceConfig.minPrice) <= prices.get(key) || Double.parseDouble(AIOMVigilanceConfig.minPrice) == 0)
+                        && (Double.parseDouble(AIOMVigilanceConfig.maxPrice) >= prices.get(key) * 64 || Double.parseDouble(AIOMVigilanceConfig.maxPrice) == 0)
+                        && (Double.parseDouble(AIOMVigilanceConfig.minMargin) <= margins.get(key) || Double.parseDouble(AIOMVigilanceConfig.minMargin) == 0)
+                        && (Double.parseDouble(AIOMVigilanceConfig.maxMargin) >= margins.get(key) || Double.parseDouble(AIOMVigilanceConfig.maxMargin) == 0)
+                        && (Double.parseDouble(AIOMVigilanceConfig.minVolume) <= volumes.get(key) || Double.parseDouble(AIOMVigilanceConfig.minVolume) == 0)
+                        && (Double.parseDouble(AIOMVigilanceConfig.maxVolume) <= volumes.get(key) || Double.parseDouble(AIOMVigilanceConfig.maxVolume) == 0)
+                        && !buyOrders.containsKey(apiToGame.get(key))
+                        && !sellOrders.containsKey(apiToGame.get(key))
+                        && !blackList.contains(key)) {
+                    return key;
+                } else {
+                    return "";
+                }
             } else {
                 sortedMargins.remove(key);
                 return getKey();
