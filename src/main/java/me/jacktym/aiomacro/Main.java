@@ -54,6 +54,7 @@ import java.util.Scanner;
 public class Main {
 
     @Instance(NGGlobal.MOD_ID)
+    public static Main instance;
 
     @SidedProxy(clientSide = NGGlobal.NG_CLIENT_PROXY, serverSide = NGGlobal.NG_COMMON_PROXY)
     public static CommonProxy proxy;
