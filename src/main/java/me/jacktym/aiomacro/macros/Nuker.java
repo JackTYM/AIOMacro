@@ -127,7 +127,7 @@ public class Nuker {
     public void pickBlocks(@NotNull RenderWorldLastEvent event) {
         if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null) {
             ArrayList<Vec3> blocks = new ArrayList<>();
-            if (AIOMVigilanceConfig.nukerBlock == 0 || AIOMVigilanceConfig.nukerBlock == 1 || AIOMVigilanceConfig.nukerBlock == 3 || AutoBazaarUnlocker.autoWheatOn) {
+            if (AIOMVigilanceConfig.nukerBlock == 0 || AIOMVigilanceConfig.nukerBlock == 1 || AIOMVigilanceConfig.nukerBlock == 3 || AutoBazaarUnlocker.autoWheatOn || AIOMVigilanceConfig.nukerBlock == 5) {
                 blocks = pickBlocks(new Vec3i(3, 1, 3));
             } else if (AIOMVigilanceConfig.nukerBlock == 2) {
                 blocks = pickBlocks(new Vec3i(4, 4, 4));
