@@ -169,10 +169,12 @@ public class Nuker {
                 }
                 if (AIOMVigilanceConfig.nukerBlock == 5) {
                     try {
-                        if (Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock) != null) {
-                            if (b == Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock) && !toBreak.contains(new BlockPos(block))) {
+                        if (Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock.toLowerCase()) != null) {
+                            if (b == Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock.toLowerCase()) && !toBreak.contains(new BlockPos(block))) {
                                 toBreak.add(new BlockPos(block));
                             }
+                        } else {
+                            System.out.println("[AIOM] Error With Custom Nuker! " + AIOMVigilanceConfig.customNukerBlock + " Not Found In Block List!");
                         }
                     } catch (NullPointerException e) {
                         System.out.println("[AIOM] Error With Custom Nuker! " + AIOMVigilanceConfig.customNukerBlock + " Not Found In Block List!");
