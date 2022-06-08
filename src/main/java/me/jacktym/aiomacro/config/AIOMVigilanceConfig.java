@@ -325,7 +325,7 @@ public class AIOMVigilanceConfig extends Vigilant {
             name = "Nuker Block",
             description = "Chooses the block to be nuked.",
             category = "Nuker",
-            options = {"Mycelium", "Red Sand", "Wood", "Any Crop But Cane / Cactus", "Cane/Cactus"}
+            options = {"Mycelium", "Red Sand", "Wood", "Any Crop But Cane / Cactus", "Cane/Cactus", "Custom Nuker"}
     )
     public static int nukerBlock;
     @Property(
@@ -335,13 +335,6 @@ public class AIOMVigilanceConfig extends Vigilant {
             category = "Nuker"
     )
     public static String customNukerBlock = "";
-    @Property(
-            type = PropertyType.CHECKBOX,
-            name = "Custom Nuker",
-            description = "Enables using a custom block name to nuke.",
-            category = "Nuker"
-    )
-    public static boolean customNuker = false;
     @Property(
             type = PropertyType.SELECTOR,
             name = "Nuker BPS",

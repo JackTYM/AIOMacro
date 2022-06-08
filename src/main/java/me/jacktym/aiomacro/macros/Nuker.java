@@ -4,7 +4,6 @@ import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -77,15 +76,6 @@ public class Nuker {
                 double y = (double) blockPos.getY() - renderManager.viewerPosY;
                 double z = (double) blockPos.getZ() - renderManager.viewerPosZ;
                 AxisAlignedBB axisAlignedBB = new AxisAlignedBB(x, y, z, x + 1.0, y + 1.0, z + 1.0);
-                Block block = Main.mcWorld.getBlockState(blockPos).getBlock();
-                if (block != null) {
-                    EntityPlayerSP player = Main.mcPlayer;
-                    double posX = player.lastTickPosX + ((player).posX - player.lastTickPosX) * (double) partialTicks;
-                    double posY = player.lastTickPosY + ((player).posY - player.lastTickPosY) * (double) partialTicks;
-                    double posZ = player.lastTickPosZ + ((player).posZ - player.lastTickPosZ) * (double) partialTicks;
-                    block.setBlockBoundsBasedOnState(Main.mcWorld, blockPos);
-                    axisAlignedBB = block.getCollisionBoundingBox(Main.mcWorld, blockPos, Main.mcWorld.getBlockState(blockPos)).expand(0.002f, 0.002f, 0.002f).offset(-posX, -posY, -posZ);
-                }
                 GL11.glBlendFunc(770, 771);
 
                 glCapMap.put(3042, GL11.glGetBoolean(3042));
@@ -103,26 +93,25 @@ public class Nuker {
                 GL11.glEnable(2848);
                 GL11.glColor4f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() != 255 ? color.getAlpha() : 26);
 
-                AxisAlignedBB boundingBox = axisAlignedBB;
                 Tessellator tessellator = Tessellator.getInstance();
                 WorldRenderer worldrenderer = tessellator.getWorldRenderer();
                 worldrenderer.begin(3, DefaultVertexFormats.POSITION);
-                worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
-                worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
-                worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
-                worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
-                worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
-                worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
-                worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
-                worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
-                worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
-                worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
-                worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
-                worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
-                worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
-                worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
-                worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
-                worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
                 tessellator.draw();
 
                 GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -178,7 +167,7 @@ public class Nuker {
                         toBreak.add(new BlockPos(block));
                     }
                 }
-                if (AIOMVigilanceConfig.customNuker) {
+                if (AIOMVigilanceConfig.nukerBlock == 5) {
                     try {
                         if (Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock) != null) {
                             if (b == Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock) && !toBreak.contains(new BlockPos(block))) {
