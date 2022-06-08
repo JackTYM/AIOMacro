@@ -1,5 +1,7 @@
 package me.jacktym.aiomacro.util;
 
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -7,13 +9,19 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import gg.essential.universal.ChatColor;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.world.WorldSettings;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,6 +39,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +64,6 @@ public class Utils {
 
             return uploadScreenshot(temp);
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -106,8 +114,7 @@ public class Utils {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
 
             link = jsonObject.get("data").getAsJsonObject().get("link").toString();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         return link;
     }
@@ -150,8 +157,7 @@ public class Utils {
 
             connection.getInputStream().close();
             connection.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
     }
 
@@ -222,27 +228,73 @@ public class Utils {
             for (String footer : footers) {
                 footerList.add(footer.split("',")[0]);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         return footerList;
     }
 
     public static Long getCounter() {
-        if (Main.mcPlayer.getHeldItem() != null && Main.mcPlayer.getHeldItem().getTagCompound().getCompoundTag("display").getTagList("Lore", 8) != null) {
-            NBTTagList loreArray = Main.mcPlayer.getHeldItem().getTagCompound().getCompoundTag("display").getTagList("Lore", 8);
+        try {
+            if (Main.mcPlayer.getHeldItem() != null && Main.mcPlayer.getHeldItem().getTagCompound().getCompoundTag("display").getTagList("Lore", 8) != null) {
+                NBTTagList loreArray = Main.mcPlayer.getHeldItem().getTagCompound().getCompoundTag("display").getTagList("Lore", 8);
 
-            String lore = Utils.stripColor(loreArray.toString());
+                String lore = Utils.stripColor(loreArray.toString());
 
-            if (lore.contains("Counter")) {
+                if (lore.contains("Counter")) {
 
-                String counterWithCrop = lore.split("Counter: ")[1].split("\"")[0];
+                    String counterWithCrop = lore.split("Counter: ")[1].split("\"")[0];
 
-                String counterWithoutCrop = counterWithCrop.replace(" Sugar Canes", "").replace(" Nether Warts", "").replace(" Carrots", "").replace(" Wheat", "").replace(" Potatoes", "");
+                    String counterWithoutCrop = counterWithCrop.replace(" Sugar Canes", "").replace(" Nether Warts", "").replace(" Carrots", "").replace(" Wheat", "").replace(" Potatoes", "");
 
-                return Long.parseLong(counterWithoutCrop.replace(",", ""));
+                    return Long.parseLong(counterWithoutCrop.replace(",", ""));
+                }
             }
+        } catch (NullPointerException ignored) {
         }
         return 0L;
+    }
+
+    public static List<String> getTabList() {
+        List<String> tabListLines = new ArrayList<>();
+        try {
+            //Collection<NetworkPlayerInfo> tabList = Main.mcPlayer.sendQueue.getPlayerInfoMap();
+            Collection<NetworkPlayerInfo> tabList = Main.mc.getNetHandler().getPlayerInfoMap();
+
+            for (NetworkPlayerInfo playerInfo : tabList) {
+                List<IChatComponent> siblings = playerInfo.getDisplayName().getSiblings();
+                for (IChatComponent chatComponent : siblings) {
+                    tabListLines.add(chatComponent.getFormattedText());
+                }
+            }
+
+
+            Ordering<NetworkPlayerInfo> field_175252_a = Ordering.from(new PlayerComparator());
+
+            NetHandlerPlayClient netHandler = Main.mcPlayer.sendQueue;
+            List<NetworkPlayerInfo> fullList = field_175252_a.sortedCopy(netHandler.getPlayerInfoMap());
+
+            for (NetworkPlayerInfo playerInfo : fullList) {
+                List<IChatComponent> siblings = playerInfo.getDisplayName().getSiblings();
+                for (IChatComponent chatComponent : siblings) {
+                    System.out.println(chatComponent);
+                    tabListLines.add(chatComponent.getFormattedText());
+                }
+            }
+        } catch (NullPointerException ignored) {
+        }
+
+        return tabListLines;
+    }
+
+    @SideOnly(Side.CLIENT)
+    static class PlayerComparator implements Comparator<NetworkPlayerInfo> {
+        private PlayerComparator() {
+        }
+
+        public int compare(NetworkPlayerInfo p_compare_1_, NetworkPlayerInfo p_compare_2_) {
+            ScorePlayerTeam scoreplayerteam = p_compare_1_.getPlayerTeam();
+            ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getPlayerTeam();
+            return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameType() != WorldSettings.GameType.SPECTATOR, p_compare_2_.getGameType() != WorldSettings.GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getRegisteredName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getRegisteredName() : "").compare(p_compare_1_.getGameProfile().getName(), p_compare_2_.getGameProfile().getName()).result();
+        }
     }
 }

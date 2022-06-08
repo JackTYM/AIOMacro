@@ -303,9 +303,7 @@ public class FarmingHUD {
     }
     private String getGodPotionTime() {
 
-        for (String tab : Utils.getScoreboard()) {
-            //System.out.println(tab);
-        }
+        //for (String tab : Utils.getScoreboard()) {}
 
         return "";
     }

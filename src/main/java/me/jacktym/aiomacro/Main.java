@@ -5,16 +5,13 @@ import gg.essential.universal.UMinecraft;
 import gg.essential.universal.UScreen;
 import kotlin.jvm.internal.Intrinsics;
 import me.jacktym.aiomacro.commands.AIOM;
-import me.jacktym.aiomacro.commands.AssCommand;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.keybinds.ModInputHandler;
 import me.jacktym.aiomacro.macros.*;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import me.jacktym.aiomacro.proxy.CommonProxy;
-import me.jacktym.aiomacro.rendering.AssEvents;
-import me.jacktym.aiomacro.rendering.AssLayer;
-import me.jacktym.aiomacro.rendering.SizeMessage;
-import me.jacktym.aiomacro.rendering.ToggleMessage;
+import me.jacktym.aiomacro.rendering.AssRendering;
+import me.jacktym.aiomacro.rendering.BoobRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -39,15 +36,13 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Scanner;
 
 @Mod(modid = NGGlobal.MOD_ID, name = NGGlobal.MOD_NAME, version = NGGlobal.VERSION)
@@ -71,6 +66,8 @@ public class Main {
 
     public static boolean sentUpdateReminder = false;
 
+    public static HashMap<String, Integer> assMap = new HashMap<>();
+    public static HashMap<String, Integer> boobMap = new HashMap<>();
     public static int tick = 0;
 
     public static void sendChatMessage(String message) {
@@ -81,15 +78,8 @@ public class Main {
         mcPlayer.addChatMessage(new ChatComponentText(EnumChatFormatting.DARK_PURPLE + "[" + EnumChatFormatting.LIGHT_PURPLE + "AIOM" + EnumChatFormatting.DARK_PURPLE + "] " + EnumChatFormatting.RESET + message));
     }
 
-    public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("aiom");
-
     @EventHandler
     public void preInit(FMLPreInitializationEvent preEvent) {
-
-        NETWORK.registerMessage(SizeMessage.class, SizeMessage.class, 0, Side.SERVER);
-        NETWORK.registerMessage(SizeMessage.class, SizeMessage.class, 1, Side.CLIENT);
-        NETWORK.registerMessage(ToggleMessage.class, ToggleMessage.class, 2, Side.SERVER);
-        NETWORK.registerMessage(ToggleMessage.class, ToggleMessage.class, 3, Side.CLIENT);
 
         proxy.preInit(preEvent);
 
@@ -115,6 +105,27 @@ public class Main {
             }
         } catch (Exception ignored) {
         }
+
+        try {
+            URL sizeUrl = new URL("https://gist.githubusercontent.com/JackTYM/c88536ecbe88f3a6aad98f7aeeaaf951/raw/AIOMSizes.txt");
+            HttpURLConnection sizeConnection = (HttpURLConnection) sizeUrl.openConnection();
+            InputStream response = sizeConnection.getInputStream();
+            try (Scanner scanner = new Scanner(response)) {
+                String responseBody = scanner.useDelimiter("\\A").next();
+
+                System.out.println(responseBody);
+
+                for (String line : responseBody.split("\n")) {
+                    if (line.split(":")[1].startsWith("ass")) {
+                        assMap.put(line.split(":")[0], Integer.parseInt(line.split(":ass_")[1]));
+                    }
+                    if (line.split(":")[1].startsWith("boob")) {
+                        boobMap.put(line.split(":")[0], Integer.parseInt(line.split(":boob_")[1]));
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     @EventHandler
@@ -122,7 +133,6 @@ public class Main {
         proxy.init(event);
 
         ClientCommandHandler.instance.registerCommand(new AIOM());
-        ClientCommandHandler.instance.registerCommand(new AssCommand());
 
         MinecraftForge.EVENT_BUS.register(new ModInputHandler());
         MinecraftForge.EVENT_BUS.register(new FastBreak());
@@ -138,7 +148,6 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new Main());
         MinecraftForge.EVENT_BUS.register(new CaneBuilder());
         MinecraftForge.EVENT_BUS.register(new AutoBazaarUnlocker());
-        MinecraftForge.EVENT_BUS.register(new AssEvents());
 
         StencilEffect.Companion.enableStencil();
 
@@ -159,11 +168,14 @@ public class Main {
 
         proxy.postInit(postEvent);
 
+
         RenderPlayer slim_render = Main.mc.getRenderManager().getSkinMap().get("slim");
-        slim_render.addLayer(new AssLayer(slim_render));
+        slim_render.addLayer(new AssRendering(slim_render));
+        slim_render.addLayer(new BoobRendering(slim_render));
 
         RenderPlayer default_render = Main.mc.getRenderManager().getSkinMap().get("default");
-        default_render.addLayer(new AssLayer(default_render));
+        default_render.addLayer(new AssRendering(default_render));
+        default_render.addLayer(new BoobRendering(default_render));
 
     }
 
