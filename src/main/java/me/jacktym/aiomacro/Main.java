@@ -26,7 +26,6 @@ import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.Session;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -44,7 +43,6 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -193,20 +191,6 @@ public class Main {
         default_render.addLayer(new BoobRendering(default_render));
         default_render.addLayer(new AssRendering(default_render));
         default_render.addLayer(new TesticleRendering(default_render));
-
-        try {
-            Field session = Minecraft.class.getDeclaredField("session");
-            session.setAccessible(true);
-
-            String username = "Sandal61";
-            String token = "eyJhbGciOiJIUzI1NiJ9.eyJ4dWlkIjoiMjUzNTQ1OTk2OTE2MDc1NiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiNjExYmQ2YjEtZTk1MC00NjY5LTk4MzUtNjY1MTFkNTdmYjcwIiwibmJmIjoxNjU0ODk1NDg0LCJhdXRoIjoiWEJPWCIsInJvbGVzIjpbXSwiaXNzIjoiYXV0aGVudGljYXRpb24iLCJleHAiOjE2NTQ5ODE4ODQsImlhdCI6MTY1NDg5NTQ4NCwicGxhdGZvcm0iOiJPTkVTVE9SRSIsInl1aWQiOiJlMzZkMTJjODMwNzU1ODIxNGM2OWVkNWI5ZmVkODY3ZiJ9.ZaK5WaHHD8YAM39mhH7gDT0hikosZsHJrtxecBcOHQU";
-            String uuid = "ee47438b-d8ae-48f6-bd43-dbf6a69c1e37";
-
-            session.set(Minecraft.getMinecraft(), new Session(username, uuid, token, "mojang"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @SubscribeEvent
