@@ -576,11 +576,9 @@ public class BazaarFlipper {
                         && !blackList.contains(key)) {
                     return key;
                 } else {
-                    return "";
+                    sortedMargins.remove(key);
+                    return getKey();
                 }
-            } else {
-                sortedMargins.remove(key);
-                return getKey();
             }
         }
         return "";
