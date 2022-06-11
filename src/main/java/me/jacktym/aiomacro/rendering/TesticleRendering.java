@@ -12,6 +12,7 @@ package me.jacktym.aiomacro.rendering;
             doRender(-4.0F, 2.0F, 15.0F, 3, 3, 8, 0.0F, 0.0F, 0.0F, 0.0F, 0, player, scale, 3);
         }*/
 
+import me.jacktym.aiomacro.Main;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -31,15 +32,13 @@ public class TesticleRendering implements LayerRenderer<EntityPlayer> {
 
     @Override
     public void doRenderLayer(EntityPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-        //boolean showTesticle = Main.testicleMap.containsKey(player.getUniqueID().toString());
-        boolean showTesticle = true;
+        boolean showTesticle = Main.testicleMap.containsKey(player.getUniqueID().toString());
         if (!showTesticle) {
             this.render.getMainModel().bipedBodyWear.showModel = player.isWearing(EnumPlayerModelParts.JACKET);
             this.render.getMainModel().bipedLeftArmwear.showModel = player.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
             this.render.getMainModel().bipedRightArmwear.showModel = player.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
         } else {
-            //int testicleSize = Main.testicleMap.get(player.getUniqueID().toString());
-            int testicleSize = 6;
+            int testicleSize = Main.testicleMap.get(player.getUniqueID().toString());
             GlStateManager.pushMatrix();
             this.render.getMainModel().bipedBodyWear.showModel = false;
             this.render.getMainModel().bipedLeftArmwear.showModel = false;
