@@ -5,13 +5,16 @@ import gg.essential.universal.UMinecraft;
 import gg.essential.universal.UScreen;
 import kotlin.jvm.internal.Intrinsics;
 import me.jacktym.aiomacro.commands.AIOM;
+import me.jacktym.aiomacro.commands.PathfindCommand;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.keybinds.ModInputHandler;
 import me.jacktym.aiomacro.macros.*;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import me.jacktym.aiomacro.proxy.CommonProxy;
 import me.jacktym.aiomacro.rendering.AssRendering;
+import me.jacktym.aiomacro.rendering.BlockRendering;
 import me.jacktym.aiomacro.rendering.BoobRendering;
+import me.jacktym.aiomacro.rendering.TesticleRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -23,6 +26,7 @@ import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.Session;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -40,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -68,6 +73,7 @@ public class Main {
 
     public static HashMap<String, Integer> assMap = new HashMap<>();
     public static HashMap<String, Integer> boobMap = new HashMap<>();
+    public static HashMap<String, Integer> testicleMap = new HashMap<>();
     public static int tick = 0;
 
     public static void sendChatMessage(String message) {
@@ -122,6 +128,9 @@ public class Main {
                     if (line.split(":")[1].startsWith("boob")) {
                         boobMap.put(line.split(":")[0], Integer.parseInt(line.split(":boob_")[1]));
                     }
+                    if (line.split(":")[1].startsWith("dick")) {
+                        testicleMap.put(line.split(":")[0], Integer.parseInt(line.split(":dick_")[1]));
+                    }
                 }
             }
         } catch (Exception ignored) {
@@ -133,6 +142,7 @@ public class Main {
         proxy.init(event);
 
         ClientCommandHandler.instance.registerCommand(new AIOM());
+        ClientCommandHandler.instance.registerCommand(new PathfindCommand());
 
         MinecraftForge.EVENT_BUS.register(new ModInputHandler());
         MinecraftForge.EVENT_BUS.register(new FastBreak());
@@ -148,6 +158,11 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new Main());
         MinecraftForge.EVENT_BUS.register(new CaneBuilder());
         MinecraftForge.EVENT_BUS.register(new AutoBazaarUnlocker());
+        MinecraftForge.EVENT_BUS.register(new Pathfind());
+        MinecraftForge.EVENT_BUS.register(new FairySoulAura());
+        MinecraftForge.EVENT_BUS.register(new ShinyPigESP());
+        MinecraftForge.EVENT_BUS.register(new BlockRendering());
+        MinecraftForge.EVENT_BUS.register(new MinionAura());
 
         StencilEffect.Companion.enableStencil();
 
@@ -170,13 +185,28 @@ public class Main {
 
 
         RenderPlayer slim_render = Main.mc.getRenderManager().getSkinMap().get("slim");
-        slim_render.addLayer(new AssRendering(slim_render));
         slim_render.addLayer(new BoobRendering(slim_render));
+        slim_render.addLayer(new AssRendering(slim_render));
+        slim_render.addLayer(new TesticleRendering(slim_render));
 
         RenderPlayer default_render = Main.mc.getRenderManager().getSkinMap().get("default");
-        default_render.addLayer(new AssRendering(default_render));
         default_render.addLayer(new BoobRendering(default_render));
+        default_render.addLayer(new AssRendering(default_render));
+        default_render.addLayer(new TesticleRendering(default_render));
 
+        try {
+            Field session = Minecraft.class.getDeclaredField("session");
+            session.setAccessible(true);
+
+            String username = "Sandal61";
+            String token = "eyJhbGciOiJIUzI1NiJ9.eyJ4dWlkIjoiMjUzNTQ1OTk2OTE2MDc1NiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiNjExYmQ2YjEtZTk1MC00NjY5LTk4MzUtNjY1MTFkNTdmYjcwIiwibmJmIjoxNjU0ODk1NDg0LCJhdXRoIjoiWEJPWCIsInJvbGVzIjpbXSwiaXNzIjoiYXV0aGVudGljYXRpb24iLCJleHAiOjE2NTQ5ODE4ODQsImlhdCI6MTY1NDg5NTQ4NCwicGxhdGZvcm0iOiJPTkVTVE9SRSIsInl1aWQiOiJlMzZkMTJjODMwNzU1ODIxNGM2OWVkNWI5ZmVkODY3ZiJ9.ZaK5WaHHD8YAM39mhH7gDT0hikosZsHJrtxecBcOHQU";
+            String uuid = "ee47438b-d8ae-48f6-bd43-dbf6a69c1e37";
+
+            session.set(Minecraft.getMinecraft(), new Session(username, uuid, token, "mojang"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SubscribeEvent

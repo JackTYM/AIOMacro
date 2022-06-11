@@ -18,6 +18,8 @@ import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldSettings;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -198,9 +200,14 @@ public class Utils {
 
             if (entityName.equals(npcName)) {
                 Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(e, C02PacketUseEntity.Action.INTERACT));
-                return;
             }
         }
+    }
+
+    public static void useEntity(Entity entity) {
+        MovingObjectPosition movingObject = Main.mc.objectMouseOver;
+        Vec3 vec3 = new Vec3(movingObject.hitVec.xCoord - entity.posX, movingObject.hitVec.yCoord - entity.posY, movingObject.hitVec.zCoord - entity.posZ);
+        Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(entity, vec3));
     }
 
     public static List<String> getScoreboard() {
@@ -296,5 +303,33 @@ public class Utils {
             ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getPlayerTeam();
             return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameType() != WorldSettings.GameType.SPECTATOR, p_compare_2_.getGameType() != WorldSettings.GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getRegisteredName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getRegisteredName() : "").compare(p_compare_1_.getGameProfile().getName(), p_compare_2_.getGameProfile().getName()).result();
         }
+    }
+
+    public static String getWorld() {
+        String worldName = "";
+        List<String> tabList = Utils.getTabList();
+
+        int currentIndex = 0;
+        int worldIndex = 0;
+
+        for (String tab : tabList) {
+            tab = Utils.stripColor(tab);
+            if (tab.contains("Area:")) {
+                worldIndex = currentIndex + 1;
+            }
+            currentIndex++;
+
+        }
+
+        if (worldIndex != 0) {
+            worldName = stripColor(tabList.get(worldIndex));
+        }
+        return worldName;
+    }
+
+    public static double distanceBetweenPoints(Vec3 vec1, Vec3 vec2) {
+        return Math.sqrt((vec1.xCoord - vec2.xCoord) * (vec1.xCoord - vec2.xCoord) +
+                (vec1.yCoord - vec2.yCoord) * (vec1.yCoord - vec2.yCoord) +
+                (vec1.zCoord - vec2.zCoord) * (vec1.zCoord - vec2.zCoord));
     }
 }

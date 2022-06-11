@@ -32,7 +32,7 @@ public class AIOMVigilanceConfig extends Vigilant {
             name = "Macro Type",
             description = "Choose the macro you would like to use.",
             category = "Macro Settings",
-            options = {"Netherwart/S-Shaped", "Sugarcane", "Nuker", "Bazaar Flipper"}
+            options = {"Netherwart/S-Shaped", "Sugarcane", "Nuker", "Bazaar Flipper", "Fairy Soul Aura", "Shiny Pig ESP", "Minion Aura"}
     )
     public static int macroType;
     @Property(
@@ -640,6 +640,15 @@ public class AIOMVigilanceConfig extends Vigilant {
 
         SetPlayerLook.toggled = false;
     }
+
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Auto Ready",
+            description = "DEV: auto ready for kuudra testing",
+            category = "Kuudra",
+            subcategory = "Settings"
+    )
+    public static boolean autoReady = false;
 
 
     public final int getRandomDelay() {

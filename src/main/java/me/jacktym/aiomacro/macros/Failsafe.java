@@ -60,7 +60,7 @@ public class Failsafe {
 
             List<String> scoreboardLines = Utils.getScoreboard();
             for (String scoreboardLine : scoreboardLines) {
-                if ((Utils.stripColor(scoreboardLine).contains("YourIsland"))) {
+                if ((Utils.stripColor(scoreboardLine.replaceAll("[^\\x00-\\x7F]", "")).contains("Your Island"))) {
                     onIsland = true;
                 }
             }
@@ -96,7 +96,7 @@ public class Failsafe {
     @SubscribeEvent
     public void playerTick(@NotNull TickEvent.ClientTickEvent event) {
         Intrinsics.checkNotNullParameter(event, "event");
-        if (MacroHandler.isMacroOn && Main.mcPlayer != null && Main.mcWorld != null && AIOMVigilanceConfig.macroType != 2) {
+        if (MacroHandler.isMacroOn && Main.mcPlayer != null && Main.mcWorld != null && (AIOMVigilanceConfig.macroType == 0 || AIOMVigilanceConfig.macroType == 1)) {
             if (AIOMVigilanceConfig.bedrockfailsafe) {
                 if (bedrockFailsafe()) {
                     Main.sendMarkedChatMessage("Macro Disabled! | " + EnumChatFormatting.RED + "FAILSAFE Bedrock Detected!");

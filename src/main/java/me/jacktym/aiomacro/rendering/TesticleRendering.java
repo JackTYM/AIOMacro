@@ -1,6 +1,17 @@
 package me.jacktym.aiomacro.rendering;
 
-import me.jacktym.aiomacro.Main;
+//Testicle
+        /*boolean showTesticle = Main.testicleMap.containsKey(player.getUniqueID().toString());
+
+        if (!showTesticle) {
+            this.render.getMainModel().bipedBodyWear.showModel = player.isWearing(EnumPlayerModelParts.JACKET);
+            this.render.getMainModel().bipedLeftArmwear.showModel = player.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
+            this.render.getMainModel().bipedRightArmwear.showModel = player.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
+        } else {
+            doRender(-4.0F, 3.0F, 0.0F, 8, 4, 3, 0.0F, 0.0F, 0.0F, 0.0F, 0, player, scale, 3);
+            doRender(-4.0F, 2.0F, 15.0F, 3, 3, 8, 0.0F, 0.0F, 0.0F, 0.0F, 0, player, scale, 3);
+        }*/
+
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -9,43 +20,45 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 
-public class AssRendering implements LayerRenderer<EntityPlayer> {
-
+public class TesticleRendering implements LayerRenderer<EntityPlayer> {
     private final RenderPlayer render;
     private final ModelRenderer model;
 
-    public AssRendering(RenderPlayer render) {
+    public TesticleRendering(RenderPlayer render) {
         this.render = render;
-        this.model = new ModelRenderer(this.render.getMainModel(), 18, 24);
+        this.model = new ModelRenderer(this.render.getMainModel(), 0, 21);
     }
 
     @Override
     public void doRenderLayer(EntityPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-        boolean showAss = Main.assMap.containsKey(player.getUniqueID().toString());
-        if (!showAss) {
+        //boolean showTesticle = Main.testicleMap.containsKey(player.getUniqueID().toString());
+        boolean showTesticle = true;
+        if (!showTesticle) {
             this.render.getMainModel().bipedBodyWear.showModel = player.isWearing(EnumPlayerModelParts.JACKET);
             this.render.getMainModel().bipedLeftArmwear.showModel = player.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
             this.render.getMainModel().bipedRightArmwear.showModel = player.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
         } else {
-            int assSize = Main.assMap.get(player.getUniqueID().toString());
+            //int testicleSize = Main.testicleMap.get(player.getUniqueID().toString());
+            int testicleSize = 6;
             GlStateManager.pushMatrix();
             this.render.getMainModel().bipedBodyWear.showModel = false;
             this.render.getMainModel().bipedLeftArmwear.showModel = false;
             this.render.getMainModel().bipedRightArmwear.showModel = false;
             this.render.bindTexture(((AbstractClientPlayer) player).getLocationSkin());
-            this.getTranslation(assSize);
-            this.model.addBox(-4.0F, -0.6F, -3.0F, 8, 4, 3, 0.0F);
+            this.getTranslation(testicleSize);
+            this.model.addBox(-2.0F, 2.0F, -9.0F, 4, 4, 3, 0.0F);
+            this.model.addBox(-1.0F, 3.0F, -15.0F, 2, 2, 6, 0.0F);
             this.model.setRotationPoint(0.0F, 0.0F, 0.0F);
             this.model.rotateAngleY = this.render.getMainModel().bipedBody.rotateAngleY;
 
             if (player.isSneaking()) {
                 this.model.rotateAngleX = 0.5F;
-                this.getSneakTranslation(assSize);
+                this.getSneakTranslation(testicleSize);
             } else {
                 this.model.rotateAngleX = 0.0F;
             }
 
-            this.getScale(assSize);
+            this.getScale(testicleSize);
             this.model.render(scale);
 
             GlStateManager.popMatrix();
@@ -83,23 +96,25 @@ public class AssRendering implements LayerRenderer<EntityPlayer> {
     private void getTranslation(int size) {
         switch (size) {
             case 0:
-                GlStateManager.translate(0.0F, 0.5F, 0.3F);
+                GlStateManager.translate(0.0F, 0.563F, 0.3F);
                 break;
             case 1:
-                GlStateManager.translate(0.0F, 0.5F, 0.36F);
+                GlStateManager.translate(0.0F, 0.53F, 0.36F);
                 break;
             case 2:
+                GlStateManager.translate(0.0F, 0.5F, 0.5F);
+                break;
             case 3:
-                GlStateManager.translate(0.0F, 0.5F, 0.41F);
+                GlStateManager.translate(0.0F, 0.47F, 0.55F);
                 break;
             case 4:
-                GlStateManager.translate(0.0F, 0.5F, 0.50F);
+                GlStateManager.translate(0.0F, 0.435F, 0.65F);
                 break;
             case 5:
-                GlStateManager.translate(0.0F, 0.55F, 0.69F);
+                GlStateManager.translate(0.0F, 0.313F, 1.0F);
                 break;
             case 6:
-                GlStateManager.translate(0.0F, 0.65F, 1.25F);
+                GlStateManager.translate(0.0F, -0.06F, 2.15F);
                 break;
             default:
                 break;

@@ -2,15 +2,15 @@ package me.jacktym.aiomacro.macros;
 
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import me.jacktym.aiomacro.rendering.BlockRendering;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
-import net.minecraft.util.*;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
+import net.minecraft.util.Vec3i;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -65,61 +65,9 @@ public class Nuker {
     @SubscribeEvent
     public void render(RenderWorldLastEvent event) {
         if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null && bp != null && toBreak.size() != 0) {
-            try {
-                BlockPos blockPos = bp;
-                Color color = AIOMVigilanceConfig.nukerColor;
-                int width = 5;
-                float partialTicks = event.partialTicks;
-
-                RenderManager renderManager = Main.mc.getRenderManager();
-                double x = (double) blockPos.getX() - renderManager.viewerPosX;
-                double y = (double) blockPos.getY() - renderManager.viewerPosY;
-                double z = (double) blockPos.getZ() - renderManager.viewerPosZ;
-                AxisAlignedBB axisAlignedBB = new AxisAlignedBB(x, y, z, x + 1.0, y + 1.0, z + 1.0);
-                GL11.glBlendFunc(770, 771);
-
-                glCapMap.put(3042, GL11.glGetBoolean(3042));
-                GL11.glEnable(3042);
-
-                glCapMap.put(3553, GL11.glGetBoolean(3553));
-                GL11.glDisable(3553);
-                glCapMap.put(2929, GL11.glGetBoolean(2929));
-                GL11.glDisable(2929);
-
-                GL11.glDepthMask(false);
-                GL11.glColor4f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() != 255 ? color.getAlpha() / 255.0f : 26 / 255.0f);
-                GL11.glLineWidth(width);
-                glCapMap.put(2848, GL11.glGetBoolean(2848));
-                GL11.glEnable(2848);
-                GL11.glColor4f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() != 255 ? color.getAlpha() : 26);
-
-                Tessellator tessellator = Tessellator.getInstance();
-                WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-                worldrenderer.begin(3, DefaultVertexFormats.POSITION);
-                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
-                worldrenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
-                tessellator.draw();
-
-                GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-                GL11.glDepthMask(true);
-                glCapMap.forEach(Nuker::setGlState);
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
+            BlockPos blockPos = bp;
+            Color color = AIOMVigilanceConfig.nukerColor;
+            BlockRendering.renderMap.put(bp, color);
         }
     }
 
