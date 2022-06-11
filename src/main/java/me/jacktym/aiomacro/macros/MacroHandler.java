@@ -39,6 +39,10 @@ public class MacroHandler {
                 SetPlayerLook.toggled = true;
             } else if (AIOMVigilanceConfig.macroType == 3) {
                 Main.mcPlayer.sendChatMessage("/bz");
+            } else if (AIOMVigilanceConfig.macroType == 6) {
+                MinionAura.recentClickedEntity = null;
+                MinionAura.minionsToClaim.clear();
+                MinionAura.claimedMinions.clear();
             }
             Main.sendMarkedChatMessage("Macro Enabled!");
         } else if (isMacroOn) {
