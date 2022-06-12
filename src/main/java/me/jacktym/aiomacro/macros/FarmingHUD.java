@@ -99,6 +99,7 @@ public class FarmingHUD {
         }
         return inventoryPrice;
     }
+
     public static int getCropsPerHour() {
         ItemStack[] inventory = Main.mcPlayer.inventory.mainInventory;
 
@@ -157,6 +158,7 @@ public class FarmingHUD {
         long hours = 1 + ((Utils.currentTimeMillis() - MacroHandler.macroStartMillis) / 60000);
         return (int) (crops / hours);
     }
+
     public static int getFinalCrops() {
         ItemStack[] inventory = Main.mcPlayer.inventory.mainInventory;
 
@@ -211,6 +213,7 @@ public class FarmingHUD {
     }
 
     private String getHoeCounter() {
+        Utils.getCounter();
         return String.valueOf(Utils.getCounter());
     }
 
@@ -226,7 +229,9 @@ public class FarmingHUD {
         }
 
         if (cookieTimeIndex != 0) {
-            cookieTime = Utils.getTabFooters().get(cookieTimeIndex);
+            if (Utils.getTabFooters().get(cookieTimeIndex) != null) {
+                cookieTime = Utils.getTabFooters().get(cookieTimeIndex);
+            }
         }
 
         return cookieTime;
