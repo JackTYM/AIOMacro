@@ -15,6 +15,8 @@ public class MacroHandler {
 
     public static void toggleMacro() {
         if (!isMacroOn && Main.mcPlayer != null && Main.mcWorld != null) {
+            isNetherWart = false;
+            isSugarCane = false;
             isMacroOn = true;
             macroStartMillis = Utils.currentTimeMillis();
 
@@ -23,6 +25,8 @@ public class MacroHandler {
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindBack.getKeyCode(), false);
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindAttack.getKeyCode(), false);
+
+            System.out.println(AIOMVigilanceConfig.macroType);
 
             if (AIOMVigilanceConfig.macroType == 0) {
                 NetherWart.left = true;
@@ -52,6 +56,9 @@ public class MacroHandler {
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindLeft.getKeyCode(), false);
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindAttack.getKeyCode(), false);
+
+            isNetherWart = false;
+            isSugarCane = false;
 
             SetPlayerLook.toggled = false;
 

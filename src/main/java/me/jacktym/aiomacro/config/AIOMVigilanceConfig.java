@@ -7,6 +7,7 @@ import gg.essential.vigilance.data.JVMAnnotationPropertyCollector;
 import gg.essential.vigilance.data.Property;
 import gg.essential.vigilance.data.PropertyType;
 import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.gui.HUDLocationGui;
 import me.jacktym.aiomacro.macros.*;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.Minecraft;
@@ -222,6 +223,8 @@ public class AIOMVigilanceConfig extends Vigilant {
             category = "Farming HUD"
     )
     public static boolean farmingHUDOn;
+    public static int farmingHUDX = 0;
+    public static int farmingHUDY = 0;
     @Property(
             type = PropertyType.SWITCH,
             name = "Total Profit",
@@ -318,6 +321,27 @@ public class AIOMVigilanceConfig extends Vigilant {
             subcategory = "Color"
     )
     public static Color hudColor = Color.WHITE;
+
+    @Property(
+            type = PropertyType.BUTTON,
+            name = "Change Farming HUD Position",
+            description = "Changes the position of the Farming HUD.",
+            category = "Farming HUD"
+    )
+    public final void changeFarmingHUD() {
+        Minecraft.getMinecraft().displayGuiScreen(new HUDLocationGui());
+    }
+
+    @Property(
+            type = PropertyType.BUTTON,
+            name = "Reset Farming HUD Position",
+            description = "Resets the position of the Farming HUD.",
+            category = "Farming HUD"
+    )
+    public final void resetFarmingHUD() {
+        farmingHUDX = 0;
+        farmingHUDY = 0;
+    }
 
     //Nuker
     @Property(

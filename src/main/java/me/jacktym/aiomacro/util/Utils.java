@@ -201,6 +201,8 @@ public class Utils {
             if (entityName.equals(npcName)) {
                 Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(e, C02PacketUseEntity.Action.INTERACT));
             }
+
+            Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity());
         }
     }
 
@@ -231,9 +233,8 @@ public class Utils {
         List<String> footerList = new ArrayList<>();
         try {
             final Field myField = ReflectionHelper.findField(Main.mc.ingameGUI.getTabList().getClass(), "field_175255_h", "footer");
-            String[] footers = myField.get(Main.mc.ingameGUI.getTabList()).toString().split("siblings=\\[TextComponent\\{text='");
-            for (String footer : footers) {
-                footerList.add(footer.split("',")[0]);
+            for (IChatComponent sibling : ((IChatComponent) myField.get(Main.mc.ingameGUI.getTabList())).getSiblings()) {
+                footerList.add(sibling.getFormattedText());
             }
         } catch (Exception ignored) {
         }
@@ -264,17 +265,6 @@ public class Utils {
     public static List<String> getTabList() {
         List<String> tabListLines = new ArrayList<>();
         try {
-            //Collection<NetworkPlayerInfo> tabList = Main.mcPlayer.sendQueue.getPlayerInfoMap();
-            Collection<NetworkPlayerInfo> tabList = Main.mc.getNetHandler().getPlayerInfoMap();
-
-            for (NetworkPlayerInfo playerInfo : tabList) {
-                List<IChatComponent> siblings = playerInfo.getDisplayName().getSiblings();
-                for (IChatComponent chatComponent : siblings) {
-                    tabListLines.add(chatComponent.getFormattedText());
-                }
-            }
-
-
             Ordering<NetworkPlayerInfo> field_175252_a = Ordering.from(new PlayerComparator());
 
             NetHandlerPlayClient netHandler = Main.mcPlayer.sendQueue;
@@ -283,7 +273,6 @@ public class Utils {
             for (NetworkPlayerInfo playerInfo : fullList) {
                 List<IChatComponent> siblings = playerInfo.getDisplayName().getSiblings();
                 for (IChatComponent chatComponent : siblings) {
-                    System.out.println(chatComponent);
                     tabListLines.add(chatComponent.getFormattedText());
                 }
             }

@@ -15,30 +15,18 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Nuker {
-
-    private static final Map<Integer, Boolean> glCapMap = new HashMap<>();
     ArrayList<BlockPos> toBreak = new ArrayList<>();
     BlockPos bp = null;
-
-    public static void setGlState(int cap, boolean state) {
-        if (state) {
-            GL11.glEnable(cap);
-        } else {
-            GL11.glDisable(cap);
-        }
-    }
 
     @SubscribeEvent
     public void playerTick(@NotNull TickEvent.ClientTickEvent event) {
         if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null && toBreak.size() != 0) {
+            BlockRendering.renderMap.clear();
             for (int i = 0; i <= AIOMVigilanceConfig.nukerBPS; i++) {
                 if (toBreak.size() != 0) {
                     BlockPos blockPos = toBreak.get(0);

@@ -34,6 +34,8 @@ public class Failsafe {
     private static boolean startStopFly = false;
     private static boolean endStopFly = false;
 
+    public static boolean checkForJacob = false;
+
     private static int desync = 0;
 
     private static int recentBans = 0;
@@ -41,6 +43,7 @@ public class Failsafe {
     private int tick = 0;
     long lastCounter = 0;
     private int desyncTick = 0;
+    private int jacobTick = 0;
 
     public static boolean bedrockFailsafe() {
         MovingObjectPosition mop = Main.mc.getRenderViewEntity().rayTrace(200, 1.0F);
@@ -76,18 +79,13 @@ public class Failsafe {
     }
 
     public static boolean jacobFailsafe() {
-
         boolean jacobsEvent = false;
 
-        List<String> scoreboardLines = Utils.getScoreboard();
-        for (String scoreboardLine : scoreboardLines) {
-            if ((Utils.stripColor(scoreboardLine).contains("YourIsland"))) {
+        for (String scoreboard : Utils.getScoreboard()) {
+            scoreboard = Utils.stripColor(scoreboard);
+
+            if (scoreboard.contains("Jacob's Contes")) {
                 jacobsEvent = true;
-            }
-        }
-        if (AIOMVigilanceConfig.devmode) {
-            for (String scoreboardLine : scoreboardLines) {
-                System.out.println(Utils.stripColor(scoreboardLine));
             }
         }
         return jacobsEvent;
@@ -124,35 +122,36 @@ public class Failsafe {
                     }
                 }
             }
-            //if (AIOMVigilanceConfig.isJacobfailsafe()) {
-            //if (jacobFailsafe()) {
-            //    MacroHandler.toggleMacro();
-            //    if (AIOMVigilanceConfig.isSoundfailsafe()) {
-            //        for (int i = 0; i < 5; i++) {
-            //                if (Utils.millisPassed(Utils.currentTimeMillis() + 3)) {
-            //                    Main.mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("note.pling"), (float) Main.mcPlayer.posX, (float) Main.mcPlayer.posY, (float) Main.mcPlayer.posZ));
-            //                }
-            //        }
-            //        Main.mcPlayer.addChatMessage((IChatComponent) new ChatComponentText(EnumChatFormatting.GOLD + "[AIOM]" + EnumChatFormatting.WHITE + "Macro Paused! | " + EnumChatFormatting.RED + "FAILSAFE!"));
+            if (AIOMVigilanceConfig.jacobfailsafe) {
+                if (jacobFailsafe()) {
+                    Main.sendMarkedChatMessage("Macro Paused! | " + EnumChatFormatting.RED + "FAILSAFE! Jacobs Event Started!");
 
-            //        MacroHandler.toggleMacro();
-            //    }
-            //    if (AIOMVigilanceConfig.isWebhookAlerts()) {
+                    MacroHandler.toggleMacro();
 
-            //        String screenshotLink = Utils.takeScreenshot().replace("\"", "");
+                    checkForJacob = true;
 
-            //        String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Failsafe Alert | Macro Paused\",\"description\":\"The macro has paused due to a jacob's\\nevent starting.\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
+                    if (AIOMVigilanceConfig.soundfailsafe) {
+                        for (int i = 0; i < 5; i++) {
+                            if (Utils.millisPassed(Utils.currentTimeMillis() + 3)) {
+                                Main.mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("note.pling"), (float) Main.mcPlayer.posX, (float) Main.mcPlayer.posY, (float) Main.mcPlayer.posZ));
+                            }
+                        }
+                    }
+                    if (AIOMVigilanceConfig.webhookAlerts) {
 
-            //        String trimmed = jsonString.trim();
+                        String screenshotLink = Utils.takeScreenshot().replace("\"", "");
 
-            //        JsonParser parser = new JsonParser();
+                        String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Failsafe Alert | Macro Paused\",\"description\":\"The macro has paused due to a jacob's\\nevent starting.\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
 
-            //       JsonElement jsonElement = parser.parse(trimmed);
+                        String trimmed = jsonString.trim();
 
-            //       Utils.sendWebhook(jsonElement);
-            //   }
-            //}
-            //}
+                        JsonParser parser = new JsonParser();
+
+                        JsonElement jsonElement = parser.parse(trimmed);
+                        Utils.sendWebhook(jsonElement);
+                    }
+                }
+            }
             if (AIOMVigilanceConfig.islandfailsafe != 2) {
                 if (islandFailsafe()) {
                     if (AIOMVigilanceConfig.soundfailsafe) {
@@ -315,8 +314,39 @@ public class Failsafe {
                 } catch (Exception ignored) {
                 }
             }
+
+            if (jacobTick >= 200) {
+                if (!jacobFailsafe() && checkForJacob) {
+                    Main.sendMarkedChatMessage("Macro Unpaused! | " + EnumChatFormatting.RED + "FAILSAFE! Jacobs Event Ended!");
+
+                    MacroHandler.toggleMacro();
+
+                    checkForJacob = false;
+                    if (AIOMVigilanceConfig.soundfailsafe) {
+                        for (int i = 0; i < 5; i++) {
+                            if (Utils.millisPassed(Utils.currentTimeMillis() + 3)) {
+                                Main.mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("note.pling"), (float) Main.mcPlayer.posX, (float) Main.mcPlayer.posY, (float) Main.mcPlayer.posZ));
+                            }
+                        }
+                    }
+                    if (AIOMVigilanceConfig.webhookAlerts) {
+
+                        String screenshotLink = Utils.takeScreenshot().replace("\"", "");
+
+                        String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Failsafe Alert | Macro Paused\",\"description\":\"The macro has unpaused due to a jacob's\\nevent ending.\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
+
+                        String trimmed = jsonString.trim();
+
+                        JsonParser parser = new JsonParser();
+
+                        JsonElement jsonElement = parser.parse(trimmed);
+                        Utils.sendWebhook(jsonElement);
+                    }
+                }
+            }
             banWaveTick++;
             desyncTick++;
+            jacobTick++;
         }
     }
 

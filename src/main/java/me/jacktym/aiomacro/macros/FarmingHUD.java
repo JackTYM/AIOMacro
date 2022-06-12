@@ -220,7 +220,7 @@ public class FarmingHUD {
         int currentIndex = 0;
         for (String footer : Utils.getTabFooters()) {
             if (footer.contains("Cookie Buff")) {
-                cookieTimeIndex = currentIndex + 1;
+                cookieTimeIndex = currentIndex + 2;
             }
             currentIndex++;
         }
@@ -232,6 +232,38 @@ public class FarmingHUD {
         return cookieTime;
     }
 
+    private String getGodPotionTime() {
+        for (String tab : Utils.getTabFooters()) {
+            tab = Utils.stripColor(tab);
+            if (tab.startsWith("You have a God Potion active!")) {
+                return tab.split("You have a God Potion active! ")[1];
+            }
+        }
+
+        return "";
+    }
+
+    private String getJacobsEventTime() {
+        String jacobTime = "";
+        int jacobTimeIndex = 0;
+        int currentIndex = 0;
+
+        for (String scoreboard : Utils.getScoreboard()) {
+            scoreboard = Utils.stripColor(scoreboard);
+
+            if (scoreboard.contains("Jacob's Contes")) {
+                jacobTimeIndex = currentIndex - 1;
+            }
+            currentIndex++;
+        }
+
+        if (jacobTimeIndex != 0) {
+            jacobTime = Utils.getScoreboard().get(jacobTimeIndex).replaceAll("[^\\x00-\\x7F]", "").substring(1);
+        }
+
+        return jacobTime;
+    }
+
     @SubscribeEvent
     public void onRender(@NotNull RenderGameOverlayEvent.Text event) {
         if (AIOMVigilanceConfig.farmingHUDOn) {
@@ -239,7 +271,7 @@ public class FarmingHUD {
 
             for (int i = 0; i < getHUDList().size(); i++) {
                 String draw = getHUDList().get(i);
-                fontRendererObj.drawString(draw, 0, 10 * i, AIOMVigilanceConfig.hudColor.getRGB());
+                fontRendererObj.drawString(draw, AIOMVigilanceConfig.farmingHUDX, AIOMVigilanceConfig.farmingHUDY + (10 * i), AIOMVigilanceConfig.hudColor.getRGB());
             }
         }
     }
@@ -298,14 +330,5 @@ public class FarmingHUD {
         return hudList;
     }
 
-    private String getJacobsEventTime() {
-        return "";
-    }
-    private String getGodPotionTime() {
-
-        //for (String tab : Utils.getScoreboard()) {}
-
-        return "";
-    }
 
 }

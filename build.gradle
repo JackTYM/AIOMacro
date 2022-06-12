@@ -4,7 +4,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "6f53277"
 }
 
-version = "1.6.6-release"
+version = "1.6.7-release"
 group = "me.jacktym.aiom"
 
 compileJava.options.encoding = 'UTF-8'
@@ -14,22 +14,6 @@ minecraft {
     runDir = "run"
     mappings = "stable_22"
     makeObfSourceJar = false
-}
-
-jar {
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest.attributes(
-            "FMLCorePluginContainsFMLMod": true,
-            "FMLCorePlugin": "aiom.FMLLoadingPlugin",
-            "ForceLoadAsMod": true,
-            "ModSide": "CLIENT",
-            "TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker",
-            "TweakOrder": "0"
-    )
-
-    enabled = false
 }
 
 configurations {
@@ -111,7 +95,7 @@ sourceSets {
 
 // This adds support to ("embed", "shade", "include") libraries into our JAR
 shadowJar {
-    archiveClassifier.set('all') //Line You Need
+    archiveClassifier.set('sources') //Line You Need
     configurations = [project.configurations.embed, project.configurations.include] //Line You Maybe Need
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     relocate("gg.essential.vigilance", "me.jacktym.vigilance")
