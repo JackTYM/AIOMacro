@@ -104,3 +104,5 @@ An All-In-One Macro for Hypixel Skyblock. Includes numerous features for Quality
 ## Discord:
   Permanent Invite:
     https://discord.com/invite/mNJMbHkC9f
+  Vanity URL:
+    https://discord.com/invite/aiom
