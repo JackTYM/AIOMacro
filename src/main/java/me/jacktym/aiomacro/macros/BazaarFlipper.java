@@ -230,7 +230,16 @@ public class BazaarFlipper {
                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, categories.get(key), 0, 0, Main.mcPlayer);
                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, subCategories.get(key), 0, 0, Main.mcPlayer);
                 }
-
+                if (AIOMVigilanceConfig.devmode) {
+                    if (((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack() != null) {
+                        System.out.println(Utils.stripColor(((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack().getDisplayName().toLowerCase()));
+                        System.out.println(apiToGame.get(key).toLowerCase());
+                    }
+                    System.out.println((((GuiChest) event.gui).inventorySlots.inventorySlots.get(10).getStack() != null && ((GuiChest) event.gui).inventorySlots.inventorySlots.get(10).getStack().getItem() != Items.golden_horse_armor));
+                    if (((GuiChest) event.gui).inventorySlots.inventorySlots.get(10).getStack() != null) {
+                        System.out.println(((GuiChest) event.gui).inventorySlots.inventorySlots.get(10).getStack().getItem());
+                    }
+                }
                 if (((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack() != null && Utils.stripColor(((GuiChest) event.gui).inventorySlots.inventorySlots.get(items.get(key)).getStack().getDisplayName().toLowerCase()).equals(apiToGame.get(key).toLowerCase()) && ((GuiChest) event.gui).inventorySlots.inventorySlots.get(10).getStack() != null && ((GuiChest) event.gui).inventorySlots.inventorySlots.get(10).getStack().getItem() != Items.golden_horse_armor) {
                     Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, items.get(key), 0, 0, Main.mcPlayer);
                 }

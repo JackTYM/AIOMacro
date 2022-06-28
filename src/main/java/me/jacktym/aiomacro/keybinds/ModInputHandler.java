@@ -13,7 +13,6 @@ public class ModInputHandler {
 
     @SubscribeEvent
     public void onKeyInput(@NotNull KeyInputEvent event) {
-
         KeyBinding[] keyBindings = ClientProxy.keyBindings;
 
         if (keyBindings[0].isPressed()) {

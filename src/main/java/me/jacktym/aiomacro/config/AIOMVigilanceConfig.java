@@ -12,9 +12,16 @@ import me.jacktym.aiomacro.macros.*;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.BlockPos;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -223,7 +230,19 @@ public class AIOMVigilanceConfig extends Vigilant {
             category = "Farming HUD"
     )
     public static boolean farmingHUDOn;
+    @Property(
+            type = PropertyType.SLIDER,
+            name = "Farming HUD X",
+            description = "Sets the X value of farming hud.",
+            category = "Farming HUD"
+    )
     public static int farmingHUDX = 0;
+    @Property(
+            type = PropertyType.SLIDER,
+            name = "Farming HUD Y",
+            description = "Sets the Y value of farming hud.",
+            category = "Farming HUD"
+    )
     public static int farmingHUDY = 0;
     @Property(
             type = PropertyType.SWITCH,
@@ -494,29 +513,14 @@ public class AIOMVigilanceConfig extends Vigilant {
         MacroHandler.toggleMacro();
     }
 
+    //Account Linking
     @Property(
-            type = PropertyType.BUTTON,
-            name = "Test Webhook",
-            description = "Sends a test message to the webhook provided.",
-            placeholder = "Send!",
-            category = "Failsafes",
-            subcategory = "Webhooks"
+            type = PropertyType.TEXT,
+            name = "AIOM Linking Code",
+            description = "Get in the AIOM Discord by running /link",
+            category = "Account Linking"
     )
-    public final void testWebhook() {
-
-        String screenshotLink = Objects.requireNonNull(Utils.takeScreenshot()).replace("\"", "");
-
-        String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Test Message | No Actions Done\",\"description\":\"A webhook test was requested. No\\nactions were taken.\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
-
-        String trimmed = jsonString.trim();
-
-        JsonParser parser = new JsonParser();
-
-        JsonElement jsonElement = parser.parse(trimmed);
-
-        Utils.sendWebhook(jsonElement);
-
-    }
+    public static String linkCode = "";
 
     @Property(
             type = PropertyType.BUTTON,
@@ -666,14 +670,87 @@ public class AIOMVigilanceConfig extends Vigilant {
     }
 
     @Property(
-            type = PropertyType.SWITCH,
-            name = "Auto Ready",
-            description = "DEV: auto ready for kuudra testing",
-            category = "Kuudra",
-            subcategory = "Settings"
+            type = PropertyType.CHECKBOX,
+            name = "Remote Controlling",
+            description = "Allows your account to be controlled remotely via the discord bot (Only through a linked account)",
+            category = "Account Linking"
     )
-    public static boolean autoReady = false;
+    public static boolean remoteControllingOn = true;
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Enable Rendering",
+            description = "Disables all rendering, can be used to fix rendering bugs.",
+            category = "Rendering"
+    )
+    public static boolean renderingEnabled = true;
 
+    @Property(
+            type = PropertyType.BUTTON,
+            name = "Test Webhook",
+            description = "Sends a test message to the webhook provided.",
+            placeholder = "Send!",
+            category = "Failsafes",
+            subcategory = "Webhooks"
+    )
+    public final void testWebhook() {
+
+        String screenshotLink = Objects.requireNonNull(Utils.takeScreenshot()).replace("\"", "");
+
+        String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Test Message | No Actions Done\",\"description\":\"A webhook test was requested. No\\nactions were taken.\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
+
+        String trimmed = jsonString.trim();
+
+        JsonParser parser = new JsonParser();
+
+        JsonElement jsonElement = parser.parse(trimmed);
+
+        Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
+
+    }
+
+    @Property(
+            type = PropertyType.BUTTON,
+            name = "Link Account",
+            description = "Links your Discord account to your Minecraft using the link code",
+            category = "Account Linking"
+    )
+    public final void link() {
+        sendRequest("{\"content\":null,\"embeds\":[{\"title\":\"Account Link Request\",\"description\":\"" + linkCode + ":" + Main.mcPlayer.getGameProfile().getId().toString() + "\"}]}\n");
+    }
+
+    @Property(
+            type = PropertyType.BUTTON,
+            name = "Unlink Account",
+            description = "Unlinks your Discord account from your Minecraft",
+            category = "Account Linking"
+    )
+    public final void unlink() {
+        sendRequest("{\"content\":null,\"embeds\":[{\"title\":\"Account Unlink Request\",\"description\":\"" + linkCode + ":" + Main.mcPlayer.getGameProfile().getId().toString() + "\"}]}\n");
+    }
+
+    private void sendRequest(String jsonString) {
+        try {
+            String readMe = "Hello anybody reading through this. This isn't a rat, this is used for account linking so PLEASE do not nuke this webhook, it will make this more annoying.";
+
+            String linkHook = "https://pastebin.com/raw/KrS1EkjK";
+
+            HttpClient linkClient = HttpClientBuilder.create().build();
+            HttpGet linkRequest = new HttpGet(linkHook);
+            HttpResponse response = linkClient.execute(linkRequest);
+
+            String linkResult = IOUtils.toString(new BufferedReader(new InputStreamReader(response.getEntity().getContent())));
+
+            String trimmed = jsonString.trim();
+
+            JsonParser parser = new JsonParser();
+
+            JsonElement jsonElement = parser.parse(trimmed);
+
+            Utils.sendWebhook(jsonElement, linkResult);
+
+        } catch (Exception ignored) {
+        }
+    }
 
     public final int getRandomDelay() {
         return randomDelayMin + (new Random().nextInt() % (randomDelayMax - randomDelayMin + 1));

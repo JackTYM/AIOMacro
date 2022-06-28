@@ -4,7 +4,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "6f53277"
 }
 
-version = "1.6.7-release"
+version = "1.6.8-release"
 group = "me.jacktym.aiom"
 
 compileJava.options.encoding = 'UTF-8'
@@ -59,7 +59,10 @@ dependencies {
     // include "com.example:example:1.0.0"
 
     implementation "gg.essential:essential-1.8.9-forge:2201"
-    embed "gg.essential:loader-launchwrapper:1.0.2"
+    include "gg.essential:loader-launchwrapper:1.0.2"
+
+    implementation "gg.essential:vigilance-1.8.9-forge:223"
+    include 'com.electronwill.night-config:toml:3.6.5'
 }
 
 /**

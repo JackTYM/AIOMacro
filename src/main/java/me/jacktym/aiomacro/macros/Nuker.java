@@ -89,7 +89,7 @@ public class Nuker {
                     }
                 }
                 if (AIOMVigilanceConfig.nukerBlock == 3) {
-                    if ((b == Blocks.nether_wart || b == Blocks.potatoes || b == Blocks.carrots || b == Blocks.wheat || b == Blocks.cocoa || b == Blocks.pumpkin || b == Blocks.melon_block) && !toBreak.contains(new BlockPos(block))) {
+                    if ((b == Blocks.nether_wart || b == Blocks.potatoes || b == Blocks.carrots || b == Blocks.wheat || b == Blocks.cocoa || b == Blocks.pumpkin || b == Blocks.melon_block) && Main.mcWorld.getBlockState(new BlockPos(block)).getBlock().getMetaFromState(Main.mcWorld.getBlockState(new BlockPos(block))) >= 1 && !toBreak.contains(new BlockPos(block))) {
                         toBreak.add(new BlockPos(block));
                     }
                 }

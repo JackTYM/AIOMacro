@@ -32,7 +32,7 @@ public class SugarCane {
                     left = !left;
                     currentTimeMillisSwitch = Utils.currentTimeMillis();
                 }
-                if (Utils.currentTimeMillis() - currentTimeMillisSwitch <= (randomDelay) && Utils.currentTimeMillis() - currentTimeMillisSwitch >= 200 && !AntiStuck.antistuckOn) {
+                if (Utils.currentTimeMillis() - currentTimeMillisSwitch <= (randomDelay) && Utils.currentTimeMillis() - currentTimeMillisSwitch >= 200 && !AntiStuck.antistuckOn && AIOMVigilanceConfig.antiStuckFailsafe) {
                     AntiStuck.antistuckOn = true;
                 }
             }

@@ -13,6 +13,7 @@ package me.jacktym.aiomacro.rendering;
         }*/
 
 import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -33,7 +34,7 @@ public class TesticleRendering implements LayerRenderer<EntityPlayer> {
     @Override
     public void doRenderLayer(EntityPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
         boolean showTesticle = Main.testicleMap.containsKey(player.getUniqueID().toString());
-        if (!showTesticle) {
+        if (!showTesticle && AIOMVigilanceConfig.renderingEnabled) {
             this.render.getMainModel().bipedBodyWear.showModel = player.isWearing(EnumPlayerModelParts.JACKET);
             this.render.getMainModel().bipedLeftArmwear.showModel = player.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
             this.render.getMainModel().bipedRightArmwear.showModel = player.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);

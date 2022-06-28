@@ -5,10 +5,8 @@ import com.google.common.collect.Ordering;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import gg.essential.universal.ChatColor;
 import me.jacktym.aiomacro.Main;
-import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
@@ -39,10 +37,8 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -83,7 +79,7 @@ public class Utils {
             ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
             ImageIO.write(image, "png", byteArray);
             byte[] byteImage = byteArray.toByteArray();
-            String dataImage = Base64.encode(byteImage);
+            String dataImage = Arrays.toString(Base64.getEncoder().encode(byteImage));
             String data = URLEncoder.encode("image", "UTF-8") + "="
                     + URLEncoder.encode(dataImage, "UTF-8");
 
@@ -136,16 +132,14 @@ public class Utils {
 
 
     //Webhook Utils
-    public static void sendWebhook(JsonElement jsonElement) {
+    public static void sendWebhook(JsonElement jsonElement, String urlString) {
 
         JsonObject json = new JsonObject();
         json.addProperty("content", "");
         json = jsonElement.getAsJsonObject();
 
-        String urlstr = AIOMVigilanceConfig.webhookLink;
-
         try {
-            URL url = new URL(urlstr);
+            URL url = new URL(urlString);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.addRequestProperty("Content-Type", "application/json");
             connection.addRequestProperty("User-Agent", "User-Agent");
@@ -316,9 +310,12 @@ public class Utils {
         return worldName;
     }
 
-    public static double distanceBetweenPoints(Vec3 vec1, Vec3 vec2) {
-        return Math.sqrt((vec1.xCoord - vec2.xCoord) * (vec1.xCoord - vec2.xCoord) +
-                (vec1.yCoord - vec2.yCoord) * (vec1.yCoord - vec2.yCoord) +
-                (vec1.zCoord - vec2.zCoord) * (vec1.zCoord - vec2.zCoord));
+    public static Double distanceBetweenPoints(Vec3 vec1, Vec3 vec2) {
+        if (vec1 != null && vec2 != null) {
+            return Math.sqrt((vec1.xCoord - vec2.xCoord) * (vec1.xCoord - vec2.xCoord) +
+                    (vec1.yCoord - vec2.yCoord) * (vec1.yCoord - vec2.yCoord) +
+                    (vec1.zCoord - vec2.zCoord) * (vec1.zCoord - vec2.zCoord));
+        }
+        return null;
     }
 }

@@ -188,7 +188,7 @@ public class FarmingHUD {
         return finalCrops;
     }
 
-    public int getProfitPerHour() {
+    public static int getProfitPerHour() {
         int profit = getInventoryPrice();
 
         int profitPerHour = 0;
@@ -212,12 +212,12 @@ public class FarmingHUD {
         return (int) (millisecondsMacroing / 1000);
     }
 
-    private String getHoeCounter() {
+    public static String getHoeCounter() {
         Utils.getCounter();
         return String.valueOf(Utils.getCounter());
     }
 
-    private String getBoosterCookieTime() {
+    public static String getBoosterCookieTime() {
         String cookieTime = "";
         int cookieTimeIndex = 0;
         int currentIndex = 0;
@@ -237,7 +237,7 @@ public class FarmingHUD {
         return cookieTime;
     }
 
-    private String getGodPotionTime() {
+    public static String getGodPotionTime() {
         for (String tab : Utils.getTabFooters()) {
             tab = Utils.stripColor(tab);
             if (tab.startsWith("You have a God Potion active!")) {
@@ -248,7 +248,7 @@ public class FarmingHUD {
         return "";
     }
 
-    private String getJacobsEventTime() {
+    public static String getJacobsEventTime() {
         String jacobTime = "";
         int jacobTimeIndex = 0;
         int currentIndex = 0;

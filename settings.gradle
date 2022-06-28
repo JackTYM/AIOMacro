@@ -14,19 +14,15 @@ pluginManagement {
             name = "Jitpack"
             url = "https://jitpack.io/"
         }
-        maven {
-            url = "https://repo.sk1er.club/repository/maven-public/"
-        }
-        maven {
-            name = 'sponge'
-            url = 'https://repo.spongepowered.org/repository/maven-public/'
-        }
     }
     resolutionStrategy {
         eachPlugin {
             // If the "net.minecraftforge.gradle.forge" plugin is requested we redirect it to asbyth's ForgeGradle fork
             if (requested.id.id == "net.minecraftforge.gradle.forge") {
                 useModule("com.github.asbyth:ForgeGradle:${requested.version}")
+            }
+            if (requested.id.id == "org.spongepowered.mixin") {
+                useModule("com.github.xcfrg:MixinGradle:${requested.version}")
             }
         }
     }

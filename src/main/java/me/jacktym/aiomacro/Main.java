@@ -84,7 +84,6 @@ public class Main {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent preEvent) {
-
         proxy.preInit(preEvent);
 
         AIOMVigilanceConfig.INSTANCE = new AIOMVigilanceConfig();
@@ -156,11 +155,12 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new Main());
         MinecraftForge.EVENT_BUS.register(new CaneBuilder());
         MinecraftForge.EVENT_BUS.register(new AutoBazaarUnlocker());
-        MinecraftForge.EVENT_BUS.register(new Pathfind());
+        MinecraftForge.EVENT_BUS.register(new PathFind());
         MinecraftForge.EVENT_BUS.register(new FairySoulAura());
         MinecraftForge.EVENT_BUS.register(new ShinyPigESP());
         MinecraftForge.EVENT_BUS.register(new BlockRendering());
         MinecraftForge.EVENT_BUS.register(new MinionAura());
+        MinecraftForge.EVENT_BUS.register(new AutoGodPot());
 
         StencilEffect.Companion.enableStencil();
 

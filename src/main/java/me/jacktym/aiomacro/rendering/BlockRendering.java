@@ -1,6 +1,7 @@
 package me.jacktym.aiomacro.rendering;
 
 import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -23,7 +24,7 @@ public class BlockRendering {
     @SubscribeEvent
     public void renderAABB(RenderWorldLastEvent e) {
         try {
-            if (!renderMap.isEmpty()) {
+            if (!renderMap.isEmpty() && AIOMVigilanceConfig.renderingEnabled) {
                 for (Map.Entry<BlockPos, Color> entry : renderMap.entrySet()) {
                     BlockPos blockPos = entry.getKey();
                     Color color = entry.getValue();

@@ -55,6 +55,9 @@ public class Failsafe {
     }
 
     private int banWaveTick = 0;
+    private int remoteControlTick = 0;
+    private boolean gotMacroStatus = false;
+    private int macroStatusAttempts = 0;
 
     public static boolean islandFailsafe() {
         if (Main.mcWorld.getScoreboard().getObjectiveInDisplaySlot(1) != null) {
@@ -118,7 +121,7 @@ public class Failsafe {
 
                         JsonElement jsonElement = parser.parse(trimmed);
 
-                        Utils.sendWebhook(jsonElement);
+                        Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
                     }
                 }
             }
@@ -139,7 +142,7 @@ public class Failsafe {
                     }
                     if (AIOMVigilanceConfig.webhookAlerts) {
 
-                        String screenshotLink = Utils.takeScreenshot().replace("\"", "");
+                        String screenshotLink = Objects.requireNonNull(Utils.takeScreenshot()).replace("\"", "");
 
                         String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Failsafe Alert | Macro Paused\",\"description\":\"The macro has paused due to a jacob's\\nevent starting.\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
 
@@ -148,7 +151,7 @@ public class Failsafe {
                         JsonParser parser = new JsonParser();
 
                         JsonElement jsonElement = parser.parse(trimmed);
-                        Utils.sendWebhook(jsonElement);
+                        Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
                     }
                 }
             }
@@ -176,7 +179,7 @@ public class Failsafe {
 
                             JsonElement jsonElement = parser.parse(trimmed);
 
-                            Utils.sendWebhook(jsonElement);
+                            Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
                         }
                     }
                     if (AIOMVigilanceConfig.islandfailsafe == 1) {
@@ -199,7 +202,7 @@ public class Failsafe {
 
                             JsonElement jsonElement = parser.parse(trimmed);
 
-                            Utils.sendWebhook(jsonElement);
+                            Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
                         }
                     }
                 }
@@ -225,7 +228,7 @@ public class Failsafe {
 
                     JsonElement jsonElement = parser.parse(trimmed);
 
-                    Utils.sendWebhook(jsonElement);
+                    Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
                 }
             }
             if (AIOMVigilanceConfig.banwaveFailsafe && recentBans >= AIOMVigilanceConfig.banWavePlayers) {
@@ -247,7 +250,7 @@ public class Failsafe {
 
                     JsonElement jsonElement = parser.parse(trimmed);
 
-                    Utils.sendWebhook(jsonElement);
+                    Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
                 }
             }
             if (AIOMVigilanceConfig.autoWebhook != 0 && ((Utils.currentTimeMillis() - MacroHandler.macroStartMillis) / 60000 % AIOMVigilanceConfig.autoWebhook) == 0 && AIOMVigilanceConfig.webhookAlerts && (Utils.currentTimeMillis() - MacroHandler.macroStartMillis) >= 60000) {
@@ -262,7 +265,7 @@ public class Failsafe {
 
                 JsonElement jsonElement = parser.parse(trimmed);
 
-                Utils.sendWebhook(jsonElement);
+                Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
 
             }
             if (AIOMVigilanceConfig.autoDisable != 0 && ((Utils.currentTimeMillis() - MacroHandler.macroStartMillis) / 60000 % AIOMVigilanceConfig.autoDisable) == 0 && (Utils.currentTimeMillis() - MacroHandler.macroStartMillis) >= 60000) {
@@ -279,7 +282,7 @@ public class Failsafe {
 
                     JsonElement jsonElement = parser.parse(trimmed);
 
-                    Utils.sendWebhook(jsonElement);
+                    Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
                 }
             }
         }
@@ -287,66 +290,136 @@ public class Failsafe {
 
     @SubscribeEvent
     public void checkTick(TickEvent.ClientTickEvent event) {
-        if (AIOMVigilanceConfig.desyncFailsafe && Main.mcPlayer != null && Main.mcWorld != null && MacroHandler.isMacroOn) {
-            //5 Seconds
-            if (desyncTick >= 100) {
-                desyncTick = 0;
+        if (AIOMVigilanceConfig.desyncFailsafe && Main.mcPlayer != null && Main.mcWorld != null) {
+            if (MacroHandler.isMacroOn) {
+                //5 Seconds
+                if (desyncTick >= 100) {
+                    desyncTick = 0;
 
-                if (lastCounter == Utils.getCounter() && Utils.getCounter() != 0L) {
-                    desync++;
-                }
-                lastCounter = Utils.getCounter();
-            }
-            //30 Seconds
-            if (banWaveTick >= 600) {
-                banWaveTick = 0;
-                try {
-                    URL banwaveUrl = new URL("https://snipes.rip/banstats");
-                    HttpURLConnection banwaveConnection = (HttpURLConnection) banwaveUrl.openConnection();
-                    InputStream response = banwaveConnection.getInputStream();
-                    try (Scanner scanner = new Scanner(response)) {
-                        String responseBody = scanner.useDelimiter("\\A").next();
-
-                        JsonElement jsonElement = new JsonParser().parse(responseBody);
-
-                        recentBans = jsonElement.getAsJsonObject().get("record").getAsJsonObject().get("staff").getAsJsonObject().get("staff_latest_15m").getAsInt();
+                    if (lastCounter == Utils.getCounter() && Utils.getCounter() != 0L) {
+                        desync++;
                     }
-                } catch (Exception ignored) {
+                    lastCounter = Utils.getCounter();
                 }
-            }
+                //30 Seconds
+                if (banWaveTick >= 600) {
+                    banWaveTick = 0;
+                    try {
+                        URL banwaveUrl = new URL("https://snipes.rip/banstats");
+                        HttpURLConnection banwaveConnection = (HttpURLConnection) banwaveUrl.openConnection();
+                        InputStream response = banwaveConnection.getInputStream();
+                        try (Scanner scanner = new Scanner(response)) {
+                            String responseBody = scanner.useDelimiter("\\A").next();
 
-            if (jacobTick >= 200) {
-                if (!jacobFailsafe() && checkForJacob) {
-                    Main.sendMarkedChatMessage("Macro Unpaused! | " + EnumChatFormatting.RED + "FAILSAFE! Jacobs Event Ended!");
+                            JsonElement jsonElement = new JsonParser().parse(responseBody);
 
-                    MacroHandler.toggleMacro();
+                            recentBans = jsonElement.getAsJsonObject().get("record").getAsJsonObject().get("staff").getAsJsonObject().get("staff_latest_15m").getAsInt();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
 
-                    checkForJacob = false;
-                    if (AIOMVigilanceConfig.soundfailsafe) {
-                        for (int i = 0; i < 5; i++) {
-                            if (Utils.millisPassed(Utils.currentTimeMillis() + 3)) {
-                                Main.mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("note.pling"), (float) Main.mcPlayer.posX, (float) Main.mcPlayer.posY, (float) Main.mcPlayer.posZ));
+                //10 Seconds
+                if (jacobTick >= 200) {
+                    if (!jacobFailsafe() && checkForJacob) {
+                        Main.sendMarkedChatMessage("Macro Unpaused! | " + EnumChatFormatting.RED + "FAILSAFE! Jacobs Event Ended!");
+
+                        MacroHandler.toggleMacro();
+
+                        checkForJacob = false;
+                        if (AIOMVigilanceConfig.soundfailsafe) {
+                            for (int i = 0; i < 5; i++) {
+                                if (Utils.millisPassed(Utils.currentTimeMillis() + 3)) {
+                                    Main.mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("note.pling"), (float) Main.mcPlayer.posX, (float) Main.mcPlayer.posY, (float) Main.mcPlayer.posZ));
+                                }
                             }
                         }
+                        if (AIOMVigilanceConfig.webhookAlerts) {
+
+                            String screenshotLink = Objects.requireNonNull(Utils.takeScreenshot()).replace("\"", "");
+
+                            String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Failsafe Alert | Macro Paused\",\"description\":\"The macro has unpaused due to a jacob's\\nevent ending.\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
+
+                            String trimmed = jsonString.trim();
+
+                            JsonParser parser = new JsonParser();
+
+                            JsonElement jsonElement = parser.parse(trimmed);
+                            Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
+                        }
                     }
-                    if (AIOMVigilanceConfig.webhookAlerts) {
+                }
+                banWaveTick++;
+                desyncTick++;
+                jacobTick++;
+            }
+            //10 Seconds
+            if (remoteControlTick >= 200) {
+                if (AIOMVigilanceConfig.remoteControllingOn) {
+                    remoteControlTick = 0;
+                    if (macroStatusAttempts >= 6) {
+                        macroStatusAttempts = 0;
+                        gotMacroStatus = false;
+                    }
+                    macroStatusAttempts++;
+                    if (!gotMacroStatus) {
+                        try {
+                            URL versionUrl = new URL("https://gist.githubusercontent.com/JackTYM/b20a15ad8926123ee2e49ae5d7e03b0d/raw/");
+                            HttpURLConnection versionConnection = (HttpURLConnection) versionUrl.openConnection();
+                            InputStream response = versionConnection.getInputStream();
+                            try (Scanner scanner = new Scanner(response)) {
+                                String responseBody = scanner.useDelimiter("\\A").next();
 
-                        String screenshotLink = Utils.takeScreenshot().replace("\"", "");
+                                String[] controls = responseBody.split("\n");
 
-                        String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Failsafe Alert | Macro Paused\",\"description\":\"The macro has unpaused due to a jacob's\\nevent ending.\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
+                                if (controls.length != 0) {
+                                    for (String control : controls) {
+                                        if (Main.mcPlayer.getGameProfile().getId().toString().equals(control.split(":")[0])) {
+                                            switch (control.split(":")[1]) {
+                                                case ("stop"):
+                                                    if (MacroHandler.isMacroOn) {
+                                                        MacroHandler.isMacroOn = false;
+                                                        Main.sendMarkedChatMessage("Macro Disabled! | Remote Controlling");
+                                                    }
+                                                    gotMacroStatus = true;
+                                                    break;
+                                                case ("start"):
+                                                    if (!MacroHandler.isMacroOn) {
+                                                        MacroHandler.isMacroOn = true;
+                                                        Main.sendMarkedChatMessage("Macro Enabled! | Remote Controlling");
+                                                    }
+                                                    gotMacroStatus = true;
+                                                    break;
+                                                case ("status"):
+                                                    Main.sendMarkedChatMessage("Macro Status Sent! | Remote Controlling");
+                                                    if (!AIOMVigilanceConfig.webhookLink.equals("")) {
+                                                        String screenshotLink = Objects.requireNonNull(Utils.takeScreenshot()).replace("\"", "");
 
-                        String trimmed = jsonString.trim();
+                                                        String jsonString = "{\"content\":null,\"embeds\":[{\"title\":\"Macro Status Report\",\"description\":\"A macro status report was requested.\\nMacro Enabled: " + MacroHandler.isMacroOn + "\\n\\nAccount: " + Main.mcPlayer.getName() + "\",\"color\":5814783,\"author\":{\"name\":\"AIO-Macro\"},\"image\":{\"url\":\"" + screenshotLink + "\"}}]}\n";
 
-                        JsonParser parser = new JsonParser();
+                                                        String trimmed = jsonString.trim();
 
-                        JsonElement jsonElement = parser.parse(trimmed);
-                        Utils.sendWebhook(jsonElement);
+                                                        JsonParser parser = new JsonParser();
+
+                                                        JsonElement jsonElement = parser.parse(trimmed);
+
+                                                        Utils.sendWebhook(jsonElement, AIOMVigilanceConfig.webhookLink);
+                                                    } else {
+                                                        Main.sendMarkedChatMessage("Failed to send status alert. Invalid webhook.");
+                                                    }
+                                                    gotMacroStatus = true;
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
             }
-            banWaveTick++;
-            desyncTick++;
-            jacobTick++;
+            remoteControlTick++;
         }
     }
 

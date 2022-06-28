@@ -19,11 +19,13 @@ public class PathFind {
     public static final HashMap<Vec3, Double> pathPoints1 = new LinkedHashMap<>();
     public static final HashMap<Vec3, Color> bpMap = new HashMap<>();
     public static Vec3 pos;
+    public Vec3 posThread;
     public static Vec3 destinationGlobal;
     public static Vec3 recentPoint = null;
     public static List<Vec3> badPoints = new ArrayList<>();
     public static int attempts = 0;
     public static LinkedList<Vec3> pathPoints = new LinkedList<>();
+    public LinkedList<Vec3> pathPointsThread = new LinkedList<>();
     public static LinkedList<Vec3> finalPath = new LinkedList<>();
     public static boolean globalCollision = true;
     public static List<Integer> optimizeBadIndex = new ArrayList<>();
@@ -86,8 +88,6 @@ public class PathFind {
         BlockPos blockPos = new BlockPos(Main.mcPlayer.posX, Main.mcPlayer.posY, Main.mcPlayer.posZ);
         pos = new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-        System.out.println(pos);
-
         destinationGlobal = destination;
 
         bpMap.put(pos, Color.WHITE);
@@ -105,112 +105,113 @@ public class PathFind {
 
     @SubscribeEvent
     public void findPath(TickEvent.ClientTickEvent event) {
-        new Thread(() -> {
-            if (pathPoints.isEmpty()) {
-                pathPoints.add(pos);
-            }
-            LinkedList<Vec3> pathPointsLocal = pathPoints;
-            if (destinationGlobal != null && pos != null && !followPath) {
-                for (int x = 1; x <= 1000; x++) {
-                    try {
-                        if (pathPointsLocal.isEmpty()) {
-                            pathPointsLocal.add(pos);
+        if (destinationGlobal != null && pos != null && !followPath) {
+            pathPointsThread = pathPoints;
+            posThread = pos;
+            new Thread(() -> {
+                LinkedList<Vec3> pathPointsLocal = pathPointsThread;
+                //for (int x = 1; x <= 1000; x++) {
+                try {
+                    if (pathPointsLocal.isEmpty()) {
+                        pathPointsLocal.add(posThread);
+                    }
+                    if (vec3Equals(pathPointsLocal.get(0), destinationGlobal)) {
+                        if (!vec3Contains(finalPath, destinationGlobal)) {
+                            finalPath.add(destinationGlobal);
                         }
-                        if (vec3Equals(pathPointsLocal.get(0), destinationGlobal)) {
-                            if (!vec3Contains(finalPath, destinationGlobal)) {
-                                finalPath.add(destinationGlobal);
-                            }
-                            if (optimizedFully) {
-                                Main.sendMarkedChatMessage("Path found in " + (Utils.currentTimeMillis() - findPathStart) + " Milliseconds. " + finalPath.size() + " Blocks!");
-                                followPath = true;
-                                return;
-                            } else {
-                                optimizePath(finalPath);
-                            }
+                        if (optimizedFully) {
+                            Main.sendMarkedChatMessage("Path found in " + (Utils.currentTimeMillis() - findPathStart) + " Milliseconds. " + finalPath.size() + " Blocks!");
+                            followPath = true;
+                            //return;
                         } else {
-                            for (int i = 1; i <= 6; i++) {
-                                Vec3 lastPoint = pathPointsLocal.get(0);
-                                Vec3 point = pathPointsLocal.get(0);
+                            optimizePath(finalPath);
+                        }
+                    } else {
+                        for (int i = 1; i <= 6; i++) {
+                            System.out.println(pathPointsLocal.get(0));
+                            System.out.println(posThread);
+                            Vec3 lastPoint = pathPointsLocal.get(0);
+                            Vec3 point = pathPointsLocal.get(0);
 
-                                if (point == null) {
-                                    lastPoint = pos;
-                                    point = pos;
-                                }
+                            if (point == null) {
+                                lastPoint = posThread;
+                                point = posThread;
+                            }
 
-                                switch (i) {
-                                    case 1:
-                                        point = point.addVector(0, 0, 1);
-                                        break;
-                                    case 2:
-                                        point = point.addVector(1, 0, 0);
-                                        break;
-                                    case 3:
-                                        point = point.addVector(0, 0, -1);
-                                        break;
-                                    case 4:
-                                        point = point.addVector(0, -1, 0);
-                                        break;
-                                    case 5:
-                                        point = point.addVector(-1, 0, 0);
-                                        break;
-                                    case 6:
-                                        point = point.addVector(0, 1, 0);
-                                        break;
-                                }
-                                if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(lastPoint.addVector(0, -1, 0))).getBlock())) {
-                                    if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock())
-                                            && blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock())
-                                            && (!blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, -1, 0))).getBlock()) || i == 4)
-                                            && !vec3Contains(badPoints, point)
-                                            && !vec3Contains(pathPointsLocal, point)
-                                            && !vec3Contains(finalPath, point)) {
-                                        pathPointsLocal.add(point);
-                                    }
-                                } else if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock())
+                            switch (i) {
+                                case 1:
+                                    point = point.addVector(0, 0, 1);
+                                    break;
+                                case 2:
+                                    point = point.addVector(1, 0, 0);
+                                    break;
+                                case 3:
+                                    point = point.addVector(0, 0, -1);
+                                    break;
+                                case 4:
+                                    point = point.addVector(0, -1, 0);
+                                    break;
+                                case 5:
+                                    point = point.addVector(-1, 0, 0);
+                                    break;
+                                case 6:
+                                    point = point.addVector(0, 1, 0);
+                                    break;
+                            }
+                            if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(lastPoint.addVector(0, -1, 0))).getBlock())) {
+                                if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock())
                                         && blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock())
+                                        && (!blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, -1, 0))).getBlock()) || i == 4)
                                         && !vec3Contains(badPoints, point)
                                         && !vec3Contains(pathPointsLocal, point)
                                         && !vec3Contains(finalPath, point)) {
                                     pathPointsLocal.add(point);
                                 }
+                            } else if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock())
+                                    && blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock())
+                                    && !vec3Contains(badPoints, point)
+                                    && !vec3Contains(pathPointsLocal, point)
+                                    && !vec3Contains(finalPath, point)) {
+                                pathPointsLocal.add(point);
+                            }
 
-                                finalPath.add(pathPointsLocal.get(0));
-                                pathPointsLocal.remove(0);
+                            finalPath.add(pathPointsLocal.get(0));
+                            pathPointsLocal.remove(0);
 
-                                pathPointsLocal = sortPathPoints(pathPointsLocal);
+                            pathPointsLocal = sortPathPoints(pathPointsLocal);
 
-                                if (!pathPointsLocal.isEmpty()) {
-                                    if (vec3Equals(pathPointsLocal.get(0), recentPoint)) {
-                                        attempts++;
-                                    } else {
-                                        attempts = 0;
-                                    }
-                                    if (attempts >= 3) {
-                                        if (!vec3Contains(badPoints, pathPointsLocal.get(0))) {
-                                            badPoints.add(pathPointsLocal.get(0));
-                                            pathPointsLocal.remove(pathPointsLocal.get(0));
-                                            pathPointsLocal = sortPathPoints(pathPointsLocal);
-                                            attempts = 0;
-                                            return;
-                                        }
-                                    }
-
-                                    recentPoint = pathPointsLocal.get(0);
+                            if (!pathPointsLocal.isEmpty()) {
+                                if (vec3Equals(pathPointsLocal.get(0), recentPoint)) {
+                                    attempts++;
                                 } else {
-                                    Main.sendMarkedChatMessage("Pathfinding Stopped! No Path Found.");
-                                    PathfindCommand.clear();
+                                    attempts = 0;
+                                }
+                                if (attempts >= 3) {
+                                    if (!vec3Contains(badPoints, pathPointsLocal.get(0))) {
+                                        badPoints.add(pathPointsLocal.get(0));
+                                        pathPointsLocal.remove(pathPointsLocal.get(0));
+                                        pathPointsLocal = sortPathPoints(pathPointsLocal);
+                                        attempts = 0;
+                                        return;
+                                    }
                                 }
 
+                                recentPoint = pathPointsLocal.get(0);
+                            } else {
+                                Main.sendMarkedChatMessage("Pathfinding Stopped! No Path Found.");
+                                PathfindCommand.clear();
                             }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else if (followPath) {
 
-            }
-        }).start();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //}
+            }).start();
+        } else if (followPath) {
+
+        }
     }
 
     private boolean blockIsPassable(Block block) {
