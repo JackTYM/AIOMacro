@@ -2,6 +2,7 @@ package me.jacktym.aiomacro.keybinds;
 
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import me.jacktym.aiomacro.macros.AutoHotBar;
 import me.jacktym.aiomacro.macros.MacroHandler;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import net.minecraft.client.settings.KeyBinding;
@@ -21,6 +22,34 @@ public class ModInputHandler {
         if (keyBindings[1].isPressed()) {
             Main.gui = AIOMVigilanceConfig.INSTANCE.gui();
         }
+        if (keyBindings[2].isPressed()) {
+            if (AIOMVigilanceConfig.hotBarProfileOne.equals("") || !AutoHotBar.hotBars.containsKey(AIOMVigilanceConfig.hotBarProfileOne)) {
+                Main.sendMarkedChatMessage("Error loading HotBar profile! Please set your name in /aiom");
+            } else {
+                AutoHotBar.hotBarSolution = AutoHotBar.findHotBarSolution(AutoHotBar.hotBars.get(AIOMVigilanceConfig.hotBarProfileOne));
+                AutoHotBar.swapHotBar = true;
+            }
+        }
+        if (keyBindings[3].isPressed()) {
+            if (AIOMVigilanceConfig.hotBarProfileTwo.equals("") || !AutoHotBar.hotBars.containsKey(AIOMVigilanceConfig.hotBarProfileTwo)) {
+                Main.sendMarkedChatMessage("Error loading HotBar profile! Please set your name in /aiom");
+            } else {
+                AutoHotBar.hotBarSolution = AutoHotBar.findHotBarSolution(AutoHotBar.hotBars.get(AIOMVigilanceConfig.hotBarProfileTwo));
+                AutoHotBar.swapHotBar = true;
+            }
+        }
+        if (keyBindings[4].isPressed()) {
+            if (AIOMVigilanceConfig.hotBarProfileThree.equals("") || !AutoHotBar.hotBars.containsKey(AIOMVigilanceConfig.hotBarProfileThree)) {
+                Main.sendMarkedChatMessage("Error loading HotBar profile! Please set your name in /aiom");
+            } else {
+                AutoHotBar.hotBarSolution = AutoHotBar.findHotBarSolution(AutoHotBar.hotBars.get(AIOMVigilanceConfig.hotBarProfileThree));
+                AutoHotBar.swapHotBar = true;
+            }
+        }
+        if (keyBindings[5].isPressed()) {
+            if (!AIOMVigilanceConfig.vClipKeyBindAmount.equals("")) {
+                Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY + Double.parseDouble(AIOMVigilanceConfig.vClipKeyBindAmount), Main.mcPlayer.posZ);
+            }
+        }
     }
-
 }

@@ -65,6 +65,7 @@ public class Main {
 
     public static WorldClient mcWorld = mc.theWorld;
 
+
     public static boolean remindToUpdate = false;
 
     public static boolean sentUpdateReminder = false;
@@ -161,13 +162,19 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new BlockRendering());
         MinecraftForge.EVENT_BUS.register(new MinionAura());
         MinecraftForge.EVENT_BUS.register(new AutoGodPot());
+        MinecraftForge.EVENT_BUS.register(new AutoHotBar());
+        MinecraftForge.EVENT_BUS.register(new AutoF7Callouts());
 
         StencilEffect.Companion.enableStencil();
 
-        ClientProxy.keyBindings = new KeyBinding[2];
+        ClientProxy.keyBindings = new KeyBinding[6];
 
         ClientProxy.keyBindings[0] = new KeyBinding("Toggle Macro", Keyboard.KEY_DELETE, "All-In-One Macro");
         ClientProxy.keyBindings[1] = new KeyBinding("Open Gui", Keyboard.KEY_BACKSLASH, "All-In-One Macro");
+        ClientProxy.keyBindings[2] = new KeyBinding("HotBar Profile One", Keyboard.KEY_F6, "All-In-One Macro");
+        ClientProxy.keyBindings[3] = new KeyBinding("HotBar Profile Two", Keyboard.KEY_F7, "All-In-One Macro");
+        ClientProxy.keyBindings[4] = new KeyBinding("HotBar Profile Three", Keyboard.KEY_F8, "All-In-One Macro");
+        ClientProxy.keyBindings[5] = new KeyBinding("VerticalClip", Keyboard.KEY_GRAVE, "All-In-One Macro");
 
         for (int i = 0; i < ClientProxy.keyBindings.length; i++) {
             ClientRegistry.registerKeyBinding(ClientProxy.keyBindings[i]);
@@ -181,7 +188,6 @@ public class Main {
 
         proxy.postInit(postEvent);
 
-
         RenderPlayer slim_render = Main.mc.getRenderManager().getSkinMap().get("slim");
         slim_render.addLayer(new BoobRendering(slim_render));
         slim_render.addLayer(new AssRendering(slim_render));
@@ -191,6 +197,8 @@ public class Main {
         default_render.addLayer(new BoobRendering(default_render));
         default_render.addLayer(new AssRendering(default_render));
         default_render.addLayer(new TesticleRendering(default_render));
+
+        AutoHotBar.loadHotBars();
     }
 
     @SubscribeEvent

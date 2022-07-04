@@ -4,7 +4,7 @@ plugins {
     id "org.spongepowered.mixin" version "0.6-SNAPSHOT"
 }
 
-version = "1.6.8-release"
+version = "1.6.9-release"
 group = "me.jacktym.aiom"
 
 sourceCompatibility = targetCompatibility = 1.8
@@ -37,12 +37,9 @@ dependencies {
     implementation("org.spongepowered:mixin:0.7.11-SNAPSHOT")
     packageLib("gg.essential:loader-launchwrapper:1.1.1")
     implementation("gg.essential:essential-1.8.9-forge:1498")
-}
 
-mixin {
-    disableRefMapWarning = true
-    defaultObfuscationEnv searge
-    add sourceSets.main, "mixins.rosegoldaddons.refmap.json"
+    implementation("io.netty:netty-handler-proxy:4.1.77.Final") { transitive = false }
+    shadow("io.netty:netty-handler-proxy:4.1.77.Final") { transitive = false }
 }
 
 jar {
@@ -51,9 +48,8 @@ jar {
 
     manifest.attributes(
             "FMLCorePluginContainsFMLMod": true,
-            "FMLCorePlugin": "rosegoldaddons.FMLLoadingPlugin",
+            "FMLCorePlugin": "me.jacktym.aiomacro.FMLLoadingPlugin",
             "ForceLoadAsMod": true,
-            "MixinConfigs": "mixins.rosegoldaddons.json",
             "ModSide": "CLIENT",
             "TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker",
             "TweakOrder": "0"

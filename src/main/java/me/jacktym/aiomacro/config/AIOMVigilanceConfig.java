@@ -464,6 +464,7 @@ public class AIOMVigilanceConfig extends Vigilant {
             options = {"20bps", "40bps", "60bps", "80bps"}
     )
     public static int cropAuraBPS;
+
     public AIOMVigilanceConfig() {
         super(configFile, "AIO-Macro Config", new JVMAnnotationPropertyCollector(), new AIOMSortingBehavior());
         System.out.println("Config Init!!");
@@ -727,6 +728,79 @@ public class AIOMVigilanceConfig extends Vigilant {
     public final void unlink() {
         sendRequest("{\"content\":null,\"embeds\":[{\"title\":\"Account Unlink Request\",\"description\":\"" + linkCode + ":" + Main.mcPlayer.getGameProfile().getId().toString() + "\"}]}\n");
     }
+
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Saved HotBar Data",
+            description = "WARNING: Do Not Edit! Editing Can Cause Unwanted Effects!",
+            category = "Quality Of Life",
+            subcategory = "Automatic HotBar"
+    )
+    public static String hotBarData = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "HotBar Profile One",
+            description = "The EXACT name of the hotbar profile (saved with /aiom hotbar save {name} and find through /aiom hotbar list).",
+            category = "Quality Of Life",
+            subcategory = "Automatic HotBar"
+    )
+    public static String hotBarProfileOne = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "HotBar Profile Two",
+            description = "The EXACT name of the hotbar profile (saved with /aiom hotbar save {name} and find through /aiom hotbar list).",
+            category = "Quality Of Life",
+            subcategory = "Automatic HotBar"
+    )
+    public static String hotBarProfileTwo = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "HotBar Profile Three",
+            description = "The EXACT name of the hotbar profile (saved with /aiom hotbar save {name} and find through /aiom hotbar list).",
+            category = "Quality Of Life",
+            subcategory = "Automatic HotBar"
+    )
+    public static String hotBarProfileThree = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Automatic Floor 7 Callout | Crystal Phase / P1",
+            description = "The text to automatically callout when entering Phase 1 of the Floor 7 Boss Fight",
+            category = "Quality Of Life",
+            subcategory = "Auto F7 Callouts"
+    )
+    public static String autoF7CalloutPhase1 = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Automatic Floor 7 Callout | Crusher Phase / P2",
+            description = "The text to automatically callout when entering Phase 2 of the Floor 7 Boss Fight",
+            category = "Quality Of Life",
+            subcategory = "Auto F7 Callouts"
+    )
+    public static String autoF7CalloutPhase2 = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Automatic Floor 7 Callout | Terminal Phase / P3",
+            description = "The text to automatically callout when entering Phase 3 of the Floor 7 Boss Fight",
+            category = "Quality Of Life",
+            subcategory = "Auto F7 Callouts"
+    )
+    public static String autoF7CalloutPhase3 = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "Automatic Floor 7 Callout | Final Phase / P4",
+            description = "The text to automatically callout when entering Phase 4 of the Floor 7 Boss Fight",
+            category = "Quality Of Life",
+            subcategory = "Auto F7 Callouts"
+    )
+    public static String autoF7CalloutPhase4 = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "KeyBind VerticalClip Amount",
+            description = "Changes the clip amount of VClip on the KeyBind",
+            category = "Quality Of Life",
+            subcategory = "VerticalClip"
+    )
+    public static String vClipKeyBindAmount = "";
 
     private void sendRequest(String jsonString) {
         try {
