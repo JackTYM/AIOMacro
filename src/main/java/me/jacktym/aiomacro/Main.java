@@ -164,6 +164,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new AutoGodPot());
         MinecraftForge.EVENT_BUS.register(new AutoHotBar());
         MinecraftForge.EVENT_BUS.register(new AutoF7Callouts());
+        MinecraftForge.EVENT_BUS.register(new WaterSolver());
 
         StencilEffect.Companion.enableStencil();
 
