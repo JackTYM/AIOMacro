@@ -15,6 +15,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -24,153 +26,89 @@ import java.util.*;
 
 public class WaterSolver {
 
-    private static boolean prevInWaterRoom = false;
-    private static boolean inWaterRoom = false;
-    private static List<String> purpleLeverOrder = new ArrayList<>();
-    private static List<String> orangeLeverOrder = new ArrayList<>();
-    private static List<String> blueLeverOrder = new ArrayList<>();
-    private static List<String> greenLeverOrder = new ArrayList<>();
-    private static List<String> redLeverOrder = new ArrayList<>();
+    private boolean prevInWaterRoom = false;
+    private boolean inWaterRoom = false;
+    private List<String> purpleLeverOrder = new ArrayList<>();
+    private List<String> orangeLeverOrder = new ArrayList<>();
+    private List<String> blueLeverOrder = new ArrayList<>();
+    private List<String> greenLeverOrder = new ArrayList<>();
+    private List<String> redLeverOrder = new ArrayList<>();
 
-    private static Map<String, List<String>> orders = new LinkedHashMap<>();
+    private Map<String, List<String>> orders = new LinkedHashMap<>();
 
-    private static boolean purpleOpen;
-    private static boolean orangeOpen;
-    private static boolean blueOpen;
-    private static boolean greenOpen;
-    private static boolean redOpen;
-
-
-    private static BlockPos purpleGateCheck;
-    private static BlockPos orangeGateCheck;
-    private static BlockPos blueGateCheck;
-    private static BlockPos greenGateCheck;
-    private static BlockPos redGateCheck;
-
-    public static int tick = 0;
+    private boolean purpleOpen;
+    private boolean orangeOpen;
+    private boolean blueOpen;
+    private boolean greenOpen;
+    private boolean redOpen;
 
 
+    private BlockPos purpleGateCheck;
+    private BlockPos orangeGateCheck;
+    private BlockPos blueGateCheck;
+    private BlockPos greenGateCheck;
+    private BlockPos redGateCheck;
 
-    public static int tick1 = 0;
-    private static boolean sentMessage1 = false;
-    private static boolean sentMessage2 = false;
-
-    private static BlockPos quartzLever;
-    private static BlockPos diamondLever;
-    private static BlockPos goldLever;
-    private static BlockPos emeraldLever;
-    private static BlockPos coalLever;
-    private static BlockPos clayLever;
-    private static BlockPos waterLever;
-
-
-    private static boolean quartzLeverActive = false;
-    private static boolean diamondLeverActive = false;
-    private static boolean goldLeverActive = false;
-    private static boolean emeraldLeverActive = false;
-    private static boolean coalLeverActive = false;
-    private static boolean clayLeverActive = false;
-
-    private static boolean waterLeverActive = false;
-
-
-    public static int tick2 = 0;
-
-    private static boolean sendMessage01 = false;
-    private static boolean doRender1 = false;
-
-    private static boolean sentMessage = false;
-    public static int tick3 = 0;
-    private static boolean toggleLever = false;
-    private static boolean sendMessage0 = false;
-    private static boolean doRender = false;
+    public int tick = 0;
 
 
 
-    private static Map<String, Boolean> purpleLeverCheck = new HashMap<>();
-    private static Map<String, Boolean> orangeLeverCheck = new HashMap<>();
-    private static Map<String, Boolean> blueLeverCheck = new HashMap<>();
-    private static Map<String, Boolean> greenLeverCheck = new HashMap<>();
-    private static Map<String, Boolean> redLeverCheck = new HashMap<>();
+    public int tick1 = 0;
+    private boolean sentMessage1 = false;
+    private boolean sentMessage2 = false;
 
-    private static String currentGate = "";
+    private BlockPos quartzLever;
+    private BlockPos diamondLever;
+    private BlockPos goldLever;
+    private BlockPos emeraldLever;
+    private BlockPos coalLever;
+    private BlockPos clayLever;
+    private BlockPos waterLever;
 
-    private static boolean sendMessage3 = false;
+
+    private boolean quartzLeverActive = false;
+    private boolean diamondLeverActive = false;
+    private boolean goldLeverActive = false;
+    private boolean emeraldLeverActive = false;
+    private boolean coalLeverActive = false;
+    private boolean clayLeverActive = false;
+
+    private boolean waterLeverActive = false;
 
 
-    @SubscribeEvent
+    public int tick2 = 0;
+
+    private boolean sendMessage01 = false;
+    private boolean doRender1 = false;
+
+    private boolean sentMessage = false;
+    public int tick3 = 0;
+    private boolean toggleLever = false;
+    private boolean sendMessage0 = false;
+    private boolean doRender = false;
+
+
+
+    private Map<String, Boolean> purpleLeverCheck = new HashMap<>();
+    private Map<String, Boolean> orangeLeverCheck = new HashMap<>();
+    private Map<String, Boolean> blueLeverCheck = new HashMap<>();
+    private Map<String, Boolean> greenLeverCheck = new HashMap<>();
+    private Map<String, Boolean> redLeverCheck = new HashMap<>();
+
+    private String currentGate = "";
+
+    private boolean sendMessage3 = false;
+
+
+    @SubscribeEvent (priority = EventPriority.HIGHEST)
     public void resetVars(ClientChatReceivedEvent e) {
         String strippedMessage = Utils.stripColor(e.message.getUnformattedText());
 
         if (strippedMessage.contains("Here, I found this map when I first entered the dungeon.")) {
-            prevInWaterRoom = false;
-            inWaterRoom = false;
-            purpleLeverOrder.clear();
-            orangeLeverOrder.clear();
-            blueLeverOrder.clear();
-            greenLeverOrder.clear();
-            redLeverOrder.clear();
+            BlockRendering.renderMap.clear();
 
-            orders.clear();
-
-            purpleOpen = Boolean.parseBoolean(null);
-            orangeOpen = Boolean.parseBoolean(null);
-            blueOpen = Boolean.parseBoolean(null);
-            greenOpen = Boolean.parseBoolean(null);
-            redOpen = Boolean.parseBoolean(null);
-
-
-            purpleGateCheck = null;
-            orangeGateCheck = null;
-            blueGateCheck = null;
-            greenGateCheck = null;
-            redGateCheck = null;
-            sentMessage = false;
-            sendMessage0 = false;
-            doRender = false;
-
-
-
-            tick1 = 0;
-            sentMessage1 = false;
-            sentMessage2 = false;
-
-            quartzLever = null;
-            diamondLever = null;
-            goldLever = null;
-            emeraldLever = null;
-            coalLever = null;
-            clayLever = null;
-            waterLever = null;
-
-
-            quartzLeverActive = false;
-            diamondLeverActive = false;
-            goldLeverActive = false;
-            emeraldLeverActive = false;
-            coalLeverActive = false;
-            clayLeverActive = false;
-
-            waterLeverActive = false;
-
-
-            tick2 = 0;
-
-            sendMessage01 = false;
-            doRender1 = false;
-
-
-
-            purpleLeverCheck.clear();
-            orangeLeverCheck.clear();
-            blueLeverCheck.clear();
-            greenLeverCheck.clear();
-            redLeverCheck.clear();
-
-            currentGate = "";
-
-            sendMessage3 = false;
-
+            MinecraftForge.EVENT_BUS.unregister(this);
+            MinecraftForge.EVENT_BUS.register(new WaterSolver());
         }
 
     }
@@ -849,7 +787,7 @@ public class WaterSolver {
 
 
                 } else {
-                    orders.get("Purple").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                    orders.get("Purple").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                 }
             }
             else if (currentGate.equals("Orange")) {
@@ -873,7 +811,7 @@ public class WaterSolver {
                     }
 
                 } else {
-                    orders.get("Orange").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                    orders.get("Orange").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                 }
             }
             else if (currentGate.equals("Blue")) {
@@ -897,7 +835,7 @@ public class WaterSolver {
                     }
 
                 } else {
-                    orders.get("Blue").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                    orders.get("Blue").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                 }
             }
 
@@ -921,7 +859,7 @@ public class WaterSolver {
                         }
                     }
                 } else {
-                    orders.get("Green").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                    orders.get("Green").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                 }
             }
             else if (currentGate.equals("Red")) {
@@ -943,7 +881,7 @@ public class WaterSolver {
                         }
                     }
                 } else {
-                    orders.get("Red").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                    orders.get("Red").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                 }
             }
 
@@ -954,27 +892,27 @@ public class WaterSolver {
                         if (!purpleOpen) {
                             currentGate = "Purple";
                             purpleLeverCheck.clear();
-                            orders.get("Purple").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                            orders.get("Purple").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                         }
                         else if (!orangeOpen) {
                             currentGate = "Orange";
                             orangeLeverCheck.clear();
-                            orders.get("Orange").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                            orders.get("Orange").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                         }
                         else if (!blueOpen) {
                             currentGate = "Blue";
                             blueLeverCheck.clear();
-                            orders.get("Blue").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                            orders.get("Blue").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                         }
                         else if (!greenOpen) {
                             currentGate = "Green";
                             greenLeverCheck.clear();
-                            orders.get("Green").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                            orders.get("Green").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                         }
                         else if (!redOpen) {
                             currentGate = "Red";
                             redLeverCheck.clear();
-                            orders.get("Red").forEach(lever -> WaterSolver.sendLeverPackets(lever, currentGate));
+                            orders.get("Red").forEach(lever -> this.sendLeverPackets(lever, currentGate));
                         }
                     } catch (NullPointerException ignored) {}
                 }
@@ -982,7 +920,7 @@ public class WaterSolver {
         }
     }
 
-    private static boolean clearLevers(){
+    private boolean clearLevers(){
         if(toggleLever) {
 
             if(quartzLeverActive){
@@ -1010,9 +948,8 @@ public class WaterSolver {
         }
         return false;
     }
-    private static void sendLeverPackets(String lever, String gate) {
+    private void sendLeverPackets(String lever, String gate) {
         if (toggleLever) {
-            System.out.println(lever);
             switch (lever) {
                 case "None":
                     switch (gate) {
