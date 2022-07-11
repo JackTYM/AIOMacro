@@ -15,6 +15,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.IOUtils;
@@ -149,21 +150,21 @@ public class BazaarFlipper {
                         if (AIOMVigilanceConfig.bazaarFlipDevMode) {
                             System.out.println("Nothing Happening Currently");
                         }
-                        if (isOnBazaarMenu()) {
-                            if (AIOMVigilanceConfig.bazaarFlipDevMode) {
-                                System.out.println("Inside Bazaar Menu | Running Next Event");
-                            }
-                            runNextEvent();
-                        } else if (!isGuiOpen()) {
-                            if (AIOMVigilanceConfig.bazaarFlipDevMode) {
-                                System.out.println("Not in gui, Opening Bazaar");
-                            }
-                            Main.sendMarkedChatMessage("Opened Bazaar Menu!");
-                            if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
-                                Main.mcPlayer.sendChatMessage("/bz");
-                            } else {
-                                Utils.openNpc("Bazaar");
-                            }
+                    }
+                    if (isOnBazaarMenu()) {
+                        if (AIOMVigilanceConfig.bazaarFlipDevMode) {
+                            System.out.println("Inside Bazaar Menu | Running Next Event");
+                        }
+                        runNextEvent();
+                    } else if (!isGuiOpen()) {
+                        if (AIOMVigilanceConfig.bazaarFlipDevMode) {
+                            System.out.println("Not in gui, Opening Bazaar");
+                        }
+                        Main.sendMarkedChatMessage("Opened Bazaar Menu!");
+                        if (!AIOMVigilanceConfig.bazaarFlipNpcMode) {
+                            Main.mcPlayer.sendChatMessage("/bz");
+                        } else {
+                            Utils.openNpc("Bazaar");
                         }
                     }
                 }
@@ -193,7 +194,7 @@ public class BazaarFlipper {
             if (AIOMVigilanceConfig.bazaarFlipDevMode) {
                 System.out.println("No cuts / fills");
             }
-            if ((orderNum < Integer.parseInt(AIOMVigilanceConfig.maxFlips) || Integer.parseInt(AIOMVigilanceConfig.maxFlips) == 0) && Utils.currentTimeMillis() >= lastOrderMillis + 30000) {
+            if ((orderNum < Integer.parseInt(AIOMVigilanceConfig.maxFlips) || Integer.parseInt(AIOMVigilanceConfig.maxFlips) == 0) && Utils.currentTimeMillis() >= lastOrderMillis + 5000) {
                 if (AIOMVigilanceConfig.bazaarFlipDevMode) {
                     System.out.println("Grabbing key for next order");
                 }
@@ -335,11 +336,15 @@ public class BazaarFlipper {
                                 case 2:
                                     if (chestName.equals("Order options")) {
                                         Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 11, 0, 0, Main.mcPlayer);
+                                    }
+                                    if (chestName.equals("Co-op Bazaar Orders")) {
                                         manageOrderPhase = 3;
                                     }
                                 case 3:
                                     if (chestName.equals("Co-op Bazaar Orders")) {
                                         Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, 31, 0, 0, Main.mcPlayer);
+                                    }
+                                    if (chestName.startsWith("Bazaar")) {
                                         manageOrderPhase = 4;
                                     }
                                 case 4:
@@ -395,9 +400,10 @@ public class BazaarFlipper {
                                             Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
                                         }
                                         Main.mc.playerController.windowClick(Main.mcPlayer.openContainer.windowId, slot, 0, 0, Main.mcPlayer);
-                                    }
-                                    if (chestName.equals("Order options")) {
-                                        manageOrderPhase = 2;
+
+                                        if (chestName.equals("Order options")) {
+                                            manageOrderPhase = 2;
+                                        }
                                     }
                                 case 2:
                                     if (chestName.equals("Order options")) {
@@ -706,7 +712,7 @@ public class BazaarFlipper {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void chatReceived(ClientChatReceivedEvent e) {
         String message = e.message.getUnformattedText();
 
@@ -715,15 +721,22 @@ public class BazaarFlipper {
         //Sell Offer Setup | Buy Order Setup
         if (strippedMessage.contains("er Setup!")) {
             int orderCheckNum = Integer.parseInt(strippedMessage.split("Setup! ")[1].split("x ")[0]);
-            String orderCheckItem = strippedMessage.split("x ")[1].split(" for ")[0];
+            if (strippedMessage.contains(orderCheckNum + "x ")) {
+                String orderCheckItem = strippedMessage.split(orderCheckNum + "x ")[1].split(" for ")[0];
 
-            if (orderCheckNum == lastAmount && orderCheckItem.equals(lastName)) {
-                if (strippedMessage.contains("Buy Order Setup!")) {
-                    buyOrders.put(lastName, lastPrice);
-                    orderNum++;
-                } else {
-                    sellOrders.put(lastName, lastPrice);
-                    orderNum--;
+                System.out.println(lastName);
+                System.out.println(orderCheckItem);
+                System.out.println(lastAmount);
+                System.out.println(orderCheckNum);
+
+                if (orderCheckNum == lastAmount && orderCheckItem.equals(lastName)) {
+                    if (strippedMessage.contains("Buy Order Setup!")) {
+                        buyOrders.put(lastName, lastPrice);
+                        orderNum++;
+                    } else {
+                        sellOrders.put(lastName, lastPrice);
+                        orderNum--;
+                    }
                 }
             }
         }

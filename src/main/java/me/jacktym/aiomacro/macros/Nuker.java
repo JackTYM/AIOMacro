@@ -25,7 +25,7 @@ public class Nuker {
 
     @SubscribeEvent
     public void playerTick(@NotNull TickEvent.ClientTickEvent event) {
-        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null && toBreak.size() != 0) {
+        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.notNull && toBreak.size() != 0) {
             BlockRendering.renderMap.clear();
             for (int i = 0; i <= AIOMVigilanceConfig.nukerBPS; i++) {
                 if (toBreak.size() != 0) {
@@ -42,7 +42,11 @@ public class Nuker {
                     }
                     if (toBreak.size() != 0) {
                         bp = new BlockPos(toBreak.get(0));
-                        Main.mcPlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(toBreak.get(0)), EnumFacing.DOWN));
+                        if (AIOMVigilanceConfig.nukerBlock == 5) {
+                            Main.mc.playerController.onPlayerRightClick(Main.mcPlayer, Main.mcWorld, Main.mcPlayer.inventory.getCurrentItem(), new BlockPos(toBreak.get(0)).add(0, 0, 0), EnumFacing.UP, Main.mc.objectMouseOver.hitVec);
+                        } else {
+                            Main.mcPlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(toBreak.get(0)), EnumFacing.DOWN));
+                        }
                         toBreak.remove(0);
                     }
                 }
@@ -52,8 +56,7 @@ public class Nuker {
 
     @SubscribeEvent
     public void render(RenderWorldLastEvent event) {
-        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null && bp != null && toBreak.size() != 0) {
-            BlockPos blockPos = bp;
+        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.notNull && bp != null && toBreak.size() != 0) {
             Color color = AIOMVigilanceConfig.nukerColor;
             BlockRendering.renderMap.put(bp, color);
         }
@@ -61,14 +64,27 @@ public class Nuker {
 
     @SubscribeEvent
     public void pickBlocks(@NotNull RenderWorldLastEvent event) {
-        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.mcPlayer != null && Main.mcWorld != null) {
+        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.notNull) {
             ArrayList<Vec3> blocks = new ArrayList<>();
-            if (AIOMVigilanceConfig.nukerBlock == 0 || AIOMVigilanceConfig.nukerBlock == 1 || AIOMVigilanceConfig.nukerBlock == 3 || AutoBazaarUnlocker.autoWheatOn || AIOMVigilanceConfig.nukerBlock == 5) {
+
+            switch (AIOMVigilanceConfig.nukerBlock) {
+                case 0:
+                case 1:
+                case 3:
+                case 5:
+                case 6:
+                    blocks = pickBlocks(new Vec3i(3, 1, 3));
+                    break;
+                case 2:
+                    blocks = pickBlocks(new Vec3i(4, 4, 4));
+                    break;
+                case 4:
+                    blocks = pickBlocks(new Vec3i(3, 2, 3));
+                    break;
+            }
+
+            if (AutoBazaarUnlocker.autoWheatOn) {
                 blocks = pickBlocks(new Vec3i(3, 1, 3));
-            } else if (AIOMVigilanceConfig.nukerBlock == 2) {
-                blocks = pickBlocks(new Vec3i(4, 4, 4));
-            } else if (AIOMVigilanceConfig.nukerBlock == 4) {
-                blocks = pickBlocks(new Vec3i(3, 2, 3));
             }
 
             for (Vec3 block : blocks) {
@@ -104,6 +120,11 @@ public class Nuker {
                     }
                 }
                 if (AIOMVigilanceConfig.nukerBlock == 5) {
+                    if ((b == Blocks.grass || b == Blocks.dirt) && !toBreak.contains(new BlockPos(block)) && Main.mcWorld.getBlockState(new BlockPos(block).add(0, 1, 0)).getBlock() == Blocks.air) {
+                        toBreak.add(new BlockPos(block));
+                    }
+                }
+                if (AIOMVigilanceConfig.nukerBlock == 6) {
                     try {
                         if (Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock.toLowerCase()) != null) {
                             if (b == Block.getBlockFromName(AIOMVigilanceConfig.customNukerBlock.toLowerCase()) && !toBreak.contains(new BlockPos(block))) {

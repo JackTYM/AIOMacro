@@ -17,7 +17,7 @@ public class AntiStuck {
 
     @SubscribeEvent
     public void AntiStuckTick(@NotNull TickEvent.ClientTickEvent event) {
-        if (antistuckOn && Main.mcWorld != null && Main.mcPlayer != null) {
+        if (antistuckOn && Main.notNull) {
             if (tick >= 20) {
 
                 if (AIOMVigilanceConfig.antiStuckJump) {

@@ -4,6 +4,7 @@ import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.rendering.BlockRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.block.Block;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
@@ -31,18 +32,18 @@ public class PathFind {
     public ArrayList<Block> passThroughBlockList = new ArrayList<>();
     public boolean sendDoneMessage = false;
     public boolean sendFailMessage = false;
+    public boolean inThread = false;
 
     public static void pathFind(Vec3 destination, Boolean collision) {
         destinationGlobal = destination;
 
         globalCollision = collision;
 
-        //pathPoints.add(pos);
-        //finalPath.add(pos);
-
         findPathStart = Utils.currentTimeMillis();
 
         followPath = false;
+
+        System.out.println("Pathfinding: " + destination);
     }
 
     public static void clear() {
@@ -56,7 +57,7 @@ public class PathFind {
 
     @SubscribeEvent
     public void findPath(TickEvent.ClientTickEvent event) {
-        if (Main.mcPlayer != null && Main.mcWorld != null) {
+        if (Main.notNull) {
             if (pos == null) {
                 BlockPos blockPos = new BlockPos(Main.mcPlayer.posX, Main.mcPlayer.posY, Main.mcPlayer.posZ);
                 pos = new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ());
@@ -116,6 +117,7 @@ public class PathFind {
                 passThroughBlockList.add(Blocks.unpowered_comparator);
                 passThroughBlockList.add(Blocks.vine);
                 passThroughBlockList.add(Blocks.wall_sign);
+                passThroughBlockList.add(Blocks.water);
                 passThroughBlockList.add(Blocks.waterlily);
                 passThroughBlockList.add(Blocks.web);
                 passThroughBlockList.add(Blocks.wheat);
@@ -127,6 +129,12 @@ public class PathFind {
                 if (sendDoneMessage) {
                     Main.sendMarkedChatMessage("Path found in " + (Utils.currentTimeMillis() - findPathStart) + " Milliseconds. " + finalPath.size() + " Blocks!");
                     followPath = true;
+
+                    double setX = Math.floor(Main.mcPlayer.getPositionVector().xCoord) + 0.5;
+                    double setY = Main.mcPlayer.getPositionVector().yCoord;
+                    double setZ = Math.floor(Main.mcPlayer.getPositionVector().zCoord) + 0.5;
+
+                    Main.mcPlayer.setPosition(setX, setY, setZ);
                     return;
                 }
                 if (sendFailMessage) {
@@ -140,107 +148,190 @@ public class PathFind {
                 if (finalPath.isEmpty()) {
                     finalPath.add(pos);
                 }
-                new Thread(() -> {
-                    for (int x = 1; x <= 10; x++) {
-                        try {
-                            System.out.println(getNextVec());
-                            if (vec3Equals(getNextVec(), destinationGlobal)) {
-                                if (!vec3Contains(finalPath, destinationGlobal)) {
-                                    finalPath.add(destinationGlobal);
-                                    finalPath.add(destinationGlobal);
-                                }
-                                if (optimizedFully) {
-                                    sendDoneMessage = true;
-                                    return;
-                                } else {
-                                    optimizePath(finalPath);
-                                }
-                            } else {
-                                for (int i = 1; i <= 6; i++) {
-                                    if (pathPoints.size() == 0) {
-                                        pathPoints.add(pos);
-                                    }
-                                    Vec3 lastPoint = getNextVec();
-                                    Vec3 point = getNextVec();
-
-                                    //System.out.println(point);
-                                    switch (i) {
-                                        case 1:
-                                            point = point.addVector(0, 0, 1);
-                                            break;
-                                        case 2:
-                                            point = point.addVector(1, 0, 0);
-                                            break;
-                                        case 3:
-                                            point = point.addVector(0, 0, -1);
-                                            break;
-                                        case 4:
-                                            point = point.addVector(0, -1, 0);
-                                            break;
-                                        case 5:
-                                            point = point.addVector(-1, 0, 0);
-                                            break;
-                                        case 6:
-                                            point = point.addVector(0, 1, 0);
-                                            break;
-                                    }
-                                    if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(lastPoint.addVector(0, -1, 0))).getBlock())) {
-                                        if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock())
-                                                && blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock())
-                                                && (!blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, -1, 0))).getBlock()) || i == 4)
-                                                && !vec3Contains(badPoints, point)
-                                                && !vec3Contains(pathPoints, point)
-                                                && !vec3Contains(finalPath, point)) {
-                                            pathPoints.add(point);
+                if (!inThread) {
+                    new Thread(() -> {
+                        inThread = true;
+                        for (int x = 1; x <= 100; x++) {
+                            if (!clear) {
+                                try {
+                                    if (Utils.vec3Equals(getNextVec(), destinationGlobal)) {
+                                        if (!Utils.vec3Contains(finalPath, destinationGlobal)) {
+                                            finalPath.add(destinationGlobal);
+                                            finalPath.add(destinationGlobal);
                                         }
-                                    } else if (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock())
-                                            && blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock())
-                                            && !vec3Contains(badPoints, point)
-                                            && !vec3Contains(pathPoints, point)
-                                            && !vec3Contains(finalPath, point)) {
-                                        pathPoints.add(point);
-                                    }
-                                }
-                                if (pathPoints.isEmpty()) {
-                                    pathPoints.add(pos);
-                                }
-                                if (pathPoints.size() >= 2
-                                        && getNextVec() != null) {
-                                    finalPath.add(getNextVec());
-                                    pathPoints.remove(0);
-
-                                    pathPoints = sortPathPoints(pathPoints);
-
-                                    if (!pathPoints.isEmpty()) {
-                                        if (vec3Equals(getNextVec(), recentPoint)) {
-                                            attempts++;
+                                        if (optimizedFully) {
+                                            sendDoneMessage = true;
+                                            inThread = false;
+                                            return;
                                         } else {
-                                            attempts = 0;
+                                            optimizePath(finalPath);
                                         }
-                                        if (attempts >= 3) {
-                                            if (!vec3Contains(badPoints, getNextVec())) {
-                                                badPoints.add(getNextVec());
-                                                attempts = 0;
-                                                return;
+                                    } else {
+                                        for (int i = 1; i <= 6; i++) {
+                                            if (pathPoints.size() == 0) {
+                                                pathPoints.add(pos);
+                                            }
+                                            Vec3 lastPoint = getNextVec();
+                                            Vec3 point = getNextVec();
+
+                                            switch (i) {
+                                                case 1:
+                                                    point = point.addVector(0, 0, 1);
+                                                    break;
+                                                case 2:
+                                                    point = point.addVector(1, 0, 0);
+                                                    break;
+                                                case 3:
+                                                    point = point.addVector(0, 0, -1);
+                                                    break;
+                                                case 4:
+                                                    point = point.addVector(0, -1, 0);
+                                                    break;
+                                                case 5:
+                                                    point = point.addVector(-1, 0, 0);
+                                                    break;
+                                                case 6:
+                                                    point = point.addVector(0, 1, 0);
+                                                    break;
+                                            }
+                                            if ((blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(lastPoint.addVector(0, -1, 0))).getBlock()))) {
+                                                if ((blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock()))
+                                                        && (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock()))
+                                                        && (!blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, -1, 0))).getBlock()) || i == 4)
+                                                        && !Utils.vec3Contains(badPoints, point)
+                                                        && !Utils.vec3Contains(pathPoints, point)
+                                                        && !Utils.vec3Contains(finalPath, point)) {
+                                                    pathPoints.add(point);
+                                                }
+                                            } else if ((blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock()) || !globalCollision)
+                                                    && (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock()) || !globalCollision)
+                                                    && !Utils.vec3Contains(badPoints, point)
+                                                    && !Utils.vec3Contains(pathPoints, point)
+                                                    && !Utils.vec3Contains(finalPath, point)) {
+                                                pathPoints.add(point);
                                             }
                                         }
+                                        if (pathPoints.isEmpty()) {
+                                            pathPoints.add(pos);
+                                        }
+                                        if (pathPoints.size() >= 2
+                                                && getNextVec() != null) {
+                                            finalPath.add(getNextVec());
+                                            pathPoints.remove(0);
 
-                                        recentPoint = getNextVec();
-                                    } else {
-                                        sendFailMessage = true;
+                                            pathPoints = sortPathPoints(pathPoints);
+
+                                            if (!pathPoints.isEmpty()) {
+                                                if (Utils.vec3Equals(getNextVec(), recentPoint)) {
+                                                    attempts++;
+                                                } else {
+                                                    attempts = 0;
+                                                }
+                                                if (attempts >= 3) {
+                                                    if (!Utils.vec3Contains(badPoints, getNextVec())) {
+                                                        badPoints.add(getNextVec());
+                                                        attempts = 0;
+                                                    }
+                                                }
+                                                recentPoint = getNextVec();
+
+                                                BlockRendering.renderMap.clear();
+                                                BlockRendering.renderMap.put(new BlockPos(recentPoint), Color.RED);
+                                            } else {
+                                                sendFailMessage = true;
+                                            }
+
+                                        }
                                     }
-
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
+                            } else {
+                                break;
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        }
+                        inThread = false;
+                    }).start();
+                }
+            } else if (followPath) {
+                if (finalPath.size() >= 2) {
+                    Vec3 currentPos = finalPath.get(0);
+                    Vec3 nextPos;
+                    Vec3 thirdPos = null;
+                    nextPos = finalPath.get(1);
+                    if (Utils.vec3Equals(currentPos, nextPos)) {
+                        finalPath.remove(0);
+                        return;
+                    }
+                    if (finalPath.size() >= 3) {
+                        thirdPos = finalPath.get(2);
+                        if (Utils.vec3Equals(nextPos, thirdPos)) {
+                            finalPath.remove(1);
+                            return;
                         }
                     }
-                }).start();
-            } else if (followPath) {
 
+                    SetPlayerLook.pitch = 0;
+                    SetPlayerLook.yaw = getNextLookVec(currentPos, nextPos, thirdPos);
+                    SetPlayerLook.toggled = true;
+
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindSneak.getKeyCode(), true);
+
+                    if (currentPos.yCoord != nextPos.yCoord) {
+                        finalPath.remove(0);
+                    }
+
+                    if (SetPlayerLook.isLookCorrect()) {
+                        if (((Main.mcPlayer.getPositionVector().xCoord >= 0 && Main.mcPlayer.getPositionVector().xCoord <= nextPos.addVector(0.7, 0, 0.7).xCoord)
+                                || (Main.mcPlayer.getPositionVector().xCoord < 0 && Main.mcPlayer.getPositionVector().xCoord >= nextPos.addVector(0.7, 0, 0.7).xCoord))
+                                && ((Main.mcPlayer.getPositionVector().zCoord >= 0 && Main.mcPlayer.getPositionVector().zCoord <= nextPos.addVector(0.7, 0, 0.7).zCoord)
+                                || (Main.mcPlayer.getPositionVector().zCoord < 0 && Main.mcPlayer.getPositionVector().zCoord >= nextPos.addVector(0.7, 0, 0.7).zCoord))
+                                && Main.mcPlayer.getPositionVector().yCoord == nextPos.yCoord) {
+                            KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
+
+                            finalPath.remove(0);
+                        } else {
+                            KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), true);
+
+                            if (Main.mcPlayer.getPositionVector().yCoord < nextPos.yCoord && Main.mcPlayer.getPositionVector().yCoord == currentPos.yCoord) {
+                                Main.mcPlayer.jump();
+                            }
+                        }
+                    }
+                } else {
+                    Main.sendMarkedChatMessage("Followed Path!");
+                    SetPlayerLook.toggled = false;
+                    followPath = false;
+                    clear();
+                }
             }
         }
+
+    }
+
+    private int getNextLookVec(Vec3 vec1, Vec3 vec2, Vec3 vec3) {
+        int returnInt = 0;
+
+        if (vec1.xCoord > vec2.xCoord) {
+            returnInt = 90;
+        } else if (vec1.xCoord < vec2.xCoord) {
+            returnInt = -90;
+        } else if (vec1.zCoord > vec2.zCoord) {
+            returnInt = 180;
+        } else if (vec1.zCoord < vec2.zCoord) {
+            returnInt = 0;
+        } else if (vec1.yCoord < vec2.yCoord) {
+            System.out.println("Vertical! " + vec1 + " " + vec3);
+            if (vec3 != null) {
+                returnInt = getNextLookVec(vec1, vec3, null);
+            } else {
+                System.out.println("Vertical Error! Vec3 Null!");
+            }
+        } else {
+            System.out.println("Error! " + vec1 + " " + vec2);
+        }
+
+        return returnInt;
     }
 
     private Vec3 getNextVec() {
@@ -322,29 +413,10 @@ public class PathFind {
         list.sort(Map.Entry.comparingByValue());
         newList.clear();
         for (Map.Entry<Vec3, Double> entry : list) {
-            if (!vec3Contains(newList, entry.getKey()) && !vec3Contains(badPoints, entry.getKey())) {
+            if (!Utils.vec3Contains(newList, entry.getKey()) && !Utils.vec3Contains(badPoints, entry.getKey())) {
                 newList.add(entry.getKey());
             }
         }
         return newList;
-    }
-
-    private boolean vec3Equals(Vec3 vec1, Vec3 vec2) {
-        if (vec1 != null && vec2 != null) {
-            return vec1.subtract(vec2).toString().equals("(0.0, 0.0, 0.0)");
-        }
-        return false;
-    }
-
-    private boolean vec3Contains(List<Vec3> vecArray, Vec3 vecSearch) {
-        try {
-            for (Vec3 vec3 : vecArray) {
-                if (vec3.subtract(vecSearch).toString().equals("(0.0, 0.0, 0.0)")) {
-                    return true;
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return false;
     }
 }

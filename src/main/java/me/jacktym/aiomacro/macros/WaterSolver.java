@@ -34,7 +34,7 @@ public class WaterSolver {
     private List<String> greenLeverOrder = new ArrayList<>();
     private List<String> redLeverOrder = new ArrayList<>();
 
-    private Map<String, List<String>> orders = new LinkedHashMap<>();
+    private final Map<String, List<String>> orders = new LinkedHashMap<>();
 
     private boolean purpleOpen;
     private boolean orangeOpen;
@@ -81,26 +81,25 @@ public class WaterSolver {
     private boolean sendMessage01 = false;
     private boolean doRender1 = false;
 
-    private boolean sentMessage = false;
+    private final boolean sentMessage = false;
     public int tick3 = 0;
     private boolean toggleLever = false;
     private boolean sendMessage0 = false;
     private boolean doRender = false;
 
 
-
-    private Map<String, Boolean> purpleLeverCheck = new HashMap<>();
-    private Map<String, Boolean> orangeLeverCheck = new HashMap<>();
-    private Map<String, Boolean> blueLeverCheck = new HashMap<>();
-    private Map<String, Boolean> greenLeverCheck = new HashMap<>();
-    private Map<String, Boolean> redLeverCheck = new HashMap<>();
+    private final Map<String, Boolean> purpleLeverCheck = new HashMap<>();
+    private final Map<String, Boolean> orangeLeverCheck = new HashMap<>();
+    private final Map<String, Boolean> blueLeverCheck = new HashMap<>();
+    private final Map<String, Boolean> greenLeverCheck = new HashMap<>();
+    private final Map<String, Boolean> redLeverCheck = new HashMap<>();
 
     private String currentGate = "";
 
     private boolean sendMessage3 = false;
 
 
-    @SubscribeEvent (priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void resetVars(ClientChatReceivedEvent e) {
         String strippedMessage = Utils.stripColor(e.message.getUnformattedText());
 
@@ -164,31 +163,11 @@ public class WaterSolver {
                         }
                     }
                     if(doRender) {
-                        if ((world.getBlockState(purpleGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(purpleGateCheck).getBlock() == Blocks.air)) {
-                            purpleOpen = true;
-                        } else {
-                            purpleOpen = false;
-                        }
-                        if ((world.getBlockState(orangeGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(orangeGateCheck).getBlock() == Blocks.air)) {
-                            orangeOpen = true;
-                        } else {
-                            orangeOpen = false;
-                        }
-                        if ((world.getBlockState(blueGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(blueGateCheck).getBlock() == Blocks.air)) {
-                            blueOpen = true;
-                        } else {
-                            blueOpen = false;
-                        }
-                        if ((world.getBlockState(greenGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(greenGateCheck).getBlock() == Blocks.air)) {
-                            greenOpen = true;
-                        } else {
-                            greenOpen = false;
-                        }
-                        if ((world.getBlockState(redGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(redGateCheck).getBlock() == Blocks.air)) {
-                            redOpen = true;
-                        } else {
-                            redOpen = false;
-                        }
+                        purpleOpen = (world.getBlockState(purpleGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(purpleGateCheck).getBlock() == Blocks.air);
+                        orangeOpen = (world.getBlockState(orangeGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(orangeGateCheck).getBlock() == Blocks.air);
+                        blueOpen = (world.getBlockState(blueGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(blueGateCheck).getBlock() == Blocks.air);
+                        greenOpen = (world.getBlockState(greenGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(greenGateCheck).getBlock() == Blocks.air);
+                        redOpen = (world.getBlockState(redGateCheck.add(0, -1, 0)).getBlock() == Blocks.sticky_piston) || (world.getBlockState(redGateCheck).getBlock() == Blocks.air);
                         foundPiston = true;
 
                     }

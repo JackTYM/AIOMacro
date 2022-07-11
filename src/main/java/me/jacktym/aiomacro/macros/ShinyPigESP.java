@@ -24,7 +24,7 @@ public class ShinyPigESP {
 
     @SubscribeEvent
     public void tickEvent(TickEvent.ClientTickEvent event) {
-        if (Main.mcWorld != null && Main.mcPlayer != null && AIOMVigilanceConfig.macroType == 5 && MacroHandler.isMacroOn) {
+        if (Main.notNull && AIOMVigilanceConfig.macroType == 5 && MacroHandler.isMacroOn) {
             yourPigArmorstands.clear();
             yourPigs.clear();
             allPigs.clear();

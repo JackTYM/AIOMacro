@@ -5,7 +5,6 @@ import gg.essential.universal.UMinecraft;
 import gg.essential.universal.UScreen;
 import kotlin.jvm.internal.Intrinsics;
 import me.jacktym.aiomacro.commands.AIOM;
-import me.jacktym.aiomacro.commands.PathfindCommand;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.keybinds.ModInputHandler;
 import me.jacktym.aiomacro.macros.*;
@@ -45,8 +44,7 @@ import org.lwjgl.input.Keyboard;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 @Mod(modid = NGGlobal.MOD_ID, name = NGGlobal.MOD_NAME, version = NGGlobal.VERSION)
 public class Main {
@@ -64,6 +62,8 @@ public class Main {
     public static EntityPlayerSP mcPlayer = mc.thePlayer;
 
     public static WorldClient mcWorld = mc.theWorld;
+
+    public static boolean notNull = false;
 
 
     public static boolean remindToUpdate = false;
@@ -140,34 +140,41 @@ public class Main {
         proxy.init(event);
 
         ClientCommandHandler.instance.registerCommand(new AIOM());
-        ClientCommandHandler.instance.registerCommand(new PathfindCommand());
 
-        MinecraftForge.EVENT_BUS.register(new ModInputHandler());
-        MinecraftForge.EVENT_BUS.register(new FastBreak());
-        MinecraftForge.EVENT_BUS.register(new Failsafe());
-        MinecraftForge.EVENT_BUS.register(new FarmingHUD());
-        MinecraftForge.EVENT_BUS.register(new NetherWart());
-        MinecraftForge.EVENT_BUS.register(new SugarCane());
-        MinecraftForge.EVENT_BUS.register(new AntiStuck());
-        MinecraftForge.EVENT_BUS.register(new Nuker());
-        MinecraftForge.EVENT_BUS.register(new SetPlayerLook());
-        MinecraftForge.EVENT_BUS.register(new CropAura());
-        MinecraftForge.EVENT_BUS.register(new BazaarFlipper());
-        MinecraftForge.EVENT_BUS.register(new Main());
-        MinecraftForge.EVENT_BUS.register(new CaneBuilder());
-        MinecraftForge.EVENT_BUS.register(new AutoBazaarUnlocker());
-        MinecraftForge.EVENT_BUS.register(new PathFind());
-        MinecraftForge.EVENT_BUS.register(new FairySoulAura());
-        MinecraftForge.EVENT_BUS.register(new ShinyPigESP());
-        MinecraftForge.EVENT_BUS.register(new BlockRendering());
-        MinecraftForge.EVENT_BUS.register(new MinionAura());
-        MinecraftForge.EVENT_BUS.register(new AutoGodPot());
-        MinecraftForge.EVENT_BUS.register(new AutoHotBar());
-        MinecraftForge.EVENT_BUS.register(new AutoF7Callouts());
+        List<Object> registry = new ArrayList<>();
+        registry.add(new ModInputHandler());
+        registry.add(new FastBreak());
+        registry.add(new Failsafe());
+        registry.add(new FarmingHUD());
+        registry.add(new NetherWart());
+        registry.add(new SugarCane());
+        registry.add(new AntiStuck());
+        registry.add(new Nuker());
+        registry.add(new SetPlayerLook());
+        registry.add(new CropAura());
+        registry.add(new BazaarFlipper());
+        registry.add(new Main());
+        registry.add(new CaneBuilder());
+        registry.add(new AutoBazaarUnlocker());
+        registry.add(new PathFind());
+        registry.add(new FairySoulAura());
+        registry.add(new ShinyPigESP());
+        registry.add(new BlockRendering());
+        registry.add(new MinionAura());
+        registry.add(new AutoGodPot());
+        registry.add(new AutoCookie());
+        registry.add(new AutoHotBar());
+        registry.add(new AutoF7Callouts());
+        registry.add(new Scatha());
+        registry.add(new CryptESP());
+        registry.add(new DungeonDoorAura());
+        registry.add(new WaterSolver());
+
+        registry.forEach(MinecraftForge.EVENT_BUS::register);
 
         StencilEffect.Companion.enableStencil();
 
-        ClientProxy.keyBindings = new KeyBinding[6];
+        ClientProxy.keyBindings = new KeyBinding[7];
 
         ClientProxy.keyBindings[0] = new KeyBinding("Toggle Macro", Keyboard.KEY_DELETE, "All-In-One Macro");
         ClientProxy.keyBindings[1] = new KeyBinding("Open Gui", Keyboard.KEY_BACKSLASH, "All-In-One Macro");
@@ -175,6 +182,7 @@ public class Main {
         ClientProxy.keyBindings[3] = new KeyBinding("HotBar Profile Two", Keyboard.KEY_F7, "All-In-One Macro");
         ClientProxy.keyBindings[4] = new KeyBinding("HotBar Profile Three", Keyboard.KEY_F8, "All-In-One Macro");
         ClientProxy.keyBindings[5] = new KeyBinding("VerticalClip", Keyboard.KEY_GRAVE, "All-In-One Macro");
+        ClientProxy.keyBindings[6] = new KeyBinding("HorizontalClip", Keyboard.KEY_ADD, "All-In-One Macro");
 
         for (int i = 0; i < ClientProxy.keyBindings.length; i++) {
             ClientRegistry.registerKeyBinding(ClientProxy.keyBindings[i]);
@@ -199,6 +207,8 @@ public class Main {
         default_render.addLayer(new TesticleRendering(default_render));
 
         AutoHotBar.loadHotBars();
+
+        Locale.setDefault(new Locale("en", "US"));
     }
 
     @SubscribeEvent
@@ -233,6 +243,8 @@ public class Main {
         mcPlayer = mc.thePlayer;
 
         mcWorld = mc.theWorld;
+
+        notNull = mcPlayer != null && mcWorld != null;
 
         tick++;
 

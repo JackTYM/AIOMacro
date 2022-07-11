@@ -16,6 +16,7 @@ import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.MouseHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldSettings;
@@ -317,5 +318,49 @@ public class Utils {
                     (vec1.zCoord - vec2.zCoord) * (vec1.zCoord - vec2.zCoord));
         }
         return null;
+    }
+
+    public static boolean isMouseGrabbed = true;
+    private static MouseHelper oldHelper = Main.mc.mouseHelper;
+
+    public static void ungrab() {
+        isMouseGrabbed = false;
+        Main.mc.gameSettings.pauseOnLostFocus = false;
+        Main.mc.mouseHelper.ungrabMouseCursor();
+        oldHelper = Main.mc.mouseHelper;
+        Main.mc.mouseHelper = new MouseHelper() {
+            @Override
+            public void mouseXYChange() {
+            }
+        };
+    }
+
+    public static void regrab() {
+        if (!isMouseGrabbed) {
+            if (oldHelper != null) {
+                Main.mc.mouseHelper = oldHelper;
+            }
+            Main.mc.mouseHelper.grabMouseCursor();
+            isMouseGrabbed = true;
+        }
+    }
+
+    public static boolean vec3Equals(Vec3 vec1, Vec3 vec2) {
+        if (vec1 != null && vec2 != null) {
+            return vec1.subtract(vec2).toString().equals("(0.0, 0.0, 0.0)");
+        }
+        return false;
+    }
+
+    public static boolean vec3Contains(List<Vec3> vecArray, Vec3 vecSearch) {
+        try {
+            for (Vec3 vec3 : vecArray) {
+                if (vec3.subtract(vecSearch).toString().equals("(0.0, 0.0, 0.0)")) {
+                    return true;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

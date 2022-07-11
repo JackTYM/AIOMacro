@@ -244,7 +244,6 @@ public class FarmingHUD {
                 return tab.split("You have a God Potion active! ")[1];
             }
         }
-
         return "";
     }
 

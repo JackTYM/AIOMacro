@@ -24,7 +24,7 @@ public class SetPlayerLook {
         for (int i = 0; i < 10000; i++) {
             if (yaw >= 0) {
                 if (yaw - i * 360 <= 180) {
-                    yaw = Float.parseFloat(String.format("%.1f", yaw - i * 360).replace(",", "."));
+                    yaw = Float.parseFloat(String.format("%.1f", yaw - i * 360));
                     if (yaw == -180) {
                         yaw = 180;
                     }
@@ -32,7 +32,7 @@ public class SetPlayerLook {
                 }
             } else {
                 if (yaw + i * 360 >= -180) {
-                    yaw = Float.parseFloat(String.format("%.1f", yaw + i * 360).replace(",", "."));
+                    yaw = Float.parseFloat(String.format("%.1f", yaw + i * 360));
                     if (yaw == -180) {
                         yaw = 180;
                     }
@@ -40,7 +40,7 @@ public class SetPlayerLook {
                 }
             }
         }
-        Main.sendMarkedChatMessage("Error With Fixing Yaw. yaw: " + yaw + ". yaw: " + Float.parseFloat(String.format("%.1f", yaw).replace(",", ".")) + ".");
+        Main.sendMarkedChatMessage("Error With Fixing Yaw. yaw: " + yaw + ". yaw: " + Float.parseFloat(String.format("%.1f", yaw)) + ".");
         return 0;
     }
 
@@ -49,7 +49,7 @@ public class SetPlayerLook {
     }
 
     public static boolean isPitchLookCorrect() {
-        return Float.parseFloat(String.format("%.1f", Main.mcPlayer.rotationPitch).replace(",", ".")) - pitch == 0;
+        return Float.parseFloat(String.format("%.1f", Main.mcPlayer.rotationPitch)) - pitch == 0;
     }
 
     public static boolean isLookCorrect() {
@@ -64,7 +64,7 @@ public class SetPlayerLook {
                     if (yaw == -180) {
                         yaw = 180;
                     }
-                    return Float.parseFloat(String.format("%.1f", yaw).replace(",", "."));
+                    return Float.parseFloat(String.format("%.1f", yaw));
                 }
             } else {
                 if (yaw + i * 360 >= -180) {
@@ -72,11 +72,11 @@ public class SetPlayerLook {
                     if (yaw == -180) {
                         yaw = 180;
                     }
-                    return Float.parseFloat(String.format("%.1f", yaw).replace(",", "."));
+                    return Float.parseFloat(String.format("%.1f", yaw));
                 }
             }
         }
-        Main.sendMarkedChatMessage("Error With Fixing Yaw. yaw: " + yaw + ". yaw: " + Float.parseFloat(String.format("%.1f", yaw).replace(",", ".")) + ".");
+        Main.sendMarkedChatMessage("Error With Fixing Yaw. yaw: " + yaw + ". yaw: " + Float.parseFloat(String.format("%.1f", yaw)) + ".");
         return 0;
     }
 
@@ -132,7 +132,7 @@ public class SetPlayerLook {
     public void goToPitch(TickEvent.ClientTickEvent event) {
         if (toggled) {
             for (int i = 0; i < AIOMVigilanceConfig.turnSpeed && !isPitchLookCorrect(); i++) {
-                if (pitch > Float.parseFloat(String.format("%.1f", Main.mcPlayer.rotationPitch).replace(",", "."))) {
+                if (pitch > Float.parseFloat(String.format("%.1f", Main.mcPlayer.rotationPitch))) {
                     Main.mcPlayer.rotationPitch += 0.1;
                 } else {
                     Main.mcPlayer.rotationPitch -= 0.1;

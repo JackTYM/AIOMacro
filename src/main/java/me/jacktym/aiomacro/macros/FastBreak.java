@@ -23,7 +23,7 @@ public class FastBreak {
 
     @SubscribeEvent
     public void playerTick(@NotNull TickEvent.ClientTickEvent event) {
-        if (AIOMVigilanceConfig.fastBreak && Main.mcPlayer != null && Main.mcWorld != null && Main.mc.objectMouseOver != null) {
+        if (AIOMVigilanceConfig.fastBreak && Main.notNull && Main.mc.objectMouseOver != null) {
             for (int i = 0; i <= AIOMVigilanceConfig.fastBreakBPS; i++) {
                 if (toBreak.size() != 0) {
                     Main.mcPlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(toBreak.get(0)), EnumFacing.DOWN));
@@ -36,7 +36,7 @@ public class FastBreak {
 
     @SubscribeEvent
     public void pickBlocks(@NotNull RenderWorldLastEvent event) {
-        if (AIOMVigilanceConfig.fastBreak && Main.mcPlayer != null && Main.mcWorld != null) {
+        if (AIOMVigilanceConfig.fastBreak && Main.notNull) {
             BlockPos playerPos = Main.mcPlayer.getPosition().add(0, 1, 0);
             Vec3i vec3i = new Vec3i(5, 1, 5);
             ArrayList<Vec3> blocks = new ArrayList<>();

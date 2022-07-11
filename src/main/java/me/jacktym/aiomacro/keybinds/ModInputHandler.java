@@ -4,6 +4,7 @@ import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.macros.AutoHotBar;
 import me.jacktym.aiomacro.macros.MacroHandler;
+import me.jacktym.aiomacro.macros.SetPlayerLook;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -49,6 +50,19 @@ public class ModInputHandler {
         if (keyBindings[5].isPressed()) {
             if (!AIOMVigilanceConfig.vClipKeyBindAmount.equals("")) {
                 Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY + Double.parseDouble(AIOMVigilanceConfig.vClipKeyBindAmount), Main.mcPlayer.posZ);
+            }
+        }
+        if (keyBindings[6].isPressed()) {
+            if (!AIOMVigilanceConfig.vClipKeyBindAmount.equals("")) {
+                if (SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) <= -135 && SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) >= -45) {
+                    Main.mcPlayer.setPosition(Main.mcPlayer.posX + Double.parseDouble(AIOMVigilanceConfig.hClipKeyBindAmount), Main.mcPlayer.posY, Main.mcPlayer.posZ);
+                } else if (SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) <= -45 && SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) >= 45) {
+                    Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY, Main.mcPlayer.posZ + Double.parseDouble(AIOMVigilanceConfig.hClipKeyBindAmount));
+                } else if (SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) <= 45 && SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) >= 135) {
+                    Main.mcPlayer.setPosition(Main.mcPlayer.posX - Double.parseDouble(AIOMVigilanceConfig.hClipKeyBindAmount), Main.mcPlayer.posY, Main.mcPlayer.posZ);
+                } else if (SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) <= 135 && SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) >= -135) {
+                    Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY, Main.mcPlayer.posZ - Double.parseDouble(AIOMVigilanceConfig.hClipKeyBindAmount));
+                }
             }
         }
     }

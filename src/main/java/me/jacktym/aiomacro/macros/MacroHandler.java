@@ -2,6 +2,7 @@ package me.jacktym.aiomacro.macros;
 
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import me.jacktym.aiomacro.rendering.BlockRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.settings.KeyBinding;
 
@@ -14,7 +15,7 @@ public class MacroHandler {
     public static boolean isSugarCane = false;
 
     public static void toggleMacro() {
-        if (!isMacroOn && Main.mcPlayer != null && Main.mcWorld != null) {
+        if (!isMacroOn && Main.notNull) {
             isNetherWart = false;
             isSugarCane = false;
             isMacroOn = true;
@@ -35,18 +36,24 @@ public class MacroHandler {
                 isSugarCane = false;
                 SetPlayerLook.setDefault();
                 SetPlayerLook.toggled = true;
+                if (AIOMVigilanceConfig.ungrab) {
+                    Utils.ungrab();
+                }
             } else if (AIOMVigilanceConfig.macroType == 1) {
                 SugarCane.left = true;
                 isNetherWart = false;
                 isSugarCane = true;
                 SetPlayerLook.setDefault();
                 SetPlayerLook.toggled = true;
+                if (AIOMVigilanceConfig.ungrab) {
+                    Utils.ungrab();
+                }
             } else if (AIOMVigilanceConfig.macroType == 3) {
                 Main.mcPlayer.sendChatMessage("/bz");
             } else if (AIOMVigilanceConfig.macroType == 6) {
                 MinionAura.recentClickedEntity = null;
-                MinionAura.minionsToClaim.clear();
                 MinionAura.claimedMinions.clear();
+                MinionAura.inMinion = false;
             }
             Main.sendMarkedChatMessage("Macro Enabled!");
         } else if (isMacroOn) {
@@ -57,12 +64,18 @@ public class MacroHandler {
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindAttack.getKeyCode(), false);
 
+            BlockRendering.renderMap.clear();
+
             isNetherWart = false;
             isSugarCane = false;
 
             SetPlayerLook.toggled = false;
 
             isMacroOn = false;
+
+            if (AIOMVigilanceConfig.ungrab) {
+                Utils.regrab();
+            }
         }
     }
 }

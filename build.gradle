@@ -4,7 +4,7 @@ plugins {
     id "org.spongepowered.mixin" version "0.6-SNAPSHOT"
 }
 
-version = "1.6.9-release"
+version = "1.7.0-release"
 group = "me.jacktym.aiom"
 
 sourceCompatibility = targetCompatibility = 1.8
@@ -15,7 +15,8 @@ minecraft {
     runDir = "run"
     mappings = "stable_22"
     makeObfSourceJar = false
-    clientRunArgs += ["--tweakClass gg.essential.loader.stage0.EssentialSetupTweaker"]
+
+    clientRunArgs += '--tweakClass gg.essential.loader.stage0.EssentialSetupTweaker'
 }
 
 repositories {
@@ -27,19 +28,16 @@ repositories {
 }
 
 configurations {
-    packageLib
-    configurations.implementation.extendsFrom(configurations.packageLib)
+    include
+    implementation.extendsFrom(include)
 }
 
 
 dependencies {
     annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
     implementation("org.spongepowered:mixin:0.7.11-SNAPSHOT")
-    packageLib("gg.essential:loader-launchwrapper:1.1.1")
+    include("gg.essential:loader-launchwrapper:1.1.1")
     implementation("gg.essential:essential-1.8.9-forge:1498")
-
-    implementation("io.netty:netty-handler-proxy:4.1.77.Final") { transitive = false }
-    shadow("io.netty:netty-handler-proxy:4.1.77.Final") { transitive = false }
 }
 
 jar {
@@ -61,7 +59,7 @@ jar {
 shadowJar {
     archiveFileName = jar.archiveFileName
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    configurations = [project.configurations.packageLib]
+    configurations = [project.configurations.include]
 }
 
 reobf {

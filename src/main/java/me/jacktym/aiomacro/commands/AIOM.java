@@ -3,8 +3,19 @@ package me.jacktym.aiomacro.commands;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.macros.AutoHotBar;
+import me.jacktym.aiomacro.macros.Nuker;
+import me.jacktym.aiomacro.macros.PathFind;
+import me.jacktym.aiomacro.macros.SetPlayerLook;
+import me.jacktym.aiomacro.util.Utils;
+import net.minecraft.block.Block;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
+import net.minecraft.util.Vec3i;
+
+import java.util.List;
 
 public class AIOM extends CommandBase {
 
@@ -24,37 +35,125 @@ public class AIOM extends CommandBase {
         if (args.length == 0) {
             Main.gui = AIOMVigilanceConfig.INSTANCE.gui();
         } else {
-            if (args[0].equals("hotbar")) {
-                if (args.length == 1) {
-                    Main.sendMarkedChatMessage("Proper Usage: /aiom hotbar (save/load/delete) {name} | /aiom hotbar list");
-                } else {
-                    if (args[1].equals("save")) {
-                        AutoHotBar.saveHotBar(args[2]);
-                        Main.sendMarkedChatMessage(args[2] + " has been saved!");
-                    } else if (args[1].equals("load")) {
-                        AutoHotBar.hotBarSolution = AutoHotBar.findHotBarSolution(AutoHotBar.hotBars.get(args[2]));
-                        AutoHotBar.swapHotBar = true;
-                    } else if (args[1].equals("list")) {
-                        Main.sendMarkedChatMessage("HotBar List: " + AutoHotBar.hotBars.keySet());
-                    } else if (args[1].equals("delete")) {
-                        AutoHotBar.hotBars.remove(args[2]);
-                        Main.sendMarkedChatMessage(args[2] + " has been removed!");
-                    } else {
+            switch (args[0]) {
+                case "hotbar":
+                    if (args.length == 1) {
                         Main.sendMarkedChatMessage("Proper Usage: /aiom hotbar (save/load/delete) {name} | /aiom hotbar list");
+                    } else {
+                        switch (args[1]) {
+                            case "save":
+                                AutoHotBar.saveHotBar(args[2]);
+                                Main.sendMarkedChatMessage(args[2] + " has been saved!");
+                                break;
+                            case "load":
+                                AutoHotBar.hotBarSolution = AutoHotBar.findHotBarSolution(AutoHotBar.hotBars.get(args[2]));
+                                AutoHotBar.swapHotBar = true;
+                                break;
+                            case "list":
+                                Main.sendMarkedChatMessage("HotBar List: " + AutoHotBar.hotBars.keySet());
+                                break;
+                            case "delete":
+                                AutoHotBar.hotBars.remove(args[2]);
+                                Main.sendMarkedChatMessage(args[2] + " has been removed!");
+                                break;
+                            default:
+                                Main.sendMarkedChatMessage("Proper Usage: /aiom hotbar (save/load/delete) {name} | /aiom hotbar list");
+                                break;
+                        }
                     }
-                }
-            } else if (args[0].equals("vclip")) {
-                if (args.length == 1) {
-                    Main.sendMarkedChatMessage("/aiom vclip (num)");
-                } else {
-                    Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY + Double.parseDouble(args[1]), Main.mcPlayer.posZ);
-                }
-            } else if (args[0].equals("customclip")) {
-                if (args.length <= 3) {
-                    Main.sendMarkedChatMessage("/aiom customclip (x) (y) (z))");
-                } else {
-                    Main.mcPlayer.setPosition(Main.mcPlayer.posX + Double.parseDouble(args[1]), Main.mcPlayer.posY + Double.parseDouble(args[2]), Main.mcPlayer.posZ + Double.parseDouble(args[3]));
-                }
+                    break;
+                case "vclip":
+                    if (args.length == 1) {
+                        Main.sendMarkedChatMessage("/aiom vclip (num)");
+                    } else {
+                        Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY + Double.parseDouble(args[1]), Main.mcPlayer.posZ);
+                    }
+                    break;
+                case "hclip":
+                    if (args.length == 1) {
+                        Main.sendMarkedChatMessage("/aiom hclip (num)");
+                    } else {
+                        if (SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) <= -135 && SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) >= -45) {
+                            Main.mcPlayer.setPosition(Main.mcPlayer.posX + Double.parseDouble(args[1]), Main.mcPlayer.posY, Main.mcPlayer.posZ);
+                        } else if (SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) <= -45 && SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) >= 45) {
+                            Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY, Main.mcPlayer.posZ + Double.parseDouble(args[1]));
+                        } else if (SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) <= 45 && SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) >= 135) {
+                            Main.mcPlayer.setPosition(Main.mcPlayer.posX - Double.parseDouble(args[1]), Main.mcPlayer.posY, Main.mcPlayer.posZ);
+                        } else if (SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) <= 135 && SetPlayerLook.fixStaticYaw(Main.mcPlayer.rotationYaw) >= -135) {
+                            Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY, Main.mcPlayer.posZ - Double.parseDouble(args[1]));
+                        }
+                    }
+                    break;
+                case "customclip":
+                    if (args.length <= 3) {
+                        Main.sendMarkedChatMessage("/aiom customclip (x) (y) (z))");
+                    } else {
+                        Main.mcPlayer.setPosition(Main.mcPlayer.posX + Double.parseDouble(args[1]), Main.mcPlayer.posY + Double.parseDouble(args[2]), Main.mcPlayer.posZ + Double.parseDouble(args[3]));
+                    }
+                    break;
+                case "pathfind":
+                    switch (args[1]) {
+                        case "clear":
+                            PathFind.clear();
+                            break;
+                        case "block":
+                            PathFind.clear();
+
+                            new Thread(() -> {
+                                List<Vec3> blockList = Nuker.pickBlocks(new Vec3i(100, 100, 100));
+
+                                blockList.removeIf(block -> Main.mcWorld.getBlockState(new BlockPos(block)).getBlock() != Block.getBlockFromName(args[2]));
+
+                                Vec3 closestBlock = null;
+
+                                for (Vec3 vec3 : blockList) {
+                                    if (closestBlock == null || Utils.distanceBetweenPoints(vec3, Main.mcPlayer.getPositionVector()) < Utils.distanceBetweenPoints(closestBlock, Main.mcPlayer.getPositionVector())) {
+                                        closestBlock = new Vec3(new BlockPos(vec3));
+                                    }
+                                }
+
+                                if (closestBlock != null) {
+                                    if (args.length == 3) {
+                                        PathFind.pathFind(closestBlock.addVector(0, 1, 0), true);
+                                    } else {
+                                        PathFind.pathFind(closestBlock.addVector(0, 1, 0), Boolean.parseBoolean(args[3]));
+                                    }
+                                }
+                            }).start();
+                            break;
+                        case "entity":
+                            PathFind.clear();
+
+                            new Thread(() -> {
+                                List<Entity> entityList = Main.mcWorld.loadedEntityList;
+
+                                entityList.removeIf(entity -> !entity.getDisplayName().getUnformattedText().equals(args[2]));
+
+                                Entity closestEntity = null;
+
+                                for (Entity entity : entityList) {
+                                    if (closestEntity == null || Utils.distanceBetweenPoints(entity.getPositionVector(), Main.mcPlayer.getPositionVector()) < Utils.distanceBetweenPoints(closestEntity.getPositionVector(), Main.mcPlayer.getPositionVector())) {
+                                        closestEntity = entity;
+                                    }
+                                }
+
+                                if (closestEntity != null) {
+                                    if (args.length == 3) {
+                                        PathFind.pathFind(new Vec3(new BlockPos(closestEntity.getPositionVector())), true);
+                                    } else {
+                                        PathFind.pathFind(new Vec3(new BlockPos(closestEntity.getPositionVector())), Boolean.parseBoolean(args[3]));
+                                    }
+                                }
+                            }).start();
+                            break;
+                        default:
+                            PathFind.clear();
+                            if (args.length == 4) {
+                                PathFind.pathFind(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3])), true);
+                            } else {
+                                PathFind.pathFind(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3])), Boolean.valueOf(args[4]));
+                            }
+                    }
             }
         }
     }

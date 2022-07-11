@@ -40,7 +40,7 @@ public class AIOMVigilanceConfig extends Vigilant {
             name = "Macro Type",
             description = "Choose the macro you would like to use.",
             category = "Macro Settings",
-            options = {"Netherwart/S-Shaped", "Sugarcane", "Nuker", "Bazaar Flipper", "Fairy Soul Aura", "Shiny Pig ESP", "Minion Aura"}
+            options = {"Netherwart/S-Shaped", "Sugarcane", "Nuker", "Bazaar Flipper", "Fairy Soul Aura", "Shiny Pig ESP", "Minion Aura", "Scatha Macro"}
     )
     public static int macroType;
     @Property(
@@ -63,11 +63,18 @@ public class AIOMVigilanceConfig extends Vigilant {
     public static int yaw;
     @Property(
             type = PropertyType.SWITCH,
-            name = "Auto Godpot",
-            description = "Automatically buys and consumes a god potion. (Requires gold in purse).",
+            name = "Auto God Potion",
+            description = "Automatically buys and consumes a God Potion. (Requires gold in purse).",
             category = "Macro Settings"
     )
-    public static boolean autogodpotion;
+    public static boolean autoGodPotion;
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Auto Booster Cookie",
+            description = "Automatically buys and consumes a Booster Cookie. (Requires gold in purse).",
+            category = "Macro Settings"
+    )
+    public static boolean autoCookie;
     @Property(
             type = PropertyType.SWITCH,
             name = "Fast Break",
@@ -84,12 +91,13 @@ public class AIOMVigilanceConfig extends Vigilant {
     )
     public static int fastBreakBPS;
     @Property(
-            type = PropertyType.SWITCH,
-            name = "Auto Sell",
-            description = "Automatically sells crop to the npc at 7 stacks",
-            category = "Macro Settings"
+            type = PropertyType.SLIDER,
+            name = "Auto Sell Minimum",
+            description = "The minimum amount of stacks to automatically sell (Cookie Only, 0 To Disable)",
+            category = "Macro Settings",
+            max = 10
     )
-    public static boolean autoSell;
+    public static int autoSellMinimum;
     @Property(
             type = PropertyType.SWITCH,
             name = "Drop 180",
@@ -97,6 +105,13 @@ public class AIOMVigilanceConfig extends Vigilant {
             category = "Macro Settings"
     )
     public static boolean drop180;
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Ungrab",
+            description = "Ungrabs your mouse when using a farming macro",
+            category = "Macro Settings"
+    )
+    public static boolean ungrab;
     //Failsafes
     @Property(
             type = PropertyType.SWITCH,
@@ -368,7 +383,7 @@ public class AIOMVigilanceConfig extends Vigilant {
             name = "Nuker Block",
             description = "Chooses the block to be nuked.",
             category = "Nuker",
-            options = {"Mycelium", "Red Sand", "Wood", "Any Crop But Cane / Cactus", "Cane/Cactus", "Custom Nuker"}
+            options = {"Mycelium", "Red Sand", "Wood", "Any Crop But Cane / Cactus", "Cane/Cactus", "Hoe Plow", "Custom Nuker"}
     )
     public static int nukerBlock;
     @Property(
@@ -801,6 +816,45 @@ public class AIOMVigilanceConfig extends Vigilant {
             subcategory = "VerticalClip"
     )
     public static String vClipKeyBindAmount = "";
+    @Property(
+            type = PropertyType.TEXT,
+            name = "KeyBind HorizontalClip Amount",
+            description = "Changes the clip amount of HClip on the KeyBind",
+            category = "Quality Of Life",
+            subcategory = "HorizontalClip"
+    )
+    public static String hClipKeyBindAmount = "";
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Crypt ESP",
+            description = "Highlights crypts in dungeons",
+            category = "Quality Of Life",
+            subcategory = "ESP"
+    )
+    public static boolean cryptESPOn = false;
+    @Property(
+            type = PropertyType.COLOR,
+            name = "ESP Color",
+            description = "The color of the ESP outline",
+            category = "Quality Of Life",
+            subcategory = "ESP"
+    )
+    public static Color ESPColor = Color.WHITE;
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Dungeon Door Aura",
+            description = "Automatically clicks on wither/blood doors in range of the player",
+            category = "Quality Of Life"
+    )
+    public static boolean dungeonDoorAura = false;
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Water Puzzle Aura",
+            description = "Auto solves water, provided you follow the instructions",
+            category = "Quality Of Life",
+            subcategory = "Dungeon Solvers"
+    )
+    public static boolean waterToggled = false;
 
     private void sendRequest(String jsonString) {
         try {

@@ -56,7 +56,7 @@ public class AutoHotBar {
 
     public static HashMap<Integer, Integer> findHotBarSolution(List<String> hotBarItems) {
         HashMap<Integer, Integer> solution = new HashMap<>();
-        boolean foundItem = false;
+        boolean foundItem;
         for (int x = 0; x <= hotBarItems.size() - 1; x++) {
             foundItem = false;
             for (int i = 0; i <= Main.mcPlayer.inventory.mainInventory.length - 1; i++) {
