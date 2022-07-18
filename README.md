@@ -102,5 +102,7 @@ An All-In-One Macro for Hypixel Skyblock. Includes numerous features for Quality
   Create an issue in the Issues tab stating what your error is, how to reproduce it, and if possible, a recording of the bug.
   
 ## Discord:
+  Vanity Invite:
+    https://discord.com/invite/aiomacro
   Permanent Invite:
     https://discord.com/invite/EmCSfgSSaM
