@@ -394,6 +394,13 @@ public class AIOMVigilanceConfig extends Vigilant {
     )
     public static String customNukerBlock = "";
     @Property(
+            type = PropertyType.CHECKBOX,
+            name = "Stay on Y Level",
+            description = "Does not mine any blocks below your y level",
+            category = "Nuker"
+    )
+    public static boolean stayOnYLevel = false;
+    @Property(
             type = PropertyType.SELECTOR,
             name = "Nuker BPS",
             description = "How many blocks per second (20 Ticks) Nuker breaks.",

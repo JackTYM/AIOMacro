@@ -4,7 +4,7 @@ plugins {
     id "org.spongepowered.mixin" version "0.6-SNAPSHOT"
 }
 
-version = "1.7.0-release"
+version = "1.7.1-release"
 group = "me.jacktym.aiom"
 
 sourceCompatibility = targetCompatibility = 1.8

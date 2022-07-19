@@ -3,6 +3,7 @@ package me.jacktym.aiomacro.macros;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.rendering.BlockRendering;
+import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -34,12 +35,24 @@ public class Nuker {
                     Vec3i vec3i = new Vec3i(3, 1, 3);
                     ArrayList<BlockPos> blocks = new ArrayList<>();
                     for (BlockPos bp : BlockPos.getAllInBox(playerPos.add(vec3i), playerPos.subtract(vec3i))) {
-                        blocks.add(bp);
+                        if (AIOMVigilanceConfig.stayOnYLevel) {
+                            System.out.println(bp.getY() + " " + Main.mcPlayer.posY);
+                            if (bp.getY() > Main.mcPlayer.posY - 1) {
+                                blocks.add(bp);
+                            } else {
+                                toBreak.remove(bp);
+                            }
+                        } else {
+                            blocks.add(bp);
+                        }
                     }
 
                     if (!blocks.contains(new BlockPos(blockPos.getX() - 0.5, blockPos.getY(), blockPos.getZ() - 0.5)) || !blocks.contains(new BlockPos(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5))) {
                         toBreak.remove(blockPos);
                     }
+
+                    toBreak = sortToBreak();
+
                     if (toBreak.size() != 0) {
                         bp = new BlockPos(toBreak.get(0));
                         if (AIOMVigilanceConfig.nukerBlock == 5) {
@@ -52,6 +65,31 @@ public class Nuker {
                 }
             }
         }
+
+        if (!MacroHandler.isMacroOn && (!toBreak.isEmpty() || bp != null)) {
+            toBreak.clear();
+            bp = null;
+        }
+    }
+
+    public ArrayList<BlockPos> sortToBreak() {
+        ArrayList<BlockPos> tempList = new ArrayList<>();
+
+        for (BlockPos blockPos : toBreak) {
+            if (tempList.isEmpty()) {
+                tempList.add(blockPos);
+            }
+            for (int i = 0; i <= tempList.size() - 1; i++) {
+                if (Utils.distanceBetweenPoints(new Vec3(blockPos), Main.mcPlayer.getPositionVector()) <= Utils.distanceBetweenPoints(new Vec3(tempList.get(i)), Main.mcPlayer.getPositionVector())) {
+                    if (Main.mcWorld.getBlockState(blockPos).getBlock() != Blocks.air) {
+                        tempList.add(i, blockPos);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return tempList;
     }
 
     @SubscribeEvent
