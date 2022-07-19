@@ -18,15 +18,31 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.*;
 
 public class Nuker {
     ArrayList<BlockPos> toBreak = new ArrayList<>();
     BlockPos bp = null;
 
+    public static HashMap<BlockPos, Double>
+    sortByValue(HashMap<BlockPos, Double> hm) {
+        List<Map.Entry<BlockPos, Double>> list
+                = new LinkedList<Map.Entry<BlockPos, Double>>(
+                hm.entrySet());
+
+        list.sort(Map.Entry.comparingByValue());
+
+        HashMap<BlockPos, Double> temp = new LinkedHashMap<>();
+        for (Map.Entry<BlockPos, Double> aa : list) {
+            temp.put(aa.getKey(), aa.getValue());
+        }
+        return temp;
+    }
+
     @SubscribeEvent
     public void playerTick(@NotNull TickEvent.ClientTickEvent event) {
-        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.notNull && toBreak.size() != 0) {
+        if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.notNull) {
             BlockRendering.renderMap.clear();
             for (int i = 0; i <= AIOMVigilanceConfig.nukerBPS; i++) {
                 if (toBreak.size() != 0) {
@@ -36,7 +52,6 @@ public class Nuker {
                     ArrayList<BlockPos> blocks = new ArrayList<>();
                     for (BlockPos bp : BlockPos.getAllInBox(playerPos.add(vec3i), playerPos.subtract(vec3i))) {
                         if (AIOMVigilanceConfig.stayOnYLevel) {
-                            System.out.println(bp.getY() + " " + Main.mcPlayer.posY);
                             if (bp.getY() > Main.mcPlayer.posY - 1) {
                                 blocks.add(bp);
                             } else {
@@ -51,7 +66,13 @@ public class Nuker {
                         toBreak.remove(blockPos);
                     }
 
-                    toBreak = sortToBreak();
+                    HashMap<BlockPos, Double> toBreakMap = new HashMap<>();
+                    HashMap<BlockPos, Double> finalToBreakMap = toBreakMap;
+                    toBreak.forEach(block -> finalToBreakMap.put(block, Utils.distanceBetweenPoints(new Vec3(block), Main.mcPlayer.getPositionVector())));
+                    toBreakMap = sortByValue(toBreakMap);
+
+                    toBreak.clear();
+                    toBreak.addAll(toBreakMap.keySet());
 
                     if (toBreak.size() != 0) {
                         bp = new BlockPos(toBreak.get(0));
@@ -64,6 +85,7 @@ public class Nuker {
                     }
                 }
             }
+
         }
 
         if (!MacroHandler.isMacroOn && (!toBreak.isEmpty() || bp != null)) {
@@ -74,10 +96,11 @@ public class Nuker {
 
     public ArrayList<BlockPos> sortToBreak() {
         ArrayList<BlockPos> tempList = new ArrayList<>();
-
-        for (BlockPos blockPos : toBreak) {
+        ArrayList<BlockPos> toBreakLocal = toBreak;
+        for (BlockPos blockPos : toBreakLocal) {
             if (tempList.isEmpty()) {
                 tempList.add(blockPos);
+                break;
             }
             for (int i = 0; i <= tempList.size() - 1; i++) {
                 if (Utils.distanceBetweenPoints(new Vec3(blockPos), Main.mcPlayer.getPositionVector()) <= Utils.distanceBetweenPoints(new Vec3(tempList.get(i)), Main.mcPlayer.getPositionVector())) {
@@ -88,7 +111,6 @@ public class Nuker {
                 }
             }
         }
-
         return tempList;
     }
 
