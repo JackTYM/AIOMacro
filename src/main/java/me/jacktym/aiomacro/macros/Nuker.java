@@ -72,11 +72,11 @@ public class Nuker {
                 case 1:
                 case 3:
                 case 5:
-                case 6:
                     blocks = pickBlocks(new Vec3i(3, 1, 3));
                     break;
                 case 2:
-                    blocks = pickBlocks(new Vec3i(4, 4, 4));
+                case 6:
+                    blocks = pickBlocks(new Vec3i(5, 5, 5));
                     break;
                 case 4:
                     blocks = pickBlocks(new Vec3i(3, 2, 3));
