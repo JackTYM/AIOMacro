@@ -44,74 +44,42 @@ public class Nuker {
     public void playerTick(@NotNull TickEvent.ClientTickEvent event) {
         if (((MacroHandler.isMacroOn && AIOMVigilanceConfig.macroType == 2) || AutoBazaarUnlocker.autoWheatOn) && Main.notNull) {
             BlockRendering.renderMap.clear();
+
+            ArrayList<BlockPos> localToBreak = toBreak;
+
             for (int i = 0; i <= AIOMVigilanceConfig.nukerBPS; i++) {
-                if (toBreak.size() != 0) {
-                    BlockPos blockPos = toBreak.get(0);
-                    BlockPos playerPos = Main.mcPlayer.getPosition();
-                    Vec3i vec3i = new Vec3i(3, 1, 3);
-                    ArrayList<BlockPos> blocks = new ArrayList<>();
-                    for (BlockPos bp : BlockPos.getAllInBox(playerPos.add(vec3i), playerPos.subtract(vec3i))) {
-                        if (AIOMVigilanceConfig.stayOnYLevel) {
-                            if (bp.getY() > Main.mcPlayer.posY - 1) {
-                                blocks.add(bp);
-                            } else {
-                                toBreak.remove(bp);
-                            }
-                        } else {
-                            blocks.add(bp);
-                        }
+                if (AIOMVigilanceConfig.stayOnYLevel) {
+                    localToBreak.removeIf(blockPos -> blockPos.getY() < Main.mcPlayer.posY);
+                }
+                localToBreak.removeIf(blockPos -> Utils.distanceBetweenPoints(new Vec3(blockPos), Main.mcPlayer.getPositionVector()) >= 4);
+                localToBreak.removeIf(blockPos -> Main.mcWorld.getBlockState(blockPos).getBlock() == Blocks.air);
+
+                HashMap<BlockPos, Double> toBreakMap = new HashMap<>();
+                HashMap<BlockPos, Double> finalToBreakMap = toBreakMap;
+                localToBreak.forEach(block -> finalToBreakMap.put(block, Utils.distanceBetweenPoints(new Vec3(block), Main.mcPlayer.getPositionVector())));
+                toBreakMap = sortByValue(toBreakMap);
+
+                localToBreak.clear();
+                localToBreak.addAll(toBreakMap.keySet());
+
+                toBreak = localToBreak;
+
+                if (localToBreak.size() != 0) {
+                    bp = new BlockPos(localToBreak.get(0));
+                    if (AIOMVigilanceConfig.nukerBlock == 5) {
+                        Main.mc.playerController.onPlayerRightClick(Main.mcPlayer, Main.mcWorld, Main.mcPlayer.inventory.getCurrentItem(), new BlockPos(toBreak.get(0)).add(0, 0, 0), EnumFacing.UP, Main.mc.objectMouseOver.hitVec);
+                    } else {
+                        Main.mcPlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(toBreak.get(0)), EnumFacing.DOWN));
                     }
-
-                    if (!blocks.contains(new BlockPos(blockPos.getX() - 0.5, blockPos.getY(), blockPos.getZ() - 0.5)) || !blocks.contains(new BlockPos(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5))) {
-                        toBreak.remove(blockPos);
-                    }
-
-                    HashMap<BlockPos, Double> toBreakMap = new HashMap<>();
-                    HashMap<BlockPos, Double> finalToBreakMap = toBreakMap;
-                    toBreak.forEach(block -> finalToBreakMap.put(block, Utils.distanceBetweenPoints(new Vec3(block), Main.mcPlayer.getPositionVector())));
-                    toBreakMap = sortByValue(toBreakMap);
-
-                    toBreak.clear();
-                    toBreak.addAll(toBreakMap.keySet());
-
-                    if (toBreak.size() != 0) {
-                        bp = new BlockPos(toBreak.get(0));
-                        if (AIOMVigilanceConfig.nukerBlock == 5) {
-                            Main.mc.playerController.onPlayerRightClick(Main.mcPlayer, Main.mcWorld, Main.mcPlayer.inventory.getCurrentItem(), new BlockPos(toBreak.get(0)).add(0, 0, 0), EnumFacing.UP, Main.mc.objectMouseOver.hitVec);
-                        } else {
-                            Main.mcPlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(toBreak.get(0)), EnumFacing.DOWN));
-                        }
-                        toBreak.remove(0);
-                    }
+                    localToBreak.remove(0);
                 }
             }
-
         }
 
         if (!MacroHandler.isMacroOn && (!toBreak.isEmpty() || bp != null)) {
             toBreak.clear();
             bp = null;
         }
-    }
-
-    public ArrayList<BlockPos> sortToBreak() {
-        ArrayList<BlockPos> tempList = new ArrayList<>();
-        ArrayList<BlockPos> toBreakLocal = toBreak;
-        for (BlockPos blockPos : toBreakLocal) {
-            if (tempList.isEmpty()) {
-                tempList.add(blockPos);
-                break;
-            }
-            for (int i = 0; i <= tempList.size() - 1; i++) {
-                if (Utils.distanceBetweenPoints(new Vec3(blockPos), Main.mcPlayer.getPositionVector()) <= Utils.distanceBetweenPoints(new Vec3(tempList.get(i)), Main.mcPlayer.getPositionVector())) {
-                    if (Main.mcWorld.getBlockState(blockPos).getBlock() != Blocks.air) {
-                        tempList.add(i, blockPos);
-                        break;
-                    }
-                }
-            }
-        }
-        return tempList;
     }
 
     @SubscribeEvent
