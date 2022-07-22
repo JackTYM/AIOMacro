@@ -1,30 +1,28 @@
 pluginManagement {
     repositories {
-        mavenCentral()
         gradlePluginPortal()
+        mavenCentral()
 
-        // Add the Forge Repository (ForgeGradle fetches most of its stuff from here)
-        maven {
-            name = "Forge"
-            url = "https://maven.minecraftforge.net"
-        }
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.architectury.dev/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://jitpack.io/' }
+        maven { url = 'https://repo.essential.gg/repository/maven-public' }
 
-        // Add the Jitpack Repository (We fetch ForgeGradle from this)
-        maven {
-            name = "Jitpack"
-            url = "https://jitpack.io/"
-        }
+        mavenLocal()
     }
     resolutionStrategy {
         eachPlugin {
-            // If the "net.minecraftforge.gradle.forge" plugin is requested we redirect it to asbyth's ForgeGradle fork
+            // If the "net.minecraftforge.gradle.forge" plugin is requested we redirect it to asbyth's ForgeGradle fork (rip asbyth, you will be missed, swapped to DJtheRedstoner's fork instead)
             if (requested.id.id == "net.minecraftforge.gradle.forge") {
-                useModule("com.github.asbyth:ForgeGradle:${requested.version}")
-            }
-            if (requested.id.id == "org.spongepowered.mixin") {
-                useModule("com.github.xcfrg:MixinGradle:${requested.version}")
+                useModule("com.github.DJtheRedstoner:ForgeGradle:${requested.version}")
             }
         }
+    }
+
+    plugins {
+        id("gg.essential.multi-version.root") version "1.0.1"
+        id("gg.essential.multi-version.api-validation") version "1.0.1"
     }
 }
 
