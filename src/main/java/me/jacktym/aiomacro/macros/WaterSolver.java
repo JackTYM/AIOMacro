@@ -53,7 +53,7 @@ public class WaterSolver {
 
 
 
-    public int tick1 = 0;
+    public int tick1 = -1;
     private boolean sentMessage1 = false;
     private boolean sentMessage2 = false;
 
@@ -735,12 +735,34 @@ public class WaterSolver {
 
     }
 
+    private int counter = 0;
+
     @SubscribeEvent
     public void solver(TickEvent.ClientTickEvent event) {
 
 
         EntityPlayerSP player = Main.mcPlayer;
         WorldClient world = Main.mcWorld;
+        if(world != null && player != null && inWaterRoom){
+
+
+            if(tick1 >= 20) {
+                if(toggleLever){
+                    if(waterLeverActive){
+                        Main.mc.playerController.onPlayerRightClick(Main.mcPlayer, Main.mcWorld, Main.mcPlayer.inventory.getCurrentItem(), waterLever, EnumFacing.fromAngle(Main.mcPlayer.rotationYaw), new Vec3(0.0D, 0.0D, 0.00D));
+                        counter++;
+                    }
+                }
+            }
+            if(tick1 >= 0 && tick1 < 20) {
+                if(toggleLever){
+                    if(!waterLeverActive){
+                        Main.mc.playerController.onPlayerRightClick(Main.mcPlayer, Main.mcWorld, Main.mcPlayer.inventory.getCurrentItem(), waterLever, EnumFacing.fromAngle(Main.mcPlayer.rotationYaw), new Vec3(0.0D, 0.0D, 0.00D));
+                    }
+
+                }
+            }
+        }
 
 
         if (world != null && player != null && inWaterRoom) {
@@ -752,7 +774,13 @@ public class WaterSolver {
                         Main.sendMarkedChatMessage("All levers for purple have been flicked! ");
                         sendMessage3 = true;
                     }
-
+                    //toggle water
+                    if(!(counter == AIOMVigilanceConfig.waterDuration)) {
+                        tick1++;
+                        if (tick1 >= 20 && !waterLeverActive) {
+                            tick1 = -1;
+                        }
+                    }
 
                     //check for gate completion
                     if (purpleOpen) {
@@ -760,6 +788,7 @@ public class WaterSolver {
                             currentGate = "";
                             purpleLeverCheck.clear();
                             sendMessage3 = false;
+                            counter = 0;
                             Main.sendMarkedChatMessage("Purple has been solved!");
                         }
                     }
@@ -777,6 +806,13 @@ public class WaterSolver {
                         Main.sendMarkedChatMessage("All levers for orange have been flicked!");
                         sendMessage3 = true;
                     }
+                    //toggle water
+                    if(!(counter == AIOMVigilanceConfig.waterDuration)) {
+                        tick1++;
+                        if (tick1 >= 20 && !waterLeverActive) {
+                            tick1 = -1;
+                        }
+                    }
 
                     //check for gate completion
                     if (orangeOpen) {
@@ -784,6 +820,7 @@ public class WaterSolver {
                             currentGate = "";
                             orangeLeverCheck.clear();
                             sendMessage3 = false;
+                            counter = 0;
                             Main.sendMarkedChatMessage("Orange has been solved!");
 
                         }
@@ -801,6 +838,13 @@ public class WaterSolver {
                         Main.sendMarkedChatMessage("All levers for blue have been flicked!");
                         sendMessage3 = true;
                     }
+                    //toggle water
+                    if(!(counter == AIOMVigilanceConfig.waterDuration)) {
+                        tick1++;
+                        if (tick1 >= 20 && !waterLeverActive) {
+                            tick1 = -1;
+                        }
+                    }
 
                     //check for gate completion
                     if (blueOpen) {
@@ -808,6 +852,7 @@ public class WaterSolver {
                             currentGate = "";
                             blueLeverCheck.clear();
                             sendMessage3 = false;
+                            counter = 0;
                             Main.sendMarkedChatMessage("Blue has been solved!");
 
                         }
@@ -826,6 +871,13 @@ public class WaterSolver {
                         Main.sendMarkedChatMessage("All levers for green have been flicked!");
                         sendMessage3 = true;
                     }
+                    //toggle water
+                    if(!(counter == AIOMVigilanceConfig.waterDuration)) {
+                        tick1++;
+                        if (tick1 >= 20 && !waterLeverActive) {
+                            tick1 = -1;
+                        }
+                    }
 
                     //check for gate completion
                     if (greenOpen) {
@@ -833,6 +885,7 @@ public class WaterSolver {
                             currentGate = "";
                             greenLeverCheck.clear();
                             sendMessage3 = false;
+                            counter = 0;
                             Main.sendMarkedChatMessage("Green has been solved!");
 
                         }
@@ -849,12 +902,21 @@ public class WaterSolver {
                         Main.sendMarkedChatMessage("All levers for red have been flicked!");
                         sendMessage3 = true;
                     }
+                    //toggle water
+                    if(!(counter == AIOMVigilanceConfig.waterDuration)) {
+                        tick1++;
+                        if (tick1 >= 20 && !waterLeverActive) {
+                            tick1 = -1;
+                        }
+                    }
+
                     //check for gate completion
                     if (redOpen) {
                         if(clearLevers()) {
                             currentGate = "";
                             redLeverCheck.clear();
                             sendMessage3 = false;
+                            counter = 0;
                             Main.sendMarkedChatMessage("Red has been solved!");
 
                         }
