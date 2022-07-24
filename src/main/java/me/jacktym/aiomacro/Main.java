@@ -168,6 +168,7 @@ public class Main {
         registry.add(new WaterSolver());
         registry.add(new DianaWaypoints());
         registry.add(new BeaconRendering());
+        registry.add(new BurrowAura());
 
         registry.forEach(MinecraftForge.EVENT_BUS::register);
 
