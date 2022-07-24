@@ -10,9 +10,7 @@ import me.jacktym.aiomacro.keybinds.ModInputHandler;
 import me.jacktym.aiomacro.macros.*;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import me.jacktym.aiomacro.proxy.CommonProxy;
-import me.jacktym.aiomacro.rendering.BeaconRendering;
-import me.jacktym.aiomacro.rendering.BlockRendering;
-import me.jacktym.aiomacro.rendering.BoobRendering;
+import me.jacktym.aiomacro.rendering.*;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -21,7 +19,9 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
-import net.minecraft.util.*;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -38,13 +38,10 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 
-import java.awt.*;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 
 @Mod(modid = NGGlobal.MOD_ID, name = NGGlobal.MOD_NAME, version = NGGlobal.VERSION)
 public class Main {
@@ -200,13 +197,13 @@ public class Main {
 
         RenderPlayer slim_render = Main.mc.getRenderManager().getSkinMap().get("slim");
         slim_render.addLayer(new BoobRendering(slim_render));
-        //slim_render.addLayer(new AssRendering(slim_render));
-        //slim_render.addLayer(new TesticleRendering(slim_render));
+        slim_render.addLayer(new AssRendering(slim_render));
+        slim_render.addLayer(new TesticleRendering(slim_render));
 
         RenderPlayer default_render = Main.mc.getRenderManager().getSkinMap().get("default");
         default_render.addLayer(new BoobRendering(default_render));
-        //default_render.addLayer(new AssRendering(default_render));
-        //default_render.addLayer(new TesticleRendering(default_render));
+        default_render.addLayer(new AssRendering(default_render));
+        default_render.addLayer(new TesticleRendering(default_render));
 
         AutoHotBar.loadHotBars();
 

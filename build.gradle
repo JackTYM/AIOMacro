@@ -35,40 +35,45 @@ dependencies {
     shade("gg.essential:loader-launchwrapper:1.1.3")
     compileOnly("gg.essential:essential-1.8.9-forge:1788")
 }
-jar.manifest.attributes("TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker")
-jar.from(configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }) {
-    exclude 'club.sk1er.vigilance.example.ExampleMod', 'dummyThing'
-    def i = 0
-    filesMatching("META-INF/NOTICE*") { name = "$name.${i++}" }
-    filesMatching("META-INF/LICENSE*") { name = "$name.${i++}" }
-    filesMatching("META-INF/mods.toml") { name = "$name.${i++}" }
-    filesMatching("LICENSE*") { name = "$name.${i++}" }
-}
-jar {
 
+processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.property("version", "1.7.2")
+    inputs.property("mcversion", "1.8.9")
+    inputs.property("name", "AIOMacro")
+    inputs.property("id", "aiom")
 
+    /*filesMatching("mcmod.info") {
+        expand(
+                "id": projectId,
+                "name": projectName,
+                "version": projectVersion,
+                "mcversion": mcVersion
+        )
+    }*/
+}
+
+sourceSets {
+    main {
+        output.resourcesDir = java.classesDirectory
+    }
+}
+
+jar {
+    dependsOn configurations.shade
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest.attributes(
-            "FMLCorePluginContainsFMLMod": true,
-            "FMLCorePlugin": "me.jacktym.aiomacro.FMLLoadingPlugin",
-            "ForceLoadAsMod": true,
-            "ModSide": "CLIENT",
-            "TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker",
+            'ModSide': 'CLIENT',
+            'ForceLoadAsMod': true,
+            'TweakClass': 'gg.essential.loader.stage0.EssentialSetupTweaker',
             "TweakOrder": "0"
     )
 
-    enabled = false
-}
-
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.property("minecraft.version")
-    from(sourceSets.main.resources.srcDirs) {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        filesMatching("mcmod.info") {
-            expand 'version': project.version, 'mcversion': project.property("minecraft.version")
-        }
-
+    from(configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }) {
+        def i = 0
+        filesMatching("META-INF/NOTICE*") { name = "$name.${i++}" }
+        filesMatching("META-INF/LICENSE*") { name = "$name.${i++}" }
+        filesMatching("META-INF/mods.toml") { name = "$name.${i++}" }
+        filesMatching("LICENSE*") { name = "$name.${i++}" }
     }
 }

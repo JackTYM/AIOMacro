@@ -37,7 +37,7 @@ public class CryptESP {
                         Vec3 loadedBlock = loadedBlocks.get(0);
                         loadedBlocks.remove(loadedBlock);
                         if (Main.mcWorld.getBlockState(new BlockPos(loadedBlock)).getBlock() == Blocks.stone_slab) {
-                            if (Main.mcWorld.getBlockState(new BlockPos(loadedBlock.addVector(0, -1, 0))).getBlock() == Blocks.stone_brick_stairs && !Utils.vec3Contains(renderList, loadedBlock)) {
+                            if (Main.mcWorld.getBlockState(new BlockPos(loadedBlock.addVector(0, -1, 0))).getBlock() == Blocks.stone_brick_stairs && Utils.vec3NotContains(renderList, loadedBlock)) {
                                 renderList.add(loadedBlock);
                             }
                         }

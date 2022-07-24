@@ -155,7 +155,7 @@ public class PathFind {
                             if (!clear) {
                                 try {
                                     if (Utils.vec3Equals(getNextVec(), destinationGlobal)) {
-                                        if (!Utils.vec3Contains(finalPath, destinationGlobal)) {
+                                        if (Utils.vec3NotContains(finalPath, destinationGlobal)) {
                                             finalPath.add(destinationGlobal);
                                             finalPath.add(destinationGlobal);
                                         }
@@ -198,16 +198,16 @@ public class PathFind {
                                                 if ((blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock()))
                                                         && (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock()))
                                                         && (!blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, -1, 0))).getBlock()) || i == 4)
-                                                        && !Utils.vec3Contains(badPoints, point)
-                                                        && !Utils.vec3Contains(pathPoints, point)
-                                                        && !Utils.vec3Contains(finalPath, point)) {
+                                                        && Utils.vec3NotContains(badPoints, point)
+                                                        && Utils.vec3NotContains(pathPoints, point)
+                                                        && Utils.vec3NotContains(finalPath, point)) {
                                                     pathPoints.add(point);
                                                 }
                                             } else if ((blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point)).getBlock()) || !globalCollision)
                                                     && (blockIsPassable(Main.mcWorld.getBlockState(new BlockPos(point.addVector(0, 1, 0))).getBlock()) || !globalCollision)
-                                                    && !Utils.vec3Contains(badPoints, point)
-                                                    && !Utils.vec3Contains(pathPoints, point)
-                                                    && !Utils.vec3Contains(finalPath, point)) {
+                                                    && Utils.vec3NotContains(badPoints, point)
+                                                    && Utils.vec3NotContains(pathPoints, point)
+                                                    && Utils.vec3NotContains(finalPath, point)) {
                                                 pathPoints.add(point);
                                             }
                                         }
@@ -228,7 +228,7 @@ public class PathFind {
                                                     attempts = 0;
                                                 }
                                                 if (attempts >= 3) {
-                                                    if (!Utils.vec3Contains(badPoints, getNextVec())) {
+                                                    if (Utils.vec3NotContains(badPoints, getNextVec())) {
                                                         badPoints.add(getNextVec());
                                                         attempts = 0;
                                                     }
@@ -413,7 +413,7 @@ public class PathFind {
         list.sort(Map.Entry.comparingByValue());
         newList.clear();
         for (Map.Entry<Vec3, Double> entry : list) {
-            if (!Utils.vec3Contains(newList, entry.getKey()) && !Utils.vec3Contains(badPoints, entry.getKey())) {
+            if (Utils.vec3NotContains(newList, entry.getKey()) && Utils.vec3NotContains(badPoints, entry.getKey())) {
                 newList.add(entry.getKey());
             }
         }
