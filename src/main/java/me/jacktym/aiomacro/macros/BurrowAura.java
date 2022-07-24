@@ -16,6 +16,7 @@ public class BurrowAura {
     @SubscribeEvent
     public void digBurrow(TickEvent.ClientTickEvent e) {
         if(tick >= 5){
+            tick = 0;
             if(AIOMVigilanceConfig.burrowEnabled){
                 if (Main.mcWorld != null && Main.mcPlayer != null){
 
