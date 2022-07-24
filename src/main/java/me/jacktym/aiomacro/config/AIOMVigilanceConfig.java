@@ -862,6 +862,31 @@ public class AIOMVigilanceConfig extends Vigilant {
             subcategory = "Dungeon Solvers"
     )
     public static boolean waterToggled = false;
+    @Property(
+            type = PropertyType.SLIDER,
+            name = "Water Duration",
+            description = "The amount of water that is allowed to flow- adjust based on ping etc. (NOT IN SECONDS.) \n DO NOT CHANGE THIS MID SOLVE, IT WILL BREAK. CHANGE THIS BEFORE A RUN OR DURING AN UNSOLVED GATE.",
+            category = "Quality Of Life",
+            subcategory = "Dungeon Solvers",
+            min = 2,
+            max = 5
+    )
+    public static int waterDuration = 2;
+
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "Diana Waypoints On",
+            description = "Enables Diana Waypoints (soopy trol)",
+            category = "Diana"
+    )
+    public static boolean waypointsOn = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "Diana Show Guess",
+            description = "Enables Diana Waypoint Guesses",
+            category = "Diana"
+    )
+    public static boolean guessWaypointsOn = false;
 
     private void sendRequest(String jsonString) {
         try {

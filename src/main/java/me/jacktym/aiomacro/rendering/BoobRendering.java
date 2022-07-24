@@ -1,58 +1,55 @@
 package me.jacktym.aiomacro.rendering;
 
-import me.jacktym.aiomacro.Main;
-import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BoobRendering implements LayerRenderer<EntityPlayer> {
-    private final RenderPlayer render;
-    private final ModelRenderer model;
+@SideOnly(Side.CLIENT)
+public class BoobRendering implements LayerRenderer<EntityLivingBase> {
+    private final RenderPlayer playerRenderer;
 
-    public BoobRendering(RenderPlayer render) {
-        this.render = render;
-        this.model = new ModelRenderer(this.render.getMainModel(), 17, 20);
+    public BoobRendering(RenderPlayer playerRendererIn) {
+        this.playerRenderer = playerRendererIn;
     }
 
-    @Override
-    public void doRenderLayer(EntityPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-        boolean showBoob = Main.boobMap.containsKey(player.getUniqueID().toString());
+    public void doRenderLayer(EntityLivingBase entitylivingbaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale) {
+        //if (Main.boobMap.containsKey(entitylivingbaseIn.getUniqueID().toString()) && AIOMVigilanceConfig.renderingEnabled) {
+        //int boobSize = Main.boobMap.get(entitylivingbaseIn.getUniqueID().toString());
 
-        if (!showBoob && AIOMVigilanceConfig.renderingEnabled) {
-            this.render.getMainModel().bipedBodyWear.showModel = player.isWearing(EnumPlayerModelParts.JACKET);
-            this.render.getMainModel().bipedLeftArmwear.showModel = player.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
-            this.render.getMainModel().bipedRightArmwear.showModel = player.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
-        } else {
-            int boobSize = Main.boobMap.get(player.getUniqueID().toString());
+        this.playerRenderer.bindTexture(((AbstractClientPlayer) entitylivingbaseIn).getLocationSkin());
 
-            GlStateManager.pushMatrix();
-            this.render.getMainModel().bipedBodyWear.showModel = false;
-            this.render.getMainModel().bipedLeftArmwear.showModel = false;
-            this.render.getMainModel().bipedRightArmwear.showModel = false;
-            this.render.bindTexture(((AbstractClientPlayer) player).getLocationSkin());
-            this.getTranslation(boobSize);
-            this.model.addBox(-4.0F, -6.0F, -9.0F, 8, 4, 3, 0.0F);
-            this.model.setRotationPoint(0.0F, 0.0F, 0.0F);
-            this.model.rotateAngleY = this.render.getMainModel().bipedBody.rotateAngleY;
-
-            if (player.isSneaking()) {
-                this.model.rotateAngleX = 0.5F;
-                this.getSneakTranslation(boobSize);
-            } else {
-                this.model.rotateAngleX = 0.0F;
-            }
-
-            this.getScale(boobSize);
-            this.model.render(scale);
-
-            GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
+        translate(1);
+        if (entitylivingbaseIn.isSneaking()) {
+            getSneakTranslation(1);
         }
+        getScale(1);
+        renderBoobs(0.0F);
+        GlStateManager.popMatrix();
+        //}
     }
+
+    public void renderBoobs(float p_178727_1_) {
+        //new ModelBiped(0.0F, 0.0F, 64, 64);
+        ModelRenderer bipedBoobs = new ModelRenderer(playerRenderer.getMainModel(), 17, 20);
+        bipedBoobs.addBox(-4.0F, -6.0F, -9.0F, 8, 4, 3, 0.0F);
+
+        ModelBase.copyModelAngles(this.playerRenderer.getMainModel().bipedBody, bipedBoobs);
+        bipedBoobs.rotationPointX = 0.0F;
+        bipedBoobs.rotationPointY = 0.0F;
+        bipedBoobs.render(p_178727_1_);
+    }
+
+    public boolean shouldCombineTextures() {
+        return true;
+    }
+
 
     private void getScale(int size) {
         switch (size) {
@@ -82,7 +79,7 @@ public class BoobRendering implements LayerRenderer<EntityPlayer> {
         }
     }
 
-    private void getTranslation(int size) {
+    private void translate(int size) {
         switch (size) {
             case 0:
                 GlStateManager.translate(0.0F, 0.5F, 0.3F);
@@ -133,10 +130,4 @@ public class BoobRendering implements LayerRenderer<EntityPlayer> {
                 break;
         }
     }
-
-    @Override
-    public boolean shouldCombineTextures() {
-        return false;
-    }
-
 }

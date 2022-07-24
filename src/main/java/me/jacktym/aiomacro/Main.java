@@ -10,10 +10,8 @@ import me.jacktym.aiomacro.keybinds.ModInputHandler;
 import me.jacktym.aiomacro.macros.*;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import me.jacktym.aiomacro.proxy.CommonProxy;
-import me.jacktym.aiomacro.rendering.AssRendering;
 import me.jacktym.aiomacro.rendering.BlockRendering;
 import me.jacktym.aiomacro.rendering.BoobRendering;
-import me.jacktym.aiomacro.rendering.TesticleRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -169,6 +167,7 @@ public class Main {
         registry.add(new CryptESP());
         registry.add(new DungeonDoorAura());
         registry.add(new WaterSolver());
+        registry.add(new DianaWaypoints());
 
         registry.forEach(MinecraftForge.EVENT_BUS::register);
 
@@ -198,18 +197,23 @@ public class Main {
 
         RenderPlayer slim_render = Main.mc.getRenderManager().getSkinMap().get("slim");
         slim_render.addLayer(new BoobRendering(slim_render));
-        slim_render.addLayer(new AssRendering(slim_render));
-        slim_render.addLayer(new TesticleRendering(slim_render));
+        //slim_render.addLayer(new AssRendering(slim_render));
+        //slim_render.addLayer(new TesticleRendering(slim_render));
 
         RenderPlayer default_render = Main.mc.getRenderManager().getSkinMap().get("default");
         default_render.addLayer(new BoobRendering(default_render));
-        default_render.addLayer(new AssRendering(default_render));
-        default_render.addLayer(new TesticleRendering(default_render));
+        //default_render.addLayer(new AssRendering(default_render));
+        //default_render.addLayer(new TesticleRendering(default_render));
 
         AutoHotBar.loadHotBars();
 
         Locale.setDefault(new Locale("en", "US"));
     }
+
+    /*@SubscribeEvent
+    public void onPlayerRender(RenderPlayerEvent event) {
+        event.renderer.addLayer(new BoobRendering(event.renderer));
+    }*/
 
     @SubscribeEvent
     public final void onJoinWorld(@NotNull EntityJoinWorldEvent e) {
