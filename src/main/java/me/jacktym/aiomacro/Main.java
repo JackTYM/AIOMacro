@@ -10,6 +10,7 @@ import me.jacktym.aiomacro.keybinds.ModInputHandler;
 import me.jacktym.aiomacro.macros.*;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import me.jacktym.aiomacro.proxy.CommonProxy;
+import me.jacktym.aiomacro.rendering.BeaconRendering;
 import me.jacktym.aiomacro.rendering.BlockRendering;
 import me.jacktym.aiomacro.rendering.BoobRendering;
 import me.jacktym.aiomacro.util.Utils;
@@ -20,9 +21,7 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.*;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -39,10 +38,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 
+import java.awt.*;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.List;
 
 @Mod(modid = NGGlobal.MOD_ID, name = NGGlobal.MOD_NAME, version = NGGlobal.VERSION)
 public class Main {
@@ -168,6 +170,7 @@ public class Main {
         registry.add(new DungeonDoorAura());
         registry.add(new WaterSolver());
         registry.add(new DianaWaypoints());
+        registry.add(new BeaconRendering());
 
         registry.forEach(MinecraftForge.EVENT_BUS::register);
 
