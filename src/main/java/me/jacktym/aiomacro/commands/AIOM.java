@@ -1,11 +1,13 @@
 package me.jacktym.aiomacro.commands;
 
+import java.awt.Color;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.macros.AutoHotBar;
 import me.jacktym.aiomacro.macros.Nuker;
 import me.jacktym.aiomacro.macros.PathFind;
 import me.jacktym.aiomacro.macros.SetPlayerLook;
+import me.jacktym.aiomacro.rendering.BeaconRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandBase;
@@ -91,6 +93,27 @@ public class AIOM extends CommandBase {
                         Main.mcPlayer.setPosition(Main.mcPlayer.posX + Double.parseDouble(args[1]), Main.mcPlayer.posY + Double.parseDouble(args[2]), Main.mcPlayer.posZ + Double.parseDouble(args[3]));
                     }
                     break;
+                case "drawbeacon":
+                    if (args.length == 1) {
+                            Main.sendMarkedChatMessage("/aiom drawbeacon [add/remove/list]");
+                    } else {
+                        if (args[1].equals("add")) {
+                            if (args.length < 7) {
+                                Main.sendMarkedChatMessage("/aiom drawbeacon add (x) (y) (z) (rgb color) (beacon name)");
+                            } else {
+                                Utils.renderBeacon(new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3])), new Color(Integer.parseInt(args[4])), Utils.generateBeaconName(args[5]));
+                            }
+                        } else if (args[1].equals("remove")) {
+                            if (args.length < 3) {
+                                Main.sendMarkedChatMessage("/aiom drawbeacon remove (beacon name)");
+                            } else {
+                                BeaconRendering.beaconData.remove(args[2]);
+                            }
+                        } else if (args[1].equals("list")) {
+                            Main.sendMarkedChatMessage(BeaconRendering.beaconData.keySet().toString());
+                        }
+                    }
+                    break;
                 case "pathfind":
                     switch (args[1]) {
                         case "clear":
@@ -154,6 +177,7 @@ public class AIOM extends CommandBase {
                                 PathFind.pathFind(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3])), Boolean.valueOf(args[4]));
                             }
                     }
+                    break;
             }
         }
     }
