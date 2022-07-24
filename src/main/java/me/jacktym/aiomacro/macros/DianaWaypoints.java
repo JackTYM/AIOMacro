@@ -3,69 +3,113 @@ package me.jacktym.aiomacro.macros;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.ParticleHandler;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
-import net.minecraft.client.particle.EntityCrit2FX;
-import net.minecraft.client.particle.EntityCritFX;
-import net.minecraft.client.particle.EntityParticleEmitter;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.Vec3;
-import net.minecraftforge.client.event.RenderWorldEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import me.jacktym.aiomacro.util.Utils;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.IWorldAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DianaWaypoints {
 
-    Vec3 guessPoint = null;
-
-    ArrayList<Map.Entry<Vec3, String>> points = new ArrayList<>();
-    ArrayList<Vec3> locations = new ArrayList<>();
-    ArrayList<Vec3> pastLocations = new ArrayList<>();
-
-    ArrayList<Vec3> otherInquisitorPoints = new ArrayList<>();
-
-    ArrayList<Vec3> clickedBurials = new ArrayList<>();
+    public int tickCount = 0;
+    BlockPos guessPoint = null;
+    ArrayList<BlockPos> unknownBurrows = new ArrayList<>();
+    HashMap<BlockPos, String> points = new HashMap<>();
+    ArrayList<BlockPos> otherInquisitorPoints = new ArrayList<>();
     boolean worldAccessAdded = false;
+    ArrayList<BlockPos> clickedBurials = new ArrayList<>();
 
     @SubscribeEvent
-    public void renderTicks(RenderWorldEvent event) {
+    public void renderTicks(RenderWorldLastEvent event) {
         if (AIOMVigilanceConfig.waypointsOn) {
             if (guessPoint != null && AIOMVigilanceConfig.guessWaypointsOn) {
                 drawWaypoint(guessPoint, "Guess");
             }
 
-            for (Map.Entry<Vec3, String> point : points) {
+            for (Map.Entry<BlockPos, String> point : points.entrySet()) {
                 if (!clickedBurials.contains(point.getKey())) {
                     drawWaypoint(point.getKey(), point.getValue());
                 }
             }
 
-            for (Vec3 otherInquisitorPoint : otherInquisitorPoints) {
+            for (BlockPos otherInquisitorPoint : otherInquisitorPoints) {
                 drawWaypoint(otherInquisitorPoint, "Other Inquisitor");
             }
         }
     }
 
-    //@SubscribeEvent
-    public void entityJoinWorldEvent(EntityJoinWorldEvent e) {
-    }
-
-    //List<Entity> alreadyPrinted = new ArrayList<>();
-
     @SubscribeEvent
-    public void tickEvent(TickEvent.PlayerTickEvent event) {
+    public void handleWorldAccess(TickEvent.ClientTickEvent event) {
+        if (tickCount >= 100) {
+            tickCount = 0;
+            ParticleHandler.startParticles.clear();
+            ParticleHandler.treasureParticles.clear();
+            ParticleHandler.mobParticles.clear();
+            ParticleHandler.burrowParticles.clear();
+        }
+        tickCount++;
 
         if (Main.notNull) {
+            boolean hasAccess = false;
+
+            try {
+                final Field worldAccesses = ReflectionHelper.findField(World.class, "field_73021_x", "worldAccesses");
+
+                for (IWorldAccess iWorldAccess : ((List<IWorldAccess>) worldAccesses.get((Main.mcWorld)))) {
+                    if (iWorldAccess.getClass().equals(ParticleHandler.class)) {
+                        hasAccess = true;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            worldAccessAdded = hasAccess;
+
             if (!worldAccessAdded) {
                 worldAccessAdded = true;
                 System.out.println("Added World Access");
                 Main.mcWorld.addWorldAccess(new ParticleHandler());
+            }
+
+            for (Map.Entry<BlockPos, Integer> bpSet : ParticleHandler.burrowParticles.entrySet()) {
+                if (bpSet.getValue() >= 16) {
+                    unknownBurrows.add(bpSet.getKey());
+                }
+            }
+
+            for (Map.Entry<BlockPos, Integer> bpSet : ParticleHandler.mobParticles.entrySet()) {
+                if (bpSet.getValue() >= 3) {
+                    if (unknownBurrows.contains(bpSet.getKey()) && !points.containsKey(bpSet.getKey())) {
+                        points.put(bpSet.getKey(), "Mob");
+                    }
+                }
+            }
+
+            for (Map.Entry<BlockPos, Integer> bpSet : ParticleHandler.treasureParticles.entrySet()) {
+                if (bpSet.getValue() >= 3) {
+                    if (unknownBurrows.contains(bpSet.getKey()) && !points.containsKey(bpSet.getKey())) {
+                        points.put(bpSet.getKey(), "Treasure");
+                    }
+                }
+            }
+
+            for (Map.Entry<BlockPos, Integer> bpSet : ParticleHandler.startParticles.entrySet()) {
+                if (bpSet.getValue() >= 3) {
+                    if (unknownBurrows.contains(bpSet.getKey()) && !points.containsKey(bpSet.getKey())) {
+                        points.put(bpSet.getKey(), "Start");
+                    }
+                }
             }
         } else {
             if (worldAccessAdded) {
@@ -73,30 +117,15 @@ public class DianaWaypoints {
                 worldAccessAdded = false;
             }
         }
-
-        List<Entity> entityList = Main.mcWorld.loadedEntityList;
-
-        for (Entity entity : entityList) {
-
-            /*if (!alreadyPrinted.contains(entity)) {
-                System.out.println(entity.getDisplayName() + " " + entity.getName() + " " + entity.getPositionVector());
-            }
-            alreadyPrinted.add(entity);*/
-
-            if (entity instanceof EntityCritFX || entity instanceof EntityCrit2FX) {
-                System.out.println("particle");
-                try {
-                    final Field particleType = ReflectionHelper.findField(((EntityParticleEmitter) entity).getClass(), "field_174849_az", "field_178932_g", "particleTypes");
-
-                    System.out.println(((EnumParticleTypes) particleType.get((entity))).getParticleName());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
-    public void drawWaypoint(Vec3 waypoint, String pointName) {
-
+    public void drawWaypoint(BlockPos waypoint, String pointName) {
+        if (pointName.equals("Start")) {
+            Utils.renderBeacon(waypoint, Color.GREEN, waypoint.toString());
+        } else if (pointName.equals("Treasure")) {
+            Utils.renderBeacon(waypoint, Color.YELLOW, waypoint.toString());
+        } else if (pointName.equals("Mob")) {
+            Utils.renderBeacon(waypoint, Color.RED, waypoint.toString());
+        }
     }
 }
