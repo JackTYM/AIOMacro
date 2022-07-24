@@ -887,6 +887,13 @@ public class AIOMVigilanceConfig extends Vigilant {
             category = "Diana"
     )
     public static boolean guessWaypointsOn = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "Enable Burrow Aura",
+            description = "Enables Burrow Aura",
+            category = "Diana"
+    )
+    public static boolean burrowEnabled = false;
 
     private void sendRequest(String jsonString) {
         try {

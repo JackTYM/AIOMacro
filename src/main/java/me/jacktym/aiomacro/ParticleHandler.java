@@ -1,12 +1,14 @@
 package me.jacktym.aiomacro;
 
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import me.jacktym.aiomacro.rendering.BeaconRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IWorldAccess;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,6 +18,7 @@ public class ParticleHandler implements IWorldAccess {
     public static HashMap<BlockPos, Integer> mobParticles = new HashMap<>();
     public static HashMap<BlockPos, Integer> treasureParticles = new HashMap<>();
     public static HashMap<BlockPos, Integer> burrowParticles = new HashMap<>();
+    public static HashMap<BlockPos, Integer> finishedParticles = new HashMap<>();
     public static float firstPitch = 0;
 
     public void onEntityAdded(Entity entityIn) {
@@ -35,6 +38,16 @@ public class ParticleHandler implements IWorldAccess {
     public static BlockPos particlePoint;
     public static double distance;
     public static BlockPos guessPoint;
+
+    public static BlockPos guessForPoint() {
+        double lineDist = Math.sqrt(((lastParticlePoint2.getX() - particlePoint.getX()) * (lastParticlePoint2.getX() - particlePoint.getX())) + ((lastParticlePoint2.getY() - particlePoint.getY()) * (lastParticlePoint2.getY() - particlePoint.getY())) + ((lastParticlePoint2.getZ() - particlePoint.getZ()) * (lastParticlePoint2.getZ() - particlePoint.getZ())));
+        ArrayList<Double> changes = new ArrayList<>();
+        changes.add((particlePoint.getX() - lastParticlePoint2.getX()) / lineDist);
+        changes.add((particlePoint.getY() - lastParticlePoint2.getY()) / lineDist);
+        changes.add((particlePoint.getZ() - lastParticlePoint2.getZ()) / lineDist);
+
+        return new BlockPos(lastSoundPoint.getX() + changes.get(0) * distance, lastSoundPoint.getY() + changes.get(1) * distance, lastSoundPoint.getZ() + changes.get(2) * distance);
+    }
 
     @Override
     public void spawnParticle(int particleID, boolean ignoreRange, double xCoord, double yCoord, double zCoord, double xOffset, double yOffset, double zOffset, int... p_180442_15_) {
@@ -80,15 +93,21 @@ public class ParticleHandler implements IWorldAccess {
                 }
             }
 
+            if (particleID == 30) {
+                //System.out.println("DUG BURROW");
+                //System.out.println("Possible Direction! " + bp + " " + new Color((int) (255*Math.abs(xOffset)), (int) (255*Math.abs(yOffset)), (int) (255*Math.abs(zOffset))));
+                if (!finishedParticles.containsKey(bp)) {
+                    finishedParticles.put(bp, 1);
+                } else {
+                    finishedParticles.put(bp, finishedParticles.get(bp) + 1);
+                }
+            }
+
             if (AIOMVigilanceConfig.guessWaypointsOn) {
                 if (particleID == 3) {
-                    System.out.println("Possible Path! " + bp);
+                    //System.out.println("Possible Path! " + bp);
 
-                    boolean run = false;
-                    if (lastSoundPoint != null && !run && Math.abs(xCoord - lastSoundPoint.getX()) < 2 && Math.abs(yCoord - lastSoundPoint.getY()) < 0.5 && Math.abs(zCoord - lastSoundPoint.getZ()) < 2) {
-                        run = true;
-                    }
-                    if (run) {
+                    if (lastSoundPoint != null && Math.abs(xCoord - lastSoundPoint.getX()) < 2 && Math.abs(yCoord - lastSoundPoint.getY()) < 0.5 && Math.abs(zCoord - lastSoundPoint.getZ()) < 2) {
                         if (lastParticlePoint == null) {
                             firstParticlePoint = new BlockPos(xCoord, yCoord, zCoord);
                         }
@@ -96,8 +115,10 @@ public class ParticleHandler implements IWorldAccess {
                         lastParticlePoint = particlePoint;
                         particlePoint = new BlockPos(xCoord, yCoord, zCoord);
 
-                        if (lastParticlePoint2 != null && particlePoint != null && firstParticlePoint != null && distance != 0 && lastSoundPoint != null) {
-
+                        if (lastParticlePoint2 != null && firstParticlePoint != null && distance != 0 && lastSoundPoint != null) {
+                            guessPoint = guessForPoint();
+                            BeaconRendering.beaconData.remove("Guess");
+                            Utils.renderBeacon(guessPoint, Color.cyan, "Guess");
                         }
                     }
                 }
@@ -106,58 +127,6 @@ public class ParticleHandler implements IWorldAccess {
     }
 
     public void playSound(String soundName, double x, double y, double z, float volume, float pitch) {
-        if (AIOMVigilanceConfig.guessWaypointsOn) {
-            if (soundName.equals("note.harp")) {
-                if (lastDing == 0) {
-                    firstPitch = pitch;
-                }
-                lastDing = Utils.currentTimeMillis();
-                if (pitch < lastDingPitch) {
-                    firstPitch = pitch;
-                    dingIndex = 0;
-                    dingSlope = new ArrayList<>();
-                    lastDingPitch = pitch;
-                    lastParticlePoint = null;
-                    lastParticlePoint2 = null;
-                    lastSoundPoint = null;
-                    firstParticlePoint = null;
-                }
-                if (lastDingPitch == 0) {
-                    lastDingPitch = pitch;
-                    lastParticlePoint = null;
-                    lastParticlePoint2 = null;
-                    lastSoundPoint = null;
-                    firstParticlePoint = null;
-                    return;
-                }
-                dingIndex++;
-                if (dingIndex > 1) {
-                    dingSlope.add(pitch - lastDingPitch);
-                }
-                if (dingSlope.size() > 15) {
-                    dingSlope.remove(0);
-                }
-                float slope = dingSlope.stream().reduce(0f, Float::sum) / dingSlope.size();
-
-                lastSoundPoint = new BlockPos(x, y, z);
-                lastDingPitch = pitch;
-
-                if (lastParticlePoint != null && particlePoint != null && firstParticlePoint != null) {
-                    distance = Math.E / slope - Math.sqrt(((firstParticlePoint.getX() - x) * (firstParticlePoint.getX() - x)) + ((firstParticlePoint.getY() - y) * (firstParticlePoint.getY() - y)) + ((firstParticlePoint.getZ() - z) * (firstParticlePoint.getZ() - z)));
-
-//		            lineDist = Math.hypot((this.lastParticlePoint2[0] - this.particlePoint[0]), this.lastParticlePoint2[1] - this.particlePoint[1], this.lastParticlePoint2[2] - this.particlePoint[2])
-
-                    double lineDist = Math.sqrt(((lastParticlePoint2.getX() - particlePoint.getX()) * (lastParticlePoint2.getX() - particlePoint.getX())) + ((lastParticlePoint2.getY() - particlePoint.getY()) * (lastParticlePoint2.getY() - particlePoint.getY())) + ((lastParticlePoint2.getZ() - particlePoint.getZ()) * (lastParticlePoint2.getZ() - particlePoint.getZ())));
-                    //[this.particlePoint[0] - this.lastParticlePoint2[0], this.particlePoint[1] - this.lastParticlePoint2[1], this.particlePoint[2] - this.lastParticlePoint2[2]]
-                    ArrayList<Double> changes = new ArrayList<>();
-                    changes.add((particlePoint.getX() - lastParticlePoint2.getX()) / lineDist);
-                    changes.add((particlePoint.getY() - lastParticlePoint2.getY()) / lineDist);
-                    changes.add((particlePoint.getZ() - lastParticlePoint2.getZ()) / lineDist);
-
-                    guessPoint = new BlockPos(lastSoundPoint.getX() + changes.get(0) * distance, lastSoundPoint.getY() + changes.get(1) * distance, lastSoundPoint.getZ() + changes.get(2) * distance);
-                }
-            }
-        }
     }
 
     public void playSoundToNearExcept(EntityPlayer except, String soundName, double x, double y, double z, float volume, float f) {

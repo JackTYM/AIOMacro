@@ -3,11 +3,14 @@ package me.jacktym.aiomacro.macros;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.ParticleHandler;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import me.jacktym.aiomacro.rendering.BeaconRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IWorldAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -24,8 +27,7 @@ public class DianaWaypoints {
     public int tickCount = 0;
     BlockPos guessPoint = null;
     ArrayList<BlockPos> unknownBurrows = new ArrayList<>();
-    HashMap<BlockPos, String> points = new HashMap<>();
-    ArrayList<BlockPos> otherInquisitorPoints = new ArrayList<>();
+    static HashMap<BlockPos, String> points = new HashMap<>();
     boolean worldAccessAdded = false;
     ArrayList<BlockPos> clickedBurials = new ArrayList<>();
 
@@ -41,21 +43,72 @@ public class DianaWaypoints {
                     drawWaypoint(point.getKey(), point.getValue());
                 }
             }
+        }
+    }
 
-            for (BlockPos otherInquisitorPoint : otherInquisitorPoints) {
-                drawWaypoint(otherInquisitorPoint, "Other Inquisitor");
+    @SubscribeEvent
+    public void soundSetupEvent(SoundEvent.SoundSourceEvent event) {
+        String soundName = event.sound.getSoundLocation().toString();
+        double x = event.sound.getXPosF();
+        double y = event.sound.getYPosF();
+        double z = event.sound.getZPosF();
+        float pitch = event.sound.getPitch();
+
+        if (AIOMVigilanceConfig.guessWaypointsOn) {
+            if (soundName.equals("minecraft:note.harp")) {
+                if (ParticleHandler.lastDing == 0) {
+                    ParticleHandler.firstPitch = pitch;
+                }
+                ParticleHandler.lastDing = Utils.currentTimeMillis();
+                if (pitch < ParticleHandler.lastDingPitch) {
+                    ParticleHandler.firstPitch = pitch;
+                    ParticleHandler.dingIndex = 0;
+                    ParticleHandler.dingSlope = new ArrayList<>();
+                    ParticleHandler.lastDingPitch = pitch;
+                    ParticleHandler.lastParticlePoint = null;
+                    ParticleHandler.lastParticlePoint2 = null;
+                    ParticleHandler.lastSoundPoint = null;
+                    ParticleHandler.firstParticlePoint = null;
+                }
+                if (ParticleHandler.lastDingPitch == 0) {
+                    ParticleHandler.lastDingPitch = pitch;
+                    ParticleHandler.lastParticlePoint = null;
+                    ParticleHandler.lastParticlePoint2 = null;
+                    ParticleHandler.lastSoundPoint = null;
+                    ParticleHandler.firstParticlePoint = null;
+                    return;
+                }
+                ParticleHandler.dingIndex++;
+                if (ParticleHandler.dingIndex > 1) {
+                    ParticleHandler.dingSlope.add(pitch - ParticleHandler.lastDingPitch);
+                }
+                if (ParticleHandler.dingSlope.size() > 15) {
+                    ParticleHandler.dingSlope.remove(0);
+                }
+                float slope = ParticleHandler.dingSlope.stream().reduce(0f, Float::sum) / ParticleHandler.dingSlope.size();
+
+                ParticleHandler.lastSoundPoint = new BlockPos(x, y, z);
+                ParticleHandler.lastDingPitch = pitch;
+
+                if (ParticleHandler.lastParticlePoint != null && ParticleHandler.particlePoint != null && ParticleHandler.firstParticlePoint != null) {
+                    ParticleHandler.distance = Math.E / slope - Math.sqrt(((ParticleHandler.firstParticlePoint.getX() - x) * (ParticleHandler.firstParticlePoint.getX() - x)) + ((ParticleHandler.firstParticlePoint.getY() - y) * (ParticleHandler.firstParticlePoint.getY() - y)) + ((ParticleHandler.firstParticlePoint.getZ() - z) * (ParticleHandler.firstParticlePoint.getZ() - z)));
+                    guessPoint = ParticleHandler.guessForPoint();
+                    BeaconRendering.beaconData.remove("Guess");
+                    Utils.renderBeacon(guessPoint, Color.cyan, "Guess");
+                }
             }
         }
     }
 
     @SubscribeEvent
     public void handleWorldAccess(TickEvent.ClientTickEvent event) {
-        if (tickCount >= 100) {
+        if (tickCount >= 20) {
             tickCount = 0;
             ParticleHandler.startParticles.clear();
             ParticleHandler.treasureParticles.clear();
             ParticleHandler.mobParticles.clear();
             ParticleHandler.burrowParticles.clear();
+            ParticleHandler.finishedParticles.clear();
         }
         tickCount++;
 
@@ -68,6 +121,7 @@ public class DianaWaypoints {
                 for (IWorldAccess iWorldAccess : ((List<IWorldAccess>) worldAccesses.get((Main.mcWorld)))) {
                     if (iWorldAccess.getClass().equals(ParticleHandler.class)) {
                         hasAccess = true;
+                        break;
                     }
                 }
             } catch (Exception e) {
@@ -78,13 +132,30 @@ public class DianaWaypoints {
 
             if (!worldAccessAdded) {
                 worldAccessAdded = true;
+                points.clear();
+                ParticleHandler.startParticles.clear();
+                ParticleHandler.treasureParticles.clear();
+                ParticleHandler.mobParticles.clear();
+                ParticleHandler.burrowParticles.clear();
+                ParticleHandler.finishedParticles.clear();
+                BeaconRendering.beaconData.clear();
+                unknownBurrows.clear();
+                clickedBurials.clear();
                 System.out.println("Added World Access");
                 Main.mcWorld.addWorldAccess(new ParticleHandler());
             }
 
             for (Map.Entry<BlockPos, Integer> bpSet : ParticleHandler.burrowParticles.entrySet()) {
-                if (bpSet.getValue() >= 16) {
+                if (bpSet.getValue() >= 3) {
                     unknownBurrows.add(bpSet.getKey());
+                }
+            }
+
+            for (Map.Entry<BlockPos, Integer> bpSet : ParticleHandler.finishedParticles.entrySet()) {
+                if (bpSet.getValue() >= 6) {
+                    clickedBurials.add(bpSet.getKey());
+                    points.remove(bpSet.getKey());
+                    BeaconRendering.beaconData.remove(bpSet.getKey().toString());
                 }
             }
 
@@ -119,13 +190,36 @@ public class DianaWaypoints {
         }
     }
 
+    @SubscribeEvent
+    public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
+        String strippedMessage = Utils.stripColor(event.message.getUnformattedText());
+
+        if (strippedMessage.contains("Griffin burrow") || strippedMessage.contains("Griffin Burrow")) {
+            for (Map.Entry<BlockPos, String> point : points.entrySet()) {
+                if (point.getValue().equals("Mob") || point.getValue().equals("Treasure")) {
+                    clickedBurials.add(point.getKey());
+                }
+            }
+            points.values().remove("Mob");
+            points.values().remove("Treasure");
+            points.values().remove("Guess");
+            BeaconRendering.beaconData.remove("Mob");
+            BeaconRendering.beaconData.remove("Treasure");
+            BeaconRendering.beaconData.remove("Guess");
+        }
+    }
+
     public void drawWaypoint(BlockPos waypoint, String pointName) {
-        if (pointName.equals("Start")) {
-            Utils.renderBeacon(waypoint, Color.GREEN, waypoint.toString());
-        } else if (pointName.equals("Treasure")) {
-            Utils.renderBeacon(waypoint, Color.YELLOW, waypoint.toString());
-        } else if (pointName.equals("Mob")) {
-            Utils.renderBeacon(waypoint, Color.RED, waypoint.toString());
+        switch (pointName) {
+            case "Start":
+                Utils.renderBeacon(waypoint, Color.GREEN, waypoint.toString());
+                break;
+            case "Treasure":
+                Utils.renderBeacon(waypoint, Color.YELLOW, "Treasure");
+                break;
+            case "Mob":
+                Utils.renderBeacon(waypoint, Color.RED, "Mob");
+                break;
         }
     }
 }

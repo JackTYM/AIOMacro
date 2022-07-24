@@ -18,10 +18,9 @@ public class BurrowAura {
         if(tick >= 5){
           tick = 0;
             if(AIOMVigilanceConfig.burrowEnabled){
-                if (Main.mcWorld != null && Main.mcPlayer != null){
-
-                    if(!(Main.mcPlayer.getHeldItem() == null) && Utils.stripColor(Main.mcPlayer.getHeldItem().getDisplayName()).contains("Ancestral Spade")) {
-                        for(BlockPos point: DianaWaypoints.points.keySet()){
+                if (Main.notNull) {
+                    if (!(Main.mcPlayer.getHeldItem() == null) && Utils.stripColor(Main.mcPlayer.getHeldItem().getDisplayName()).contains("Ancestral Spade")) {
+                        for (BlockPos point : DianaWaypoints.points.keySet()) {
                             Main.mcPlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, point, EnumFacing.DOWN));
                         }
                     }

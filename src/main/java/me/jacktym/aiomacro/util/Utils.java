@@ -8,22 +8,14 @@ import com.google.gson.JsonParser;
 import gg.essential.universal.ChatColor;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.rendering.BeaconRendering;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityBeaconRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
-import net.minecraft.tileentity.TileEntityBeacon;
 import net.minecraft.util.*;
 import net.minecraft.world.WorldSettings;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -34,7 +26,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
@@ -359,16 +350,16 @@ public class Utils {
         return false;
     }
 
-    public static boolean vec3Contains(List<Vec3> vecArray, Vec3 vecSearch) {
+    public static boolean vec3NotContains(List<Vec3> vecArray, Vec3 vecSearch) {
         try {
             for (Vec3 vec3 : vecArray) {
                 if (vec3.subtract(vecSearch).toString().equals("(0.0, 0.0, 0.0)")) {
-                    return true;
+                    return false;
                 }
             }
         } catch (Exception ignored) {
         }
-        return false;
+        return true;
     }
 
     public static void renderBeacon(BlockPos bp, Color color, String beaconName) {
@@ -384,7 +375,7 @@ public class Utils {
     }
 
     public static String generateBeaconName(String baseName) {
-        String returnString = baseName;
+        String returnString;
 
         int i = 0;
         while (true) {
@@ -397,6 +388,10 @@ public class Utils {
         }
 
         return returnString;
+    }
+
+    public static void removeSimilarBeaconNames(String baseName) {
+        BeaconRendering.beaconData.keySet().removeIf(name -> name.contains(baseName));
     }
 
 }
