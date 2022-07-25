@@ -1,6 +1,7 @@
 package me.jacktym.aiomacro.keybinds;
 
 import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.ParticleHandler;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.macros.AutoHotBar;
 import me.jacktym.aiomacro.macros.MacroHandler;
@@ -64,6 +65,10 @@ public class ModInputHandler {
                     Main.mcPlayer.setPosition(Main.mcPlayer.posX, Main.mcPlayer.posY, Main.mcPlayer.posZ - Double.parseDouble(AIOMVigilanceConfig.hClipKeyBindAmount));
                 }
             }
+        }
+        if (keyBindings[7].isPressed()) {
+            Main.sendMarkedChatMessage("Refreshed Diana Waypoints!");
+            Main.mcWorld.removeWorldAccess(new ParticleHandler());
         }
     }
 }

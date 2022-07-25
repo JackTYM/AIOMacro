@@ -176,7 +176,7 @@ public class Main {
 
         StencilEffect.Companion.enableStencil();
 
-        ClientProxy.keyBindings = new KeyBinding[7];
+        ClientProxy.keyBindings = new KeyBinding[8];
 
         ClientProxy.keyBindings[0] = new KeyBinding("Toggle Macro", Keyboard.KEY_DELETE, "All-In-One Macro");
         ClientProxy.keyBindings[1] = new KeyBinding("Open Gui", Keyboard.KEY_BACKSLASH, "All-In-One Macro");
@@ -185,6 +185,7 @@ public class Main {
         ClientProxy.keyBindings[4] = new KeyBinding("HotBar Profile Three", Keyboard.KEY_F8, "All-In-One Macro");
         ClientProxy.keyBindings[5] = new KeyBinding("VerticalClip", Keyboard.KEY_GRAVE, "All-In-One Macro");
         ClientProxy.keyBindings[6] = new KeyBinding("HorizontalClip", Keyboard.KEY_ADD, "All-In-One Macro");
+        ClientProxy.keyBindings[7] = new KeyBinding("Refresh Diana Waypoints", Keyboard.KEY_PAUSE, "All-In-One Macro");
 
         for (int i = 0; i < ClientProxy.keyBindings.length; i++) {
             ClientRegistry.registerKeyBinding(ClientProxy.keyBindings[i]);
