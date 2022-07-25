@@ -10,7 +10,9 @@ import me.jacktym.aiomacro.keybinds.ModInputHandler;
 import me.jacktym.aiomacro.macros.*;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import me.jacktym.aiomacro.proxy.CommonProxy;
-import me.jacktym.aiomacro.rendering.*;
+import me.jacktym.aiomacro.rendering.BeaconRendering;
+import me.jacktym.aiomacro.rendering.BlockRendering;
+import me.jacktym.aiomacro.rendering.CosmeticRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -197,24 +199,15 @@ public class Main {
         proxy.postInit(postEvent);
 
         RenderPlayer slim_render = Main.mc.getRenderManager().getSkinMap().get("slim");
-        slim_render.addLayer(new BoobRendering(slim_render));
-        slim_render.addLayer(new AssRendering(slim_render));
-        slim_render.addLayer(new TesticleRendering(slim_render));
+        slim_render.addLayer(new CosmeticRendering(slim_render));
 
         RenderPlayer default_render = Main.mc.getRenderManager().getSkinMap().get("default");
-        default_render.addLayer(new BoobRendering(default_render));
-        default_render.addLayer(new AssRendering(default_render));
-        default_render.addLayer(new TesticleRendering(default_render));
+        default_render.addLayer(new CosmeticRendering(default_render));
 
         AutoHotBar.loadHotBars();
 
         Locale.setDefault(new Locale("en", "US"));
     }
-
-    /*@SubscribeEvent
-    public void onPlayerRender(RenderPlayerEvent event) {
-        event.renderer.addLayer(new BoobRendering(event.renderer));
-    }*/
 
     @SubscribeEvent
     public final void onJoinWorld(@NotNull EntityJoinWorldEvent e) {
