@@ -876,7 +876,7 @@ public class AIOMVigilanceConfig extends Vigilant {
     @Property(
             type = PropertyType.CHECKBOX,
             name = "Diana Waypoints On",
-            description = "Enables Diana Waypoints (soopy trol)",
+            description = "Enables Diana Waypoints",
             category = "Diana"
     )
     public static boolean waypointsOn = false;
@@ -894,6 +894,13 @@ public class AIOMVigilanceConfig extends Vigilant {
             category = "Diana"
     )
     public static boolean burrowEnabled = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            name = "Use Echo After Burrow",
+            description = "Uses the Echo ability after uncovering a burrow",
+            category = "Diana"
+    )
+    public static boolean useEchoAfterBurrow = false;
 
     private void sendRequest(String jsonString) {
         try {

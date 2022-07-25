@@ -24,15 +24,8 @@ public class BurrowAura {
                 if (Main.notNull) {
                     for (BlockPos point : DianaWaypoints.points.keySet()) {
                         if (Utils.distanceBetweenPoints(new Vec3(point), Main.mcPlayer.getPositionVector()) <= 5) {
-                            int spadeIndex = 0;
-                            for (int i = 0; i <= 9; i++) {
-                                if (Main.mcPlayer.inventory.mainInventory[i] != null && Main.mcPlayer.inventory.mainInventory[i].getDisplayName() != null && Main.mcPlayer.inventory.mainInventory[i].getDisplayName().contains("Ancestral Spade")) {
-                                    spadeIndex = i;
-                                    break;
-                                }
-                            }
                             int currentItem = Main.mcPlayer.inventory.currentItem;
-                            Main.mcPlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(spadeIndex));
+                            Main.mcPlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(DianaWaypoints.getSpadeIndex()));
                             Main.mcPlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, point, EnumFacing.DOWN));
                             Main.mcPlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(currentItem));
                         }

@@ -5,6 +5,7 @@ import me.jacktym.aiomacro.ParticleHandler;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.rendering.BeaconRendering;
 import me.jacktym.aiomacro.util.Utils;
+import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IWorldAccess;
 import net.minecraft.world.World;
@@ -30,6 +31,8 @@ public class DianaWaypoints {
     static HashMap<BlockPos, String> points = new HashMap<>();
     boolean worldAccessAdded = false;
     ArrayList<BlockPos> clickedBurials = new ArrayList<>();
+
+    int pastItem = 0;
 
     @SubscribeEvent
     public void renderTicks(RenderWorldLastEvent event) {
@@ -190,6 +193,17 @@ public class DianaWaypoints {
         }
     }
 
+    public static int getSpadeIndex() {
+        int spadeIndex = Main.mcPlayer.inventory.currentItem;
+        for (int i = 0; i <= 9; i++) {
+            if (Main.mcPlayer.inventory.mainInventory[i] != null && Main.mcPlayer.inventory.mainInventory[i].getDisplayName() != null && Main.mcPlayer.inventory.mainInventory[i].getDisplayName().contains("Ancestral Spade")) {
+                spadeIndex = i;
+                break;
+            }
+        }
+        return spadeIndex;
+    }
+
     @SubscribeEvent
     public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
         String strippedMessage = Utils.stripColor(event.message.getUnformattedText());
@@ -206,6 +220,13 @@ public class DianaWaypoints {
             BeaconRendering.beaconData.remove("Mob");
             BeaconRendering.beaconData.remove("Treasure");
             BeaconRendering.beaconData.remove("Guess");
+            if (AIOMVigilanceConfig.useEchoAfterBurrow) {
+                Main.sendMarkedChatMessage("Using Echo!");
+                int currentItem = Main.mcPlayer.inventory.currentItem;
+                Main.mcPlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(getSpadeIndex()));
+                Main.mc.playerController.sendUseItem(Main.mcPlayer, Main.mcWorld, Main.mcPlayer.inventory.getStackInSlot(getSpadeIndex()));
+                Main.mcPlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(currentItem));
+            }
         }
     }
 
