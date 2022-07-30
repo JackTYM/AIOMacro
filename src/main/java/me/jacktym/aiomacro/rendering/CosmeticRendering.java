@@ -1,6 +1,7 @@
 package me.jacktym.aiomacro.rendering;
 
 import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.NGGlobal;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.ResourceLocation;
 
 public class CosmeticRendering implements LayerRenderer<EntityLivingBase> {
 
@@ -19,84 +21,260 @@ public class CosmeticRendering implements LayerRenderer<EntityLivingBase> {
         this.playerRenderer = playerRendererIn;
     }
 
-    public void doRenderLayer(EntityLivingBase entitylivingbaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale) {
-        if (Main.boobMap.containsKey(entitylivingbaseIn.getUniqueID().toString()) && AIOMVigilanceConfig.renderingEnabled) {
+    public void doRenderLayer(EntityLivingBase entityLivingBaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale) {
+        if (AIOMVigilanceConfig.renderingEnabled) {
+            if (Main.boobMap.containsKey(entityLivingBaseIn.getUniqueID().toString())) {
+                int boobSize = Main.boobMap.get(entityLivingBaseIn.getUniqueID().toString());
 
-            //int boobSize = Main.boobMap.get(entitylivingbaseIn.getUniqueID().toString());
-            int boobSize = 1;
+                this.playerRenderer.bindTexture(((AbstractClientPlayer) entityLivingBaseIn).getLocationSkin());
 
-            this.playerRenderer.bindTexture(((AbstractClientPlayer) entitylivingbaseIn).getLocationSkin());
+                GlStateManager.pushMatrix();
+                ModelRenderer bipedBoobs = new ModelRenderer(playerRenderer.getMainModel(), 17, 20);
+                bipedBoobs.addBox(-4.0F, -6.0F, -9.0F, 8, 4, 3, 0.0F);
+
+                switch (boobSize) {
+                    case 0:
+                        GlStateManager.translate(0.0F, 0.5F, 0.3F);
+                        break;
+                    case 1:
+                        GlStateManager.translate(0.0F, 0.6F, 0.36F);
+                        break;
+                    case 2:
+                        GlStateManager.translate(0.0F, 0.7F, 0.45F);
+                        break;
+                    case 3:
+                        GlStateManager.translate(0.0F, 0.8F, 0.55F);
+                        break;
+                    case 4:
+                        GlStateManager.translate(0.0F, 0.9F, 0.65F);
+                        break;
+                    case 5:
+                        GlStateManager.translate(0.0F, 1.28F, 1.0F);
+                        break;
+                    case 6:
+                        GlStateManager.translate(0.0F, 2.4F, 2.14F);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (entityLivingBaseIn.isSneaking()) {
+                    getSneakTranslation(boobSize);
+                }
+                getScale(boobSize);
+
+                //ModelBase.copyModelAngles(this.playerRenderer.getMainModel().bipedBody, bipedBoobs);
+                bipedBoobs.rotationPointX = 0.0F;
+                bipedBoobs.rotationPointY = 0.0F;
+                bipedBoobs.render(0.0625F);
+                GlStateManager.popMatrix();
+            }
+            if (Main.testicleMap.containsKey(entityLivingBaseIn.getUniqueID().toString())) {
+                int testicleSize = Main.testicleMap.get(entityLivingBaseIn.getUniqueID().toString());
+
+                this.playerRenderer.bindTexture(((AbstractClientPlayer) entityLivingBaseIn).getLocationSkin());
+
+                GlStateManager.pushMatrix();
+                switch (testicleSize) {
+                    case 0:
+                        GlStateManager.translate(0.0F, 0.563F, 0.3F);
+                        break;
+                    case 1:
+                        GlStateManager.translate(0.0F, 0.53F, 0.36F);
+                        break;
+                    case 2:
+                        GlStateManager.translate(0.0F, 0.5F, 0.5F);
+                        break;
+                    case 3:
+                        GlStateManager.translate(0.0F, 0.47F, 0.55F);
+                        break;
+                    case 4:
+                        GlStateManager.translate(0.0F, 0.435F, 0.65F);
+                        break;
+                    case 5:
+                        GlStateManager.translate(0.0F, 0.313F, 1.0F);
+                        break;
+                    case 6:
+                        GlStateManager.translate(0.0F, -0.06F, 2.15F);
+                        break;
+                    default:
+                        break;
+                }
+                if (entityLivingBaseIn.isSneaking()) {
+                    getSneakTranslation(testicleSize);
+                }
+                getScale(testicleSize);
+                ModelRenderer bipedTesticles = new ModelRenderer(playerRenderer.getMainModel(), 0, 21);
+                bipedTesticles.addBox(-2.0F, 2.0F, -9.0F, 4, 4, 3, 0.0F);
+                bipedTesticles.addBox(-1.0F, 3.0F, -15.0F, 2, 2, 6, 0.0F);
+
+                ModelBase.copyModelAngles(this.playerRenderer.getMainModel().bipedBody, bipedTesticles);
+                bipedTesticles.rotationPointX = 0.0F;
+                bipedTesticles.rotationPointY = 0.0F;
+                bipedTesticles.render(0.0625F);
+                GlStateManager.popMatrix();
+            }
+            if (Main.assMap.containsKey(entityLivingBaseIn.getUniqueID().toString())) {
+                int assSize = Main.assMap.get(entityLivingBaseIn.getUniqueID().toString());
+
+                this.playerRenderer.bindTexture(((AbstractClientPlayer) entityLivingBaseIn).getLocationSkin());
+
+                GlStateManager.pushMatrix();
+                switch (assSize) {
+                    case 0:
+                        GlStateManager.translate(0.0F, 0.5F, 0.3F);
+                        break;
+                    case 1:
+                        GlStateManager.translate(0.0F, 0.5F, 0.36F);
+                        break;
+                    case 2:
+                    case 3:
+                        GlStateManager.translate(0.0F, 0.5F, 0.41F);
+                        break;
+                    case 4:
+                        GlStateManager.translate(0.0F, 0.5F, 0.50F);
+                        break;
+                    case 5:
+                        GlStateManager.translate(0.0F, 0.55F, 0.69F);
+                        break;
+                    case 6:
+                        GlStateManager.translate(0.0F, 0.65F, 1.25F);
+                        break;
+                    default:
+                        break;
+                }
+                if (entityLivingBaseIn.isSneaking()) {
+                    getSneakTranslation(assSize);
+                }
+                getScale(assSize);
+                ModelRenderer bipedAss = new ModelRenderer(playerRenderer.getMainModel(), 18, 24);
+                bipedAss.addBox(-4.0F, -0.6F, -3.0F, 8, 4, 3, 0.0F);
+
+                ModelBase.copyModelAngles(this.playerRenderer.getMainModel().bipedBody, bipedAss);
+                bipedAss.rotationPointX = 0.0F;
+                bipedAss.rotationPointY = 0.0F;
+                bipedAss.render(0.0625F);
+                GlStateManager.popMatrix();
+            }
+            //if (Main.haloMap.containsKey(entityLivingBaseIn.getUniqueID().toString())) {
+            //int haloSize = Main.haloMap.get(entityLivingBaseIn.getUniqueID().toString());
+            int haloSize = 1;
 
             GlStateManager.pushMatrix();
-            ModelRenderer bipedBoobs = new ModelRenderer(playerRenderer.getMainModel(), 17, 20);
-            bipedBoobs.addBox(-4.0F, -6.0F, -9.0F, 8, 4, 3, 0.0F);
-
-            translateBoob(boobSize);
-            if (entitylivingbaseIn.isSneaking()) {
-                getSneakTranslation(boobSize);
+            if (entityLivingBaseIn.isSneaking()) {
+                getSneakTranslation(haloSize);
             }
-            getScale(boobSize);
+            getScale(haloSize);
+            this.playerRenderer.bindTexture(new ResourceLocation(NGGlobal.MOD_ID, "textures/HaloTexture.png"));
+            ModelRenderer bipedHalo = new ModelRenderer(playerRenderer.getMainModel(), 0, 0);
+            bipedHalo.addBox(-2.0F, -10.0F, -6.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(1.0F, -10.0F, 5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(0.0F, -10.0F, 5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-1.0F, -10.0F, 5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-2.0F, -10.0F, 5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-2.0F, -10.0F, 4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-3.0F, -10.0F, 4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-4.0F, -10.0F, 4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-4.0F, -10.0F, 3.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-5.0F, -10.0F, 3.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-5.0F, -10.0F, 2.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-5.0F, -10.0F, 1.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-6.0F, -10.0F, 1.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-6.0F, -10.0F, -2.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-6.0F, -10.0F, -1.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(1.0F, -10.0F, 4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(2.0F, -10.0F, 4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(3.0F, -10.0F, 4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(3.0F, -10.0F, 3.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(4.0F, -10.0F, 3.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(4.0F, -10.0F, 2.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(4.0F, -10.0F, 1.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(5.0F, -10.0F, 1.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(5.0F, -10.0F, -0.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(5.0F, -10.0F, -1.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(5.0F, -10.0F, -2.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-6.0F, -10.0F, 0.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-5.0F, -10.0F, -2.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-5.0F, -10.0F, -3.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-5.0F, -10.0F, -4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-4.0F, -10.0F, -4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-4.0F, -10.0F, -5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-3.0F, -10.0F, -5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-2.0F, -10.0F, -5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(4.0F, -10.0F, -2.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(4.0F, -10.0F, -3.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(4.0F, -10.0F, -4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(3.0F, -10.0F, -4.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(3.0F, -10.0F, -5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(2.0F, -10.0F, -5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(1.0F, -10.0F, -5.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(1.0F, -10.0F, -6.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(0.0F, -10.0F, -6.0F, 1, 1, 1, 0.0F);
+            bipedHalo.addBox(-1.0F, -10.0F, -6.0F, 1, 1, 1, 0.0F);
 
-            //ModelBase.copyModelAngles(this.playerRenderer.getMainModel().bipedBody, bipedBoobs);
-            bipedBoobs.rotationPointX = 0.0F;
-            bipedBoobs.rotationPointY = 0.0F;
-            bipedBoobs.render(0.0625F);
+            bipedHalo.rotationPointX = 0.0F;
+            bipedHalo.rotationPointY = 0.0F;
+            bipedHalo.render(0.0625F);
             GlStateManager.popMatrix();
-        }
-        if (Main.testicleMap.containsKey(entitylivingbaseIn.getUniqueID().toString()) && AIOMVigilanceConfig.renderingEnabled) {
-            int testicleSize = Main.testicleMap.get(entitylivingbaseIn.getUniqueID().toString());
+            //}
 
-            this.playerRenderer.bindTexture(((AbstractClientPlayer) entitylivingbaseIn).getLocationSkin());
-
+            int gooseSize = 1;
             GlStateManager.pushMatrix();
-            translateTesticle(testicleSize);
-            if (entitylivingbaseIn.isSneaking()) {
-                getSneakTranslation(testicleSize);
+            if (entityLivingBaseIn.isSneaking()) {
+                getSneakTranslation(gooseSize);
             }
-            getScale(testicleSize);
-            renderTesticles(0.0625F);
+            getScale(gooseSize);
+            this.playerRenderer.bindTexture(new ResourceLocation(NGGlobal.MOD_ID, "textures/GooseTexture.png"));
+            ModelRenderer bipedGoose = new ModelRenderer(playerRenderer.getMainModel(), 0, 0);
+            bipedGoose.addBox(5.5F, -3.3999999999999986F, 1.1F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.3F, -3.6000000000000014F, 1.3F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.1F, -3.8000000000000007F, 1.3F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.3F, -4.0F, 1.3F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(6.4F, -6.0F, 0.2F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(6.2F, -6.0F, -0.2F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(6.4F, -6.0F, -0.4F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(6.4F, -2.1999999999999993F, 0.0F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.3F, -6.0F, -0.2F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -6.0F, -0.4F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -6.0F, 0.2F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -2.1999999999999993F, 0.0F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.3F, -2.6999999999999993F, -0.5F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.1F, -2.8999999999999986F, -0.7F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(4.9F, -3.1000000000000014F, -0.9F, 2, 1, 1, 0.0F);
+            bipedGoose.addBox(4.7F, -3.3000000000000007F, -1.1F, 2, 1, 2, 0.0F);
+            bipedGoose.addBox(4.7F, -4.5F, -1.3F, 2, 1, 2, 0.0F);
+            bipedGoose.addBox(4.7F, -3.6000000000000014F, -1.4F, 2, 1, 2, 0.0F);
+            bipedGoose.addBox(4.7F, -3.3999999999999986F, -1.3F, 2, 1, 2, 0.0F);
+            bipedGoose.addBox(4.7F, -4.699999999999999F, -1.1F, 2, 1, 1, 0.0F);
+            bipedGoose.addBox(4.6F, -3.3999999999999986F, -1.1F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(4.4F, -3.6000000000000014F, -0.9F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(7.4F, -3.6000000000000014F, -0.9F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(7.3F, -3.3999999999999986F, -1.1F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(4.7F, -4.899999999999999F, -1.1F, 2, 1, 1, 0.0F);
+            bipedGoose.addBox(5.1F, -5.100000000000001F, -1.1F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.3F, -5.199999999999999F, -1.1F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -5.399999999999999F, -1.1F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.6F, -5.600000000000001F, -0.9F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.6F, -2.1000000000000014F, -0.9F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.6F, -2.3000000000000007F, -1.1F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.6F, -2.6999999999999993F, -1.3F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -2.8999999999999986F, -1.6F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.3F, -3.0F, -2.0F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.1F, -3.1999999999999993F, -2.3F, 1, 2, 1, 0.0F);
+            bipedGoose.addBox(5.1F, -5.399999999999999F, -2.5F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.1F, -5.600000000000001F, -2.7F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.1F, -5.699999999999999F, -2.9F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -3.8000000000000007F, -3.8F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.6F, -3.3999999999999986F, -3.1F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -4.100000000000001F, -3.4F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -3.6000000000000014F, -3.4F, 1, 1, 1, 0.0F);
+            bipedGoose.addBox(5.5F, -4.300000000000001F, -3.1F, 1, 1, 1, 0.0F);
+
+            bipedHalo.rotationPointX = 0.0F;
+            bipedHalo.rotationPointY = 0.0F;
+            bipedHalo.render(0.0625F);
             GlStateManager.popMatrix();
         }
-        if (Main.assMap.containsKey(entitylivingbaseIn.getUniqueID().toString()) && AIOMVigilanceConfig.renderingEnabled) {
-            int assSize = Main.assMap.get(entitylivingbaseIn.getUniqueID().toString());
-
-            this.playerRenderer.bindTexture(((AbstractClientPlayer) entitylivingbaseIn).getLocationSkin());
-
-            GlStateManager.pushMatrix();
-            translateAss(assSize);
-            if (entitylivingbaseIn.isSneaking()) {
-                getSneakTranslation(assSize);
-            }
-            getScale(assSize);
-            renderAss(0.0625F);
-            GlStateManager.popMatrix();
-        }
-    }
-
-
-    public void renderBoobs(float p_178727_1_, int size, boolean isSneaking) {
-        //System.out.println("rendered booba");
-    }
-
-    public void renderTesticles(float p_178727_1_) {
-        ModelRenderer bipedTesticles = new ModelRenderer(playerRenderer.getMainModel(), 0, 21);
-        bipedTesticles.addBox(-2.0F, 2.0F, -9.0F, 4, 4, 3, p_178727_1_);
-        bipedTesticles.addBox(-1.0F, 3.0F, -15.0F, 2, 2, 6, p_178727_1_);
-
-        ModelBase.copyModelAngles(this.playerRenderer.getMainModel().bipedBody, bipedTesticles);
-        bipedTesticles.rotationPointX = 0.0F;
-        bipedTesticles.rotationPointY = 0.0F;
-        bipedTesticles.render(p_178727_1_);
-    }
-
-    public void renderAss(float p_178727_1_) {
-        ModelRenderer bipedAss = new ModelRenderer(playerRenderer.getMainModel(), 18, 24);
-        bipedAss.addBox(-4.0F, -0.6F, -3.0F, 8, 4, 3, p_178727_1_);
-
-        ModelBase.copyModelAngles(this.playerRenderer.getMainModel().bipedBody, bipedAss);
-        bipedAss.rotationPointX = 0.0F;
-        bipedAss.rotationPointY = 0.0F;
-        bipedAss.render(p_178727_1_);
     }
 
     public boolean shouldCombineTextures() {
@@ -126,88 +304,6 @@ public class CosmeticRendering implements LayerRenderer<EntityLivingBase> {
                 break;
             case 6:
                 GlStateManager.scale(6.0F, 6.0F, 6.0F);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void translateBoob(int size) {
-        switch (size) {
-            case 0:
-                GlStateManager.translate(0.0F, 0.5F, 0.3F);
-                break;
-            case 1:
-                GlStateManager.translate(0.0F, 0.6F, 0.36F);
-                break;
-            case 2:
-                GlStateManager.translate(0.0F, 0.7F, 0.45F);
-                break;
-            case 3:
-                GlStateManager.translate(0.0F, 0.8F, 0.55F);
-                break;
-            case 4:
-                GlStateManager.translate(0.0F, 0.9F, 0.65F);
-                break;
-            case 5:
-                GlStateManager.translate(0.0F, 1.28F, 1.0F);
-                break;
-            case 6:
-                GlStateManager.translate(0.0F, 2.4F, 2.14F);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void translateTesticle(int size) {
-        switch (size) {
-            case 0:
-                GlStateManager.translate(0.0F, 0.563F, 0.3F);
-                break;
-            case 1:
-                GlStateManager.translate(0.0F, 0.53F, 0.36F);
-                break;
-            case 2:
-                GlStateManager.translate(0.0F, 0.5F, 0.5F);
-                break;
-            case 3:
-                GlStateManager.translate(0.0F, 0.47F, 0.55F);
-                break;
-            case 4:
-                GlStateManager.translate(0.0F, 0.435F, 0.65F);
-                break;
-            case 5:
-                GlStateManager.translate(0.0F, 0.313F, 1.0F);
-                break;
-            case 6:
-                GlStateManager.translate(0.0F, -0.06F, 2.15F);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void translateAss(int size) {
-        switch (size) {
-            case 0:
-                GlStateManager.translate(0.0F, 0.5F, 0.3F);
-                break;
-            case 1:
-                GlStateManager.translate(0.0F, 0.5F, 0.36F);
-                break;
-            case 2:
-            case 3:
-                GlStateManager.translate(0.0F, 0.5F, 0.41F);
-                break;
-            case 4:
-                GlStateManager.translate(0.0F, 0.5F, 0.50F);
-                break;
-            case 5:
-                GlStateManager.translate(0.0F, 0.55F, 0.69F);
-                break;
-            case 6:
-                GlStateManager.translate(0.0F, 0.65F, 1.25F);
                 break;
             default:
                 break;

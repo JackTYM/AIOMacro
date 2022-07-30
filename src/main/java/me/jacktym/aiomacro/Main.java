@@ -72,6 +72,7 @@ public class Main {
     public static HashMap<String, Integer> assMap = new HashMap<>();
     public static HashMap<String, Integer> boobMap = new HashMap<>();
     public static HashMap<String, Integer> testicleMap = new HashMap<>();
+    public static HashMap<String, Integer> haloMap = new HashMap<>();
     public static int tick = 0;
 
     public static void sendChatMessage(String message) {
@@ -127,6 +128,9 @@ public class Main {
                     }
                     if (line.split(":")[1].startsWith("dick")) {
                         testicleMap.put(line.split(":")[0], Integer.parseInt(line.split(":dick_")[1]));
+                    }
+                    if (line.split(":")[1].startsWith("halo")) {
+                        haloMap.put(line.split(":")[0], Integer.parseInt(line.split(":halo_")[1]));
                     }
                 }
             }

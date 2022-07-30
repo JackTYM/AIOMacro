@@ -1,6 +1,5 @@
 package me.jacktym.aiomacro.commands;
 
-import java.awt.Color;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.macros.AutoHotBar;
@@ -17,6 +16,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.Vec3i;
 
+import java.awt.*;
 import java.util.List;
 
 public class AIOM extends CommandBase {
@@ -95,7 +95,7 @@ public class AIOM extends CommandBase {
                     break;
                 case "drawbeacon":
                     if (args.length == 1) {
-                            Main.sendMarkedChatMessage("/aiom drawbeacon [add/remove/list]");
+                        Main.sendMarkedChatMessage("/aiom drawbeacon [add/remove/list]");
                     } else {
                         if (args[1].equals("add")) {
                             if (args.length < 7) {
@@ -115,69 +115,84 @@ public class AIOM extends CommandBase {
                     }
                     break;
                 case "pathfind":
-                    switch (args[1]) {
-                        case "clear":
-                            PathFind.clear();
-                            break;
-                        case "block":
-                            PathFind.clear();
+                    if (args.length == 1) {
+                        Main.sendMarkedChatMessage("/aiom pathfind [clear/block/entity] OR /aiom pathfind (x) (y) (z)");
+                    } else {
+                        switch (args[1]) {
+                            case "clear":
+                                PathFind.clear();
+                                break;
+                            case "block":
+                                if (args.length == 2) {
+                                    Main.sendMarkedChatMessage("/aiom pathfind block (block name)");
+                                } else {
+                                    PathFind.clear();
 
-                            new Thread(() -> {
-                                List<Vec3> blockList = Nuker.pickBlocks(new Vec3i(100, 100, 100));
+                                    new Thread(() -> {
+                                        List<Vec3> blockList = Nuker.pickBlocks(new Vec3i(100, 100, 100));
 
-                                blockList.removeIf(block -> Main.mcWorld.getBlockState(new BlockPos(block)).getBlock() != Block.getBlockFromName(args[2]));
+                                        blockList.removeIf(block -> Main.mcWorld.getBlockState(new BlockPos(block)).getBlock() != Block.getBlockFromName(args[2]));
 
-                                Vec3 closestBlock = null;
+                                        Vec3 closestBlock = null;
 
-                                for (Vec3 vec3 : blockList) {
-                                    if (closestBlock == null || Utils.distanceBetweenPoints(vec3, Main.mcPlayer.getPositionVector()) < Utils.distanceBetweenPoints(closestBlock, Main.mcPlayer.getPositionVector())) {
-                                        closestBlock = new Vec3(new BlockPos(vec3));
-                                    }
+                                        for (Vec3 vec3 : blockList) {
+                                            if (closestBlock == null || Utils.distanceBetweenPoints(vec3, Main.mcPlayer.getPositionVector()) < Utils.distanceBetweenPoints(closestBlock, Main.mcPlayer.getPositionVector())) {
+                                                closestBlock = new Vec3(new BlockPos(vec3));
+                                            }
+                                        }
+
+                                        if (closestBlock != null) {
+                                            if (args.length == 3) {
+                                                PathFind.pathFind(closestBlock.addVector(0, 1, 0), true);
+                                            } else {
+                                                PathFind.pathFind(closestBlock.addVector(0, 1, 0), Boolean.parseBoolean(args[3]));
+                                            }
+                                        }
+                                    }).start();
                                 }
+                                break;
+                            case "entity":
+                                if (args.length == 2) {
+                                    Main.sendMarkedChatMessage("/aiom pathfind entity (entity name)");
+                                } else {
+                                    PathFind.clear();
 
-                                if (closestBlock != null) {
-                                    if (args.length == 3) {
-                                        PathFind.pathFind(closestBlock.addVector(0, 1, 0), true);
-                                    } else {
-                                        PathFind.pathFind(closestBlock.addVector(0, 1, 0), Boolean.parseBoolean(args[3]));
-                                    }
+                                    new Thread(() -> {
+                                        List<Entity> entityList = Main.mcWorld.loadedEntityList;
+
+                                        entityList.removeIf(entity -> !entity.getDisplayName().getUnformattedText().equals(args[2]));
+
+                                        Entity closestEntity = null;
+
+                                        for (Entity entity : entityList) {
+                                            if (closestEntity == null || Utils.distanceBetweenPoints(entity.getPositionVector(), Main.mcPlayer.getPositionVector()) < Utils.distanceBetweenPoints(closestEntity.getPositionVector(), Main.mcPlayer.getPositionVector())) {
+                                                closestEntity = entity;
+                                            }
+                                        }
+
+                                        if (closestEntity != null) {
+                                            if (args.length == 3) {
+                                                PathFind.pathFind(new Vec3(new BlockPos(closestEntity.getPositionVector())), true);
+                                            } else {
+                                                PathFind.pathFind(new Vec3(new BlockPos(closestEntity.getPositionVector())), Boolean.parseBoolean(args[3]));
+                                            }
+                                        }
+                                    }).start();
                                 }
-                            }).start();
-                            break;
-                        case "entity":
-                            PathFind.clear();
-
-                            new Thread(() -> {
-                                List<Entity> entityList = Main.mcWorld.loadedEntityList;
-
-                                entityList.removeIf(entity -> !entity.getDisplayName().getUnformattedText().equals(args[2]));
-
-                                Entity closestEntity = null;
-
-                                for (Entity entity : entityList) {
-                                    if (closestEntity == null || Utils.distanceBetweenPoints(entity.getPositionVector(), Main.mcPlayer.getPositionVector()) < Utils.distanceBetweenPoints(closestEntity.getPositionVector(), Main.mcPlayer.getPositionVector())) {
-                                        closestEntity = entity;
-                                    }
+                                break;
+                            default:
+                                if (args.length <= 3) {
+                                    Main.sendMarkedChatMessage("/aiom pathfind (x) (y) (z)");
                                 }
-
-                                if (closestEntity != null) {
-                                    if (args.length == 3) {
-                                        PathFind.pathFind(new Vec3(new BlockPos(closestEntity.getPositionVector())), true);
-                                    } else {
-                                        PathFind.pathFind(new Vec3(new BlockPos(closestEntity.getPositionVector())), Boolean.parseBoolean(args[3]));
-                                    }
+                                PathFind.clear();
+                                if (args.length == 4) {
+                                    PathFind.pathFind(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3])), true);
+                                } else {
+                                    PathFind.pathFind(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3])), Boolean.valueOf(args[4]));
                                 }
-                            }).start();
-                            break;
-                        default:
-                            PathFind.clear();
-                            if (args.length == 4) {
-                                PathFind.pathFind(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3])), true);
-                            } else {
-                                PathFind.pathFind(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3])), Boolean.valueOf(args[4]));
-                            }
+                        }
+                        break;
                     }
-                    break;
             }
         }
     }

@@ -1,28 +1,46 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
 
-        maven { url = 'https://maven.fabricmc.net/' }
-        maven { url = 'https://maven.architectury.dev/' }
-        maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url = 'https://jitpack.io/' }
-        maven { url = 'https://repo.essential.gg/repository/maven-public' }
+        maven {
+            name = "Architectury Loom"
+            url = "https://maven.architectury.dev/"
+        }
 
-        mavenLocal()
-    }
-    resolutionStrategy {
-        eachPlugin {
-            // If the "net.minecraftforge.gradle.forge" plugin is requested we redirect it to asbyth's ForgeGradle fork (rip asbyth, you will be missed, swapped to DJtheRedstoner's fork instead)
-            if (requested.id.id == "net.minecraftforge.gradle.forge") {
-                useModule("com.github.DJtheRedstoner:ForgeGradle:${requested.version}")
-            }
+        maven {
+            name = "Fabric"
+            url = "https://maven.fabricmc.net"
+        }
+
+        maven {
+            name = "Sk1er"
+            url = "https://repo.sk1er.club/repository/maven-public/"
+        }
+
+        maven {
+            name = "Forge"
+            url = "https://maven.minecraftforge.net"
+        }
+
+        maven {
+            name = "Jitpack"
+            url = "https://jitpack.io/"
+        }
+        maven {
+            name = "Essential"
+            url = 'https://repo.essential.gg/repository/maven-public'
         }
     }
 
-    plugins {
-        id("gg.essential.multi-version.root") version "1.0.1"
-        id("gg.essential.multi-version.api-validation") version "1.0.1"
+    resolutionStrategy {
+        eachPlugin {
+            switch (requested.id.id) {
+                case "gg.essential.loom":
+                    useModule "gg.essential:architectury-loom:${requested.version}"
+                    break
+            }
+        }
     }
 }
 

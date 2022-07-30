@@ -33,6 +33,7 @@ public class PathFind {
     public boolean sendDoneMessage = false;
     public boolean sendFailMessage = false;
     public boolean inThread = false;
+    public static boolean forwardPressed = false;
 
     public static void pathFind(Vec3 destination, Boolean collision) {
         destinationGlobal = destination;
@@ -53,6 +54,9 @@ public class PathFind {
         optimizeBadIndex.clear();
         followPath = false;
         clear = true;
+        SetPlayerLook.toggled = false;
+        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindSneak.getKeyCode(), false);
+        KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
     }
 
     @SubscribeEvent
@@ -130,9 +134,27 @@ public class PathFind {
                     Main.sendMarkedChatMessage("Path found in " + (Utils.currentTimeMillis() - findPathStart) + " Milliseconds. " + finalPath.size() + " Blocks!");
                     followPath = true;
 
-                    double setX = Math.floor(Main.mcPlayer.getPositionVector().xCoord) + 0.5;
-                    double setY = Main.mcPlayer.getPositionVector().yCoord;
-                    double setZ = Math.floor(Main.mcPlayer.getPositionVector().zCoord) + 0.5;
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindSneak.getKeyCode(), false);
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindBack.getKeyCode(), false);
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindSprint.getKeyCode(), false);
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindLeft.getKeyCode(), false);
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindRight.getKeyCode(), false);
+
+                    double setX;
+                    double setY;
+                    double setZ;
+                    if (Main.mcPlayer.getPositionVector().xCoord > 0) {
+                        setX = Math.floor(Main.mcPlayer.getPositionVector().xCoord) + 0.45;
+                    } else {
+                        setX = Math.ceil(Main.mcPlayer.getPositionVector().xCoord) - 0.45;
+                    }
+                    setY = Main.mcPlayer.getPositionVector().yCoord;
+                    if (Main.mcPlayer.getPositionVector().zCoord > 0) {
+                        setZ = Math.floor(Main.mcPlayer.getPositionVector().zCoord) + 0.45;
+                    } else {
+                        setZ = Math.ceil(Main.mcPlayer.getPositionVector().zCoord) - 0.45;
+                    }
 
                     Main.mcPlayer.setPosition(setX, setY, setZ);
                     return;
@@ -271,42 +293,52 @@ public class PathFind {
                         }
                     }
 
+                    BlockRendering.renderMap.put(new BlockPos(currentPos), Color.YELLOW);
+
                     SetPlayerLook.pitch = 0;
                     SetPlayerLook.yaw = getNextLookVec(currentPos, nextPos, thirdPos);
                     SetPlayerLook.toggled = true;
 
-                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindSneak.getKeyCode(), true);
+                    //KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindSneak.getKeyCode(), true);
 
-                    if (currentPos.yCoord != nextPos.yCoord) {
+                    if (currentPos.yCoord < nextPos.yCoord) {
                         finalPath.remove(0);
                     }
+                    if (currentPos.yCoord > nextPos.yCoord) {
+                        finalPath.remove(1);
+                    }
+
+                    //System.out.println(nextPos.addVector(0.5, 0, 0.5));
+
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
 
                     if (SetPlayerLook.isLookCorrect()) {
-                        if (((Main.mcPlayer.getPositionVector().xCoord >= 0 && Main.mcPlayer.getPositionVector().xCoord <= nextPos.addVector(0.7, 0, 0.7).xCoord)
-                                || (Main.mcPlayer.getPositionVector().xCoord < 0 && Main.mcPlayer.getPositionVector().xCoord >= nextPos.addVector(0.7, 0, 0.7).xCoord))
-                                && ((Main.mcPlayer.getPositionVector().zCoord >= 0 && Main.mcPlayer.getPositionVector().zCoord <= nextPos.addVector(0.7, 0, 0.7).zCoord)
-                                || (Main.mcPlayer.getPositionVector().zCoord < 0 && Main.mcPlayer.getPositionVector().zCoord >= nextPos.addVector(0.7, 0, 0.7).zCoord))
-                                && Main.mcPlayer.getPositionVector().yCoord == nextPos.yCoord) {
+                        if (((Main.mcPlayer.getPositionVector().xCoord >= 0 && Main.mcPlayer.getPositionVector().xCoord >= nextPos.addVector(0.5, 0, 0.5).xCoord)
+                                || (Main.mcPlayer.getPositionVector().xCoord < 0 && Main.mcPlayer.getPositionVector().xCoord >= nextPos.addVector(0.5, 0, 0.5).xCoord))
+                                && ((Main.mcPlayer.getPositionVector().zCoord >= 0 && Main.mcPlayer.getPositionVector().zCoord <= nextPos.addVector(0.5, 0, 0.5).zCoord)
+                                || (Main.mcPlayer.getPositionVector().zCoord < 0 && Main.mcPlayer.getPositionVector().zCoord <= nextPos.addVector(0.5, 0, 0.5).zCoord))
+                                && Math.floor(Main.mcPlayer.getPositionVector().yCoord) == nextPos.yCoord) {
                             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
 
                             finalPath.remove(0);
                         } else {
                             KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), true);
 
-                            if (Main.mcPlayer.getPositionVector().yCoord < nextPos.yCoord && Main.mcPlayer.getPositionVector().yCoord == currentPos.yCoord) {
+                            if (currentPos.yCoord <= nextPos.yCoord && Main.mcPlayer.getPositionVector().yCoord < nextPos.yCoord && String.valueOf(Main.mcPlayer.getPositionVector().yCoord).contains(".0")) {
                                 Main.mcPlayer.jump();
                             }
                         }
                     }
                 } else {
                     Main.sendMarkedChatMessage("Followed Path!");
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindSneak.getKeyCode(), false);
+                    KeyBinding.setKeyBindState(Main.mc.gameSettings.keyBindForward.getKeyCode(), false);
                     SetPlayerLook.toggled = false;
                     followPath = false;
                     clear();
                 }
             }
         }
-
     }
 
     private int getNextLookVec(Vec3 vec1, Vec3 vec2, Vec3 vec3) {
@@ -321,7 +353,14 @@ public class PathFind {
         } else if (vec1.zCoord < vec2.zCoord) {
             returnInt = 0;
         } else if (vec1.yCoord < vec2.yCoord) {
-            System.out.println("Vertical! " + vec1 + " " + vec3);
+            System.out.println("Positive Vertical! " + vec1 + " " + vec3);
+            if (vec3 != null) {
+                returnInt = getNextLookVec(vec1, vec3, null);
+            } else {
+                System.out.println("Vertical Error! Vec3 Null!");
+            }
+        } else if (vec1.yCoord > vec2.yCoord) {
+            System.out.println("Negative Vertical! " + vec1 + " " + vec3);
             if (vec3 != null) {
                 returnInt = getNextLookVec(vec1, vec3, null);
             } else {

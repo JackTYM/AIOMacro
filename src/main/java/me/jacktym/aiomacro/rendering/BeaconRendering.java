@@ -25,26 +25,27 @@ public class BeaconRendering {
 
     @SubscribeEvent
     public void beaconRendering(RenderWorldLastEvent event) {
+        if (Main.notNull) {
+            for (Map.Entry<String, ArrayList<Integer>> data : beaconData.entrySet()) {
+                int xGlobal = data.getValue().get(0);
+                int yGlobal = data.getValue().get(1);
+                int zGlobal = data.getValue().get(2);
+                Color color = new Color(data.getValue().get(3));
 
-        for (Map.Entry<String, ArrayList<Integer>> data : beaconData.entrySet()) {
-            int xGlobal = data.getValue().get(0);
-            int yGlobal = data.getValue().get(1);
-            int zGlobal = data.getValue().get(2);
-            Color color = new Color(data.getValue().get(3));
 
+                Entity viewer = Minecraft.getMinecraft().getRenderViewEntity();
+                double viewerX = viewer.lastTickPosX + (viewer.posX - viewer.lastTickPosX) * event.partialTicks;
+                double viewerY = viewer.lastTickPosY + (viewer.posY - viewer.lastTickPosY) * event.partialTicks;
+                double viewerZ = viewer.lastTickPosZ + (viewer.posZ - viewer.lastTickPosZ) * event.partialTicks;
 
-            Entity viewer = Minecraft.getMinecraft().getRenderViewEntity();
-            double viewerX = viewer.lastTickPosX + (viewer.posX - viewer.lastTickPosX) * event.partialTicks;
-            double viewerY = viewer.lastTickPosY + (viewer.posY - viewer.lastTickPosY) * event.partialTicks;
-            double viewerZ = viewer.lastTickPosZ + (viewer.posZ - viewer.lastTickPosZ) * event.partialTicks;
+                double x = xGlobal - viewerX;
+                double y = yGlobal - viewerY;
+                double z = zGlobal - viewerZ;
 
-            double x = xGlobal - viewerX;
-            double y = yGlobal - viewerY;
-            double z = zGlobal - viewerZ;
+                double distSq = x * x + y * y + z * z;
 
-            double distSq = x * x + y * y + z * z;
-
-            renderBeaconBeam(x, y, z, color.getRGB(), 1.0F, event.partialTicks, distSq > 10 * 10);
+                renderBeaconBeam(x, y, z, color.getRGB(), 1.0F, event.partialTicks, distSq > 10 * 10);
+            }
         }
     }
 
