@@ -140,6 +140,8 @@ public class Main {
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
 
+        System.out.println("Hi");
+
         ClientCommandHandler.instance.registerCommand(new AIOM());
 
         List<Object> registry = new ArrayList<>();
