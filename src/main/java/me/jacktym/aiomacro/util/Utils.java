@@ -366,6 +366,7 @@ public class Utils {
 
         ArrayList<Integer> beaconData = new ArrayList<>();
 
+
         beaconData.add(bp.getX());
         beaconData.add(bp.getY());
         beaconData.add(bp.getZ());
