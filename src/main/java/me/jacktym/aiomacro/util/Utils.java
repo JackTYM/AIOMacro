@@ -7,7 +7,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import gg.essential.universal.ChatColor;
 import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.macros.SetPlayerLook;
 import me.jacktym.aiomacro.rendering.BeaconRendering;
+import me.jacktym.aiomacro.rendering.BlockRendering;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
@@ -393,6 +395,36 @@ public class Utils {
 
     public static void removeSimilarBeaconNames(String baseName) {
         BeaconRendering.beaconData.keySet().removeIf(name -> name.contains(baseName));
+    }
+
+    public static void autoAim(Vec3 vec3) {
+        Vec3 vec1 = Main.mcPlayer.getPositionVector().addVector(0, 1, 0);
+        Vec3 vec2 = vec3.addVector(0, 2, 0);
+
+        BlockRendering.renderMap.clear();
+        BlockRendering.renderMap.put(new BlockPos(vec2), Color.GREEN);
+
+        double dirx = vec1.xCoord - vec2.xCoord;
+        double diry = vec1.yCoord - vec2.yCoord;
+        double dirz = vec1.zCoord - vec2.zCoord;
+
+        double len = Math.sqrt(dirx*dirx + diry*diry + dirz*dirz);
+
+        dirx /= len;
+        diry /= len;
+        dirz /= len;
+
+        double pitch = Math.asin(diry);
+        double yaw = Math.atan2(dirz, dirx);
+
+        //to degree
+        pitch = pitch * 180.0 / Math.PI;
+        yaw = yaw * 180.0 / Math.PI;
+
+        yaw += 90f;
+        SetPlayerLook.pitch = (int)pitch;
+        SetPlayerLook.yaw = (int)yaw;
+        SetPlayerLook.toggled = true;
     }
 
 }

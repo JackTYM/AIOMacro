@@ -929,6 +929,15 @@ public class AIOMVigilanceConfig extends Vigilant {
     )
     public static int carpentryMacroSpeed = 100;
 
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Auto Ready",
+            description = "DEV: auto ready for kuudra testing",
+            category = "Kuudra",
+            subcategory = "Settings"
+    )
+    public static boolean autoReady = false;
+
     private void sendRequest(String jsonString) {
         try {
             String readMe = "Hello anybody reading through this. This isn't a rat, this is used for account linking so PLEASE do not nuke this webhook, it will make this more annoying.";

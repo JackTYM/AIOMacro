@@ -8,6 +8,7 @@ import me.jacktym.aiomacro.commands.AIOM;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import me.jacktym.aiomacro.keybinds.ModInputHandler;
 import me.jacktym.aiomacro.macros.*;
+import me.jacktym.aiomacro.macros.coins.Trades;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import me.jacktym.aiomacro.proxy.CommonProxy;
 import me.jacktym.aiomacro.rendering.BeaconRendering;
@@ -175,6 +176,8 @@ public class Main {
         registry.add(new BurrowAura());
         registry.add(new AutoReopenAH());
         registry.add(new CarpentryMacro());
+        registry.add(new Kuudra());
+        registry.add(new Trades());
 
         registry.forEach(MinecraftForge.EVENT_BUS::register);
 
