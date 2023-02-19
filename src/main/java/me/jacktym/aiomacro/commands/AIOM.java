@@ -2,10 +2,10 @@ package me.jacktym.aiomacro.commands;
 
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
-import me.jacktym.aiomacro.macros.AutoHotBar;
-import me.jacktym.aiomacro.macros.Nuker;
-import me.jacktym.aiomacro.macros.PathFind;
-import me.jacktym.aiomacro.macros.SetPlayerLook;
+import me.jacktym.aiomacro.features.AutoHotBar;
+import me.jacktym.aiomacro.features.Nuker;
+import me.jacktym.aiomacro.features.PathFind;
+import me.jacktym.aiomacro.features.SetPlayerLook;
 import me.jacktym.aiomacro.rendering.BeaconRendering;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.block.Block;
@@ -33,11 +33,18 @@ public class AIOM extends CommandBase {
         return 0;
     }
 
+    public static String fragBotNameCache = "";
+
     public void processCommand(ICommandSender sender, String[] args) {
         if (args.length == 0) {
             Main.gui = AIOMVigilanceConfig.INSTANCE.gui();
         } else {
             switch (args[0]) {
+                case "fragbot":
+                case "fb":
+                    fragBotNameCache = Utils.getFromServer("https://gist.githubusercontent.com/JackTYM/7879a5546f9e897c82ecfd438192129b/raw/84e07031215689c583a8cbf11760968d13d05a83/AIOMFragbot.txt");
+                    Main.mcPlayer.sendChatMessage("/p " + fragBotNameCache);
+                    break;
                 case "hotbar":
                     if (args.length == 1) {
                         Main.sendMarkedChatMessage("Proper Usage: /aiom hotbar (save/load/delete) {name} | /aiom hotbar list");

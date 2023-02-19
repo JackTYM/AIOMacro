@@ -3,10 +3,11 @@ package me.jacktym.aiomacro.keybinds;
 import me.jacktym.aiomacro.Main;
 import me.jacktym.aiomacro.ParticleHandler;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
-import me.jacktym.aiomacro.macros.AutoHotBar;
-import me.jacktym.aiomacro.macros.MacroHandler;
-import me.jacktym.aiomacro.macros.SetPlayerLook;
+import me.jacktym.aiomacro.features.AutoHotBar;
+import me.jacktym.aiomacro.features.MacroHandler;
+import me.jacktym.aiomacro.features.SetPlayerLook;
 import me.jacktym.aiomacro.proxy.ClientProxy;
+import me.jacktym.aiomacro.rendering.LineRendering;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
@@ -69,6 +70,22 @@ public class ModInputHandler {
         if (keyBindings[7].isPressed()) {
             Main.sendMarkedChatMessage("Refreshed Diana Waypoints!");
             Main.mcWorld.removeWorldAccess(new ParticleHandler());
+        }
+        if (keyBindings[8].isPressed()) {
+            AIOMVigilanceConfig.cancelPackets = !AIOMVigilanceConfig.cancelPackets;
+            if (AIOMVigilanceConfig.cancelPackets) {
+                Main.sendMarkedChatMessage("Path Recording Enabled");
+            } else {
+                Main.sendMarkedChatMessage("Path Recording Disabled");
+            }
+        }
+        if (keyBindings[9].isPressed()) {
+            LineRendering.recording = !LineRendering.recording;
+            if (LineRendering.recording) {
+                Main.sendMarkedChatMessage("Path Recording Enabled");
+            } else {
+                Main.sendMarkedChatMessage("Path Recording Disabled");
+            }
         }
     }
 }

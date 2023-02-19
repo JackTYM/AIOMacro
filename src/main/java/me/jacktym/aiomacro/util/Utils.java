@@ -7,12 +7,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import gg.essential.universal.ChatColor;
 import me.jacktym.aiomacro.Main;
-import me.jacktym.aiomacro.macros.SetPlayerLook;
+import me.jacktym.aiomacro.features.SetPlayerLook;
 import me.jacktym.aiomacro.rendering.BeaconRendering;
 import me.jacktym.aiomacro.rendering.BlockRendering;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.scoreboard.Score;
@@ -196,8 +200,6 @@ public class Utils {
             if (entityName.equals(npcName)) {
                 Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(e, C02PacketUseEntity.Action.INTERACT));
             }
-
-            Main.mcPlayer.sendQueue.addToSendQueue(new C02PacketUseEntity());
         }
     }
 
@@ -408,7 +410,7 @@ public class Utils {
         double diry = vec1.yCoord - vec2.yCoord;
         double dirz = vec1.zCoord - vec2.zCoord;
 
-        double len = Math.sqrt(dirx*dirx + diry*diry + dirz*dirz);
+        double len = Math.sqrt(dirx * dirx + diry * diry + dirz * dirz);
 
         dirx /= len;
         diry /= len;
@@ -422,9 +424,154 @@ public class Utils {
         yaw = yaw * 180.0 / Math.PI;
 
         yaw += 90f;
-        SetPlayerLook.pitch = (int)pitch;
-        SetPlayerLook.yaw = (int)yaw;
+        SetPlayerLook.pitch = (int) pitch;
+        SetPlayerLook.yaw = (int) yaw;
         SetPlayerLook.toggled = true;
     }
 
+    public static void sendToServer(String server, JsonObject jsonData) {
+        try {
+            URL url = new URL(server);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.addRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+
+            OutputStream stream = connection.getOutputStream();
+            stream.write(jsonData.toString().getBytes());
+            stream.flush();
+            stream.close();
+
+            connection.getInputStream().close();
+            connection.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getFromServer(String server) {
+        try {
+            URL url = new URL(server);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            InputStream response = connection.getInputStream();
+            try (Scanner scanner = new Scanner(response)) {
+                return scanner.useDelimiter("\\A").next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public static boolean inDungeons() {
+        for (String s : getTabList()) {
+            if (s.contains("Catacombs")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String numToRoman(String num) {
+        switch (num) {
+            case "1":
+                return "I";
+            case "2":
+                return "II";
+            case "3":
+                return "III";
+            case "4":
+                return "IV";
+            case "5":
+                return "V";
+            case "6":
+                return "VI";
+            case "7":
+                return "VII";
+            case "8":
+                return "VIII";
+            case "9":
+                return "IX";
+            case "10":
+                return "X";
+            default:
+                return "";
+        }
+    }
+
+    public static void writeToFile(File file, String data) {
+        try {
+            FileWriter myWriter = new FileWriter(file);
+            myWriter.write(data);
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String readFromFile(File file) {
+        StringBuilder contents = new StringBuilder();
+        try {
+            Scanner reader = new Scanner(file);
+            while (reader.hasNextLine()) {
+                contents.append(reader.nextLine());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return contents.toString();
+    }
+
+    public static String getSkyBlockID(ItemStack item) {
+        if (item != null) {
+            NBTTagCompound extraAttributes = item.getSubCompound("ExtraAttributes", false);
+            if (extraAttributes != null && extraAttributes.hasKey("id")) {
+                return extraAttributes.getString("id");
+            }
+        }
+        return "";
+    }
+
+    public static ArrayList<Vec3> pickBlocks(Vec3i vec3i, Block blockType) {
+        BlockPos playerPos = Main.mcPlayer.getPosition();
+        ArrayList<Vec3> blocks = new ArrayList<>();
+        for (BlockPos blockPos : BlockPos.getAllInBox(playerPos.add(vec3i), playerPos.subtract(vec3i))) {
+            IBlockState blockState = Main.mcWorld.getBlockState(blockPos);
+            if (blockState.getBlock() == blockType) {
+                blocks.add(new Vec3((double) blockPos.getX() + 0.5, blockPos.getY(), (double) blockPos.getZ() + 0.5));
+            }
+        }
+        return blocks;
+    }
+
+    public static HashMap<BlockPos, Double>
+    sortByValue(HashMap<BlockPos, Double> hm) {
+        List<Map.Entry<BlockPos, Double>> list
+                = new LinkedList<Map.Entry<BlockPos, Double>>(
+                hm.entrySet());
+
+        list.sort(Map.Entry.comparingByValue());
+
+        HashMap<BlockPos, Double> temp = new LinkedHashMap<>();
+        for (Map.Entry<BlockPos, Double> aa : list) {
+            temp.put(aa.getKey(), aa.getValue());
+        }
+        return temp;
+    }
+
+    public static BlockPos getNearest(HashMap<BlockPos, Double> blocksList) {
+        Map.Entry<BlockPos, Double> returnVal = null;
+        for (Map.Entry<BlockPos, Double> entry : blocksList.entrySet()) {
+            if (entry.getValue() != null) {
+                if (returnVal == null || entry.getValue() < returnVal.getValue()) {
+                    returnVal = entry;
+                }
+            }
+        }
+        if (returnVal != null) {
+            return returnVal.getKey();
+        } else {
+            return new BlockPos(0, 0, 0);
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package me.jacktym.aiomacro.rendering;
 
 import me.jacktym.aiomacro.Main;
+import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -25,7 +26,7 @@ public class BeaconRendering {
 
     @SubscribeEvent
     public void beaconRendering(RenderWorldLastEvent event) {
-        if (Main.notNull) {
+        if (Main.notNull && AIOMVigilanceConfig.renderingEnabled) {
             for (Map.Entry<String, ArrayList<Integer>> data : beaconData.entrySet()) {
                 int xGlobal = data.getValue().get(0);
                 int yGlobal = data.getValue().get(1);

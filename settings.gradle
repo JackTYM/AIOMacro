@@ -31,6 +31,10 @@ pluginManagement {
             name = "Essential"
             url = 'https://repo.essential.gg/repository/maven-public'
         }
+        maven {
+            name = "PolyFrost"
+            url 'https://repo.polyfrost.cc/releases'
+        }
     }
 
     resolutionStrategy {

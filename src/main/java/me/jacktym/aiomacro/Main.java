@@ -4,16 +4,19 @@ import gg.essential.elementa.effects.StencilEffect;
 import gg.essential.universal.UMinecraft;
 import gg.essential.universal.UScreen;
 import kotlin.jvm.internal.Intrinsics;
+import me.jacktym.aiomacro.commands.AIOC;
 import me.jacktym.aiomacro.commands.AIOM;
 import me.jacktym.aiomacro.config.AIOMVigilanceConfig;
+import me.jacktym.aiomacro.features.*;
+import me.jacktym.aiomacro.features.coins.Trades;
 import me.jacktym.aiomacro.keybinds.ModInputHandler;
-import me.jacktym.aiomacro.macros.*;
-import me.jacktym.aiomacro.macros.coins.Trades;
 import me.jacktym.aiomacro.proxy.ClientProxy;
 import me.jacktym.aiomacro.proxy.CommonProxy;
+import me.jacktym.aiomacro.proxy.PacketHandler;
 import me.jacktym.aiomacro.rendering.BeaconRendering;
 import me.jacktym.aiomacro.rendering.BlockRendering;
 import me.jacktym.aiomacro.rendering.CosmeticRendering;
+import me.jacktym.aiomacro.rendering.Renderer;
 import me.jacktym.aiomacro.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -142,6 +145,7 @@ public class Main {
         proxy.init(event);
 
         ClientCommandHandler.instance.registerCommand(new AIOM());
+        ClientCommandHandler.instance.registerCommand(new AIOC());
 
         List<Object> registry = new ArrayList<>();
         registry.add(new ModInputHandler());
@@ -150,6 +154,7 @@ public class Main {
         registry.add(new FarmingHUD());
         registry.add(new NetherWart());
         registry.add(new SugarCane());
+        registry.add(new OneRow());
         registry.add(new AntiStuck());
         registry.add(new Nuker());
         registry.add(new SetPlayerLook());
@@ -178,12 +183,25 @@ public class Main {
         registry.add(new CarpentryMacro());
         registry.add(new Kuudra());
         registry.add(new Trades());
+        registry.add(new AuctionFlipper());
+        registry.add(new DungeonRoomDetection());
+        registry.add(new me.jacktym.aiomacro.rendering.LineRendering());
+        registry.add(new AHSearchExtension());
+        registry.add(new AHReSkin());
+        registry.add(new Renderer());
+        registry.add(new BlockRendering());
+        registry.add(new PacketHandler());
+        registry.add(new TPS());
+        registry.add(new ModInputHandler());
+        registry.add(new BookCombine());
+        registry.add(new RuneCombine());
+        registry.add(new JerryBoxMacro());
 
         registry.forEach(MinecraftForge.EVENT_BUS::register);
 
         StencilEffect.Companion.enableStencil();
 
-        ClientProxy.keyBindings = new KeyBinding[8];
+        ClientProxy.keyBindings = new KeyBinding[10];
 
         ClientProxy.keyBindings[0] = new KeyBinding("Toggle Macro", Keyboard.KEY_DELETE, "All-In-One Macro");
         ClientProxy.keyBindings[1] = new KeyBinding("Open Gui", Keyboard.KEY_BACKSLASH, "All-In-One Macro");
@@ -193,6 +211,8 @@ public class Main {
         ClientProxy.keyBindings[5] = new KeyBinding("VerticalClip", Keyboard.KEY_GRAVE, "All-In-One Macro");
         ClientProxy.keyBindings[6] = new KeyBinding("HorizontalClip", Keyboard.KEY_ADD, "All-In-One Macro");
         ClientProxy.keyBindings[7] = new KeyBinding("Refresh Diana Waypoints", Keyboard.KEY_PAUSE, "All-In-One Macro");
+        ClientProxy.keyBindings[8] = new KeyBinding("Toggle Packet Cancelling", Keyboard.KEY_END, "All-In-One Macro");
+        ClientProxy.keyBindings[9] = new KeyBinding("Toggle Path Recording", Keyboard.KEY_F8, "All-In-One Macro");
 
         for (int i = 0; i < ClientProxy.keyBindings.length; i++) {
             ClientRegistry.registerKeyBinding(ClientProxy.keyBindings[i]);
@@ -201,10 +221,9 @@ public class Main {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent postEvent) {
+        proxy.postInit(postEvent);
 
         Utils.updateBazaarApi();
-
-        proxy.postInit(postEvent);
 
         RenderPlayer slim_render = Main.mc.getRenderManager().getSkinMap().get("slim");
         slim_render.addLayer(new CosmeticRendering(slim_render));
@@ -230,6 +249,7 @@ public class Main {
             mcPlayer.addChatMessage(new ChatComponentText(EnumChatFormatting.DARK_PURPLE + "[" + EnumChatFormatting.LIGHT_PURPLE + "AIOM" + EnumChatFormatting.DARK_PURPLE + "] " + EnumChatFormatting.RESET + "A New Update Is Available! You could be missing out on new features or bugfixes! "));
             mcPlayer.addChatMessage(linkMessage);
             sentUpdateReminder = true;
+
         }
     }
 
